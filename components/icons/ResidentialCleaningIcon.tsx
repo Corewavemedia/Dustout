@@ -1,0 +1,18 @@
+import React from 'react';
+
+const ResidentialCleaningIcon = () => {
+  return (
+    <svg width="81" height="81" viewBox="0 0 81 81" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g clipPath="url(#clip0_23_85)">
+        <path d="M79.4688 36.9208L44.0313 1.48331C43.0429 0.494859 41.7469 0 40.4522 0C39.1574 0 37.8614 0.494859 36.873 1.48331L1.43546 36.9208C-0.541441 38.9028 -0.442723 42.0036 1.53418 43.9805C3.51615 45.9675 6.41317 46.2599 8.3964 44.2766L10.1252 42.5465V75.9375C10.1252 78.7358 12.3895 81 15.1877 81H35.4377V60.75H45.5627V81H65.8127C68.611 81 70.8752 78.7358 70.8752 75.9375V42.6452L72.3877 44.1577C74.3646 46.1346 77.3856 45.9574 79.3689 43.9792C81.347 42.0036 81.4508 38.8977 79.4688 36.9208Z" fill="white"/>
+      </g>
+      <defs>
+        <clipPath id="clip0_23_85">
+          <rect width="81" height="81" fill="white"/>
+        </clipPath>
+      </defs>
+    </svg>
+  );
+};
+
+export default ResidentialCleaningIcon; 

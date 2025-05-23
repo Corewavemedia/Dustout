@@ -1,0 +1,52 @@
+@import url('/fonts/Majer.woff2');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 9%;
+
+    --primary-blue: 213 71% 46%;
+    --dark-blue: 214 80% 24%;
+    --light-blue: 213 71% 87%;
+    --mint-green: 151 100% 90%;
+    --cyan: 174 100% 87%;
+    --bg-light: 214 71% 98%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 0 0% 4%;
+    --foreground: 0 0% 93%;
+  }
+
+  @font-face {
+    font-family: 'Majer';
+    src: url('/fonts/Majer.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+}
+
+@layer components {
+  .bubble {
+    @apply bg-primary-blue/20 backdrop-blur-sm rounded-full;
+  }
+
+  .gradient-blue {
+    @apply bg-gradient-to-b from-[rgb(var(--primary-blue))] to-[rgb(var(--dark-blue))];
+  }
+}
+
+@layer utilities {
+  .font-majer {
+    font-family: 'Majer', sans-serif;
+  }
+}
