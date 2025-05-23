@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import ExpertiseIcon from './icons/ExpertiseIcon';
 import EcoFriendlyIcon from './icons/EcoFriendlyIcon';
 import CustomerCareIcon from './icons/CustomerCareIcon';
@@ -39,31 +40,85 @@ const WhyChooseUs = () => {
     },
   ];
 
+  // Animation variants for staggered children
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2
+      }
+    }
+  };
+
+  // Animation for each card
+  const cardVariants = {
+    hidden: { opacity: 0, scale: 0.8, rotateY: 90 },
+    visible: { 
+      opacity: 1, 
+      scale: 1, 
+      rotateY: 0,
+      transition: { 
+        type: "spring", 
+        stiffness: 50,
+        duration: 0.2
+      } 
+    },
+    hover: { 
+      scale: 1.05, 
+      boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.2)",
+      transition: { duration: 0.3 }
+    }
+  };
+
   return (
     <section className="py-16 px-4 md:px-8 bg-white" id="why-choose-us">
       <div className="container mx-auto">
-        <h2 className="text-4xl md:text-5xl font-bold text-center text-blue-600 mb-16">
+        <motion.h2 
+          initial={{ opacity: 0, y: -50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, type: "spring" }}
+          viewport={{ once: true }}
+          className="text-4xl md:text-5xl font-bold text-center text-blue-600 mb-16"
+        >
           Why Choose Us
-        </h2>
+        </motion.h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
+        >
           {features.map((feature, index) => (
-            <div 
+            <motion.div 
               key={index} 
-              className={`${feature.bgColor} rounded-lg p-8 flex flex-col items-center text-center transform transition duration-300 hover:scale-105 hover:shadow-xl`}
+              variants={cardVariants}
+              whileHover="hover"
+              className={`${feature.bgColor} rounded-lg p-8 flex flex-col items-center text-center`}
             >
-              <div className="mb-4">
+              <motion.div 
+                className="mb-4"
+                animate={{ rotateY: [0, 360] }}
+                transition={{ duration: 3, repeat: Infinity, repeatDelay: 5, ease: "linear" }}
+              >
                 {feature.icon}
-              </div>
-              <h3 className="text-xl font-semibold text-white mb-2">
+              </motion.div>
+              <motion.h3 
+                className="text-xl font-semibold text-white mb-2"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5, duration: 0.5 }}
+              >
                 {feature.title}
-              </h3>
-            </div>
+              </motion.h3>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
 };
 
-export default WhyChooseUs; 
+export default WhyChooseUs;

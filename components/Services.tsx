@@ -94,10 +94,10 @@ const ServicesSection = () => {
           {services.map((service, index) => (
             <motion.div
               key={service.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, x: index % 2 === 0 ? -100 : 100 }}
+              whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
+              transition={{ duration: 0.7, delay: index * 0.1, type: "spring", stiffness: 50 }}
               className="bg-blue-500 rounded-xl p-8 text-center shadow-md"
             >
               <div className="flex flex-col items-center">
@@ -115,10 +115,10 @@ const ServicesSection = () => {
           {services.map((service, index) => (
             <motion.div
               key={service.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, x: index % 2 === 0 ? -100 : 100 }}
+              whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
+              transition={{ duration: 0.7, delay: index * 0.1, type: "spring", stiffness: 50 }}
               className="bg-blue-500 rounded-2xl p-8 text-center shadow-md border-2 border-dashed border-white"
             >
               <div className="flex flex-col items-center">
