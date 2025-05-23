@@ -13,7 +13,7 @@ const services = [
 ];
 
 // Client images 
-const clients = ["/images/person1.jpg", "/images/person2.jpg", "/images/person3.jpg"];
+const clients = ["/images/person3.jpg", "/images/person2.jpg", "/images/person1.jpg", "/images/person4.jpg"];
 
 export default function Hero() {
   return (
