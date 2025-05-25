@@ -18,7 +18,7 @@ const clients = ["/images/person3.jpg", "/images/person2.jpg", "/images/person1.
 export default function Hero() {
   return (
     <>
-      <section className="relative overflow-hidden bg-blue-50">
+      <section className="relative overflow-hidden bg-blue-50 2xl:pt-24">
         {/* Background bubbles */}
         <div className="absolute inset-0 pointer-events-none">
           <Image
