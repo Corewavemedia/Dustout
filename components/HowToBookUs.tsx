@@ -44,7 +44,7 @@ const HowToBookUs = () => {
           <path d="M21.5 32.2498C30.4583 32.2498 32.25 23.2915 32.25 23.2915H10.75C10.75 23.2915 12.5417 32.2498 21.5 32.2498Z" fill="#12B368"/> 
         </svg>
       ),
-      description: "You are satisfied and recomend us to others while we await your call again."
+      description: "You are satisfied and recommend us to others while we await your call again."
     },
   ];
 
