@@ -49,25 +49,26 @@ const HowToBookUs = () => {
   ];
 
   return (
-    <section className="relative py-12 px-4 md:px-10 bg-blue-50 overflow-hidden flex items-center justify-center" id="how-to-book">
+    <section className="relative py-12 px-4 md:px-10 bg-white overflow-hidden flex items-center justify-center" id="how-to-book">
       <div className="container mx-auto md:px-20 flex items-center justify-center flex-col">
         <h2 className="text-3xl md:text-4xl font-bold text-blue-600 mb-8 md:mb-12 font-majer">
           How to Book Us
         </h2>
         
-        <div className="flex flex-col md:flex-row">
-          {/* Steps content on the left */}
-          <div className="md:w-1/2">
-            <div className="space-y-4">
+
+        <div className="relative w-full">
+          {/* Steps content - now full width on desktop */}
+          <div className="w-full">
+            <div className="space-y-8 md:space-y-4 px-4 md:px-16">
               {steps.map((step, index) => (
                 <div 
                   key={index} 
-                  className="flex items-center gap-4  bg-white p-4 rounded-lg shadow-sm"
+                  className="flex items-center justify-center md:items-start md:justify-start flex-col md:flex-row gap-4  bg-[#538FDF30] p-4 rounded-lg shadow-sm"
                 >
-                  <div className="w-8 h-8 rounded-md flex items-center justify-center">
+                  <div className="w-14 h-8 rounded-md flex items-center justify-center">
                     {step.icon}
                   </div>
-                  <p className="text-blue-700 font-semibold">
+                  <p className="text-blue-700 font-semibold text-center md:text-left md:w-1/2">
                     {step.description}
                   </p>
                 </div>
@@ -75,14 +76,14 @@ const HowToBookUs = () => {
             </div>
           </div>
           
-          {/* Image on the right */}
-          <div className="md:absolute md:right-24 md:top-1/2 md:transform md:-translate-y-1/2 md:w-1/2 mt-8 md:mt-0">
+          {/* Image - adjusted positioning for overlap */}
+          <div className="md:absolute md:right-0 md:top-1/2 md:transform md:-translate-y-1/2 md:w-1/2 mt-8 md:mt-0 z-10">
             <div className="relative w-full h-[400px] md:h-[500px]">
               <Image
                 src="/images/howToBookUs.png"
                 alt="How to Book Dustout Cleaning Services"
                 fill
-                className="object-contain scale-150 translate-y-[30%] translate-x-[-10%]"
+                className="object-cover scale-150 translate-y-[30%] translate-x-[-10%]"
                 sizes="(max-width: 768px) 100vw, 50vw"
               />
             </div>

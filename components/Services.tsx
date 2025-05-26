@@ -9,38 +9,6 @@ import {services} from './data/ServicesData';
 const ServicesSection = () => {
   return (
     <section id="services" className="py-20 relative overflow-hidden bg-sky-50">
-      {/* Background bubbles */}
-      <div className="absolute inset-0 pointer-events-none">
-        <Image
-          src="/images/bubble.png"
-          alt="Bubble"
-          width={200}
-          height={200}
-          className="absolute top-20 left-10 opacity-20"
-        />
-        <Image
-          src="/images/bubble.png"
-          alt="Bubble"
-          width={100}
-          height={100}
-          className="absolute top-40 right-20 opacity-15"
-        />
-        <Image
-          src="/images/bubble.png"
-          alt="Bubble"
-          width={150}
-          height={150}
-          className="absolute bottom-20 left-1/4 opacity-25"
-        />
-        <Image
-          src="/images/bubble.png"
-          alt="Bubble"
-          width={80}
-          height={80}
-          className="absolute bottom-40 right-1/3 opacity-20"
-        />
-      </div>
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -57,7 +25,7 @@ const ServicesSection = () => {
         </motion.div>
 
         {/* Mobile view - Vertical cards */}
-        <div className="grid grid-cols-1 gap-8 md:hidden">
+        <div className="grid grid-cols-1 gap-8 md:hidden px-6">
           {services.map((service, index) => (
             <motion.div
               key={service.id}

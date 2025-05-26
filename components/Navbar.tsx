@@ -62,25 +62,25 @@ export default function Navbar() {
             <div className="ml-10 flex items-center space-x-8">
               <Link
                 href="/#contact"
-                className="text-blue-500 hover:text-cyan font-majer font-bold text-lg"
+                className="text-blue-500 hover:text-cyan font-majer font-normal text-lg"
               >
                 Contact
               </Link>
               <Link
                 href="/#about"
-                className="text-blue-500 hover:text-cyan font-majer font-bold text-lg"
+                className="text-blue-500 hover:text-cyan font-majer font-normal text-lg"
               >
                 About Us
               </Link>
               <Link
                 href="/#booking"
-                className="text-blue-500 hover:text-cyan font-majer font-bold text-lg"
+                className="text-blue-500 hover:text-cyan font-majer font-normal text-lg"
               >
                 Book Us
               </Link>
               <Link
                 href="/#get-started"
-                className="bg-blue-700 text-white px-6 py-2 rounded-full font-majer font-bold text-lg hover:bg-mint-green transition-colors"
+                className="bg-blue-700 text-white px-6 py-2 rounded-full font-majer font-normal text-lg hover:bg-mint-green transition-colors"
               >
                 Get Started
               </Link>

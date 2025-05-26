@@ -93,7 +93,7 @@ const WhyChooseUs = ({ isAboutPage = false }: WhyChooseUsProps) => {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className={`grid ${isAboutPage ? 'grid-cols-2' : 'grid-cols-1'} md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8`}
+          className={`grid ${isAboutPage ? 'grid-cols-2' : 'grid-cols-1'} md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 px-6`}
         >
           {features.map((feature, index) => (
             <motion.div 

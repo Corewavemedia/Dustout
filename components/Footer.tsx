@@ -5,7 +5,8 @@ import Image from 'next/image';
 
 const Footer = () => {
   return (
-    <footer className="bg-primary-blue text-white py-8">
+    <footer className="py-8 px-4 md:px-10">
+      <div className='bg-primary-blue text-white py-8 rounded-2xl'>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row justify-center md:justify-between md:items-center">
           <div className="flex items-center justify-center mb-10 md:mb-0">
@@ -19,7 +20,7 @@ const Footer = () => {
             </Link>
           </div>
 
-          <div className="mb-6 md:mb-0 flex justify-center items-center flex-col text-center">
+          <div className="mb-6 md:mb-0 flex justify-center md:justify-start md:items-start items-center flex-col text-center md:text-left">
             <h3 className="text-xl font-bold mb-4">Contact Us</h3>
             <ul className="space-y-2">
               <li>
@@ -61,6 +62,7 @@ const Footer = () => {
             </a>
           </div>
         </div>
+      </div>
       </div>
       </div>
     </footer>

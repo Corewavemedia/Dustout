@@ -6,7 +6,7 @@ import AboutSection from "@/components/About";
 import ContactSection from "@/components/TestimonialSection";
 import Footer from "@/components/Footer";
 import Hero from "@/components/Hero";
-import BookingForm from "@/components/BookingForm";
+import BookingForm, { MobileBookingForm } from "@/components/BookingForm";
 import PricingSection from "@/components/PricingSection";
 import WhyChooseUs from "@/components/WhyChooseUs";
 import HowToBookUs from "@/components/HowToBookUs";
@@ -18,7 +18,10 @@ export default function Home() {
       <main className="overflow-hidden">
         <Hero />
         <AboutSection />
+        {/* Mobile Booking Form - shows only on mobile right after About section */}
+        <MobileBookingForm />
         <ServicesSection />
+        {/* Desktop Booking Form - shows only on desktop */}
         <BookingForm />
         <PricingSection />
         <WhyChooseUs />
