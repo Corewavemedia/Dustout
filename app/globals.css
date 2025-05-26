@@ -1,4 +1,3 @@
-@import url('/fonts/Majer.woff2');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -25,7 +24,8 @@
 
   @font-face {
     font-family: 'Majer';
-    src: url('/fonts/Majer.woff2') format('woff2');
+    src: url('/fonts/majer/Majer.ttf') format('truetype'),
+         url('/fonts/majer/Majer.otf') format('opentype');
     font-weight: 400;
     font-style: normal;
   }

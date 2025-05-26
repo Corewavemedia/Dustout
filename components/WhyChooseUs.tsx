@@ -6,7 +6,11 @@ import CustomerCareIcon from './icons/CustomerCareIcon';
 import HomeHandlingIcon from './icons/HomeHandlingIcon';
 import CleaningContainerIcon from './icons/CleaningContainerIcon';
 
-const WhyChooseUs = () => {
+interface WhyChooseUsProps {
+  isAboutPage?: boolean;
+}
+
+const WhyChooseUs = ({ isAboutPage = false }: WhyChooseUsProps) => {
   const features = [
     {
       icon: <ExpertiseIcon className="w-20 h-20 text-white" />,
@@ -79,7 +83,7 @@ const WhyChooseUs = () => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, type: "spring" }}
           viewport={{ once: true }}
-          className="text-4xl md:text-5xl font-bold text-center text-blue-600 mb-16"
+          className="text-4xl md:text-5xl font-bold font-majer text-center text-blue-600 mb-16"
         >
           Why Choose Us
         </motion.h2>
@@ -89,14 +93,14 @@ const WhyChooseUs = () => {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
+          className={`grid ${isAboutPage ? 'grid-cols-2' : 'grid-cols-1'} md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8`}
         >
           {features.map((feature, index) => (
             <motion.div 
               key={index} 
               variants={cardVariants}
               whileHover="hover"
-              className={`${feature.bgColor} rounded-lg p-8 flex flex-col items-center text-center`}
+              className={`${feature.bgColor} rounded-lg p-4 flex flex-col items-center text-center`}
             >
               <motion.div 
                 className="mb-4"
@@ -106,7 +110,7 @@ const WhyChooseUs = () => {
                 {feature.icon}
               </motion.div>
               <motion.h3 
-                className="text-xl font-semibold text-white mb-2"
+                className="text-xl font-medium font-majer text-white mb-2"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5, duration: 0.5 }}

@@ -51,7 +51,7 @@ const HowToBookUs = () => {
   return (
     <section className="relative py-12 px-4 md:px-10 bg-blue-50 overflow-hidden flex items-center justify-center" id="how-to-book">
       <div className="container mx-auto md:px-20 flex items-center justify-center flex-col">
-        <h2 className="text-3xl md:text-4xl font-bold text-blue-600 mb-8 md:mb-12">
+        <h2 className="text-3xl md:text-4xl font-bold text-blue-600 mb-8 md:mb-12 font-majer">
           How to Book Us
         </h2>
         
@@ -67,7 +67,7 @@ const HowToBookUs = () => {
                   <div className="w-8 h-8 rounded-md flex items-center justify-center">
                     {step.icon}
                   </div>
-                  <p className="text-blue-700 font-medium">
+                  <p className="text-blue-700 font-semibold">
                     {step.description}
                   </p>
                 </div>

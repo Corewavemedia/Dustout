@@ -2,46 +2,9 @@
 
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import LandscapingIcon from './icons/LandscapingIcon';
-import ResidentialCleaningIcon from './icons/ResidentialCleaningIcon';
-import IndustrialCleaningIcon from './icons/IndustrialCleaningIcon';
-import FumigationIcon from './icons/FumigationIcon';
-import RefuseDisposalIcon from './icons/RefuseDisposalIcon';
-import DeepCleaningIcon from './icons/DeepCleaningIcon';
+import {services} from './data/ServicesData';
 
-// Updated services array to match the image
-const services = [
-  {
-    id: 1,
-    title: 'Landscaping',
-    icon: LandscapingIcon,
-  },
-  {
-    id: 2,
-    title: 'Residential Cleaning',
-    icon: ResidentialCleaningIcon,
-  },
-  {
-    id: 3,
-    title: 'Industrial Cleaning',
-    icon: IndustrialCleaningIcon,
-  },
-  {
-    id: 4,
-    title: 'Fumigation',
-    icon: FumigationIcon,
-  },
-  {
-    id: 5,
-    title: 'Refuse Disposal',
-    icon: RefuseDisposalIcon,
-  },
-  {
-    id: 6,
-    title: 'Deep Cleaning',
-    icon: DeepCleaningIcon,
-  }
-];
+
 
 const ServicesSection = () => {
   return (
@@ -86,7 +49,11 @@ const ServicesSection = () => {
           transition={{ duration: 0.8 }}
           className="text-center mb-16"
         >
-          <h2 className="text-5xl text-blue-600 mb-4">Our Services</h2>
+           <div className='pt-16 flex justify-center items-center text-center'>
+                <span className="text-4xl sm:text-5xl text-blue-700 font-bold font-majer leading-tight block">
+                Our Services
+              </span>
+            </div>
         </motion.div>
 
         {/* Mobile view - Vertical cards */}
@@ -98,7 +65,7 @@ const ServicesSection = () => {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.7, delay: index * 0.1, type: "spring", stiffness: 50 }}
-              className="bg-blue-500 rounded-xl p-8 text-center shadow-md"
+              className="bg-blue-500 rounded-xl p-8 text-center shadow-md border-2 border-dashed border-r-white"
             >
               <div className="flex flex-col items-center">
                 <div className="w-16 h-16 mb-10">

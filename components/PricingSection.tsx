@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Check, Briefcase, Zap, Shield } from "lucide-react";
+import { Check } from "lucide-react";
 import Image from "next/image";
 
 const residentialPlans = [
@@ -10,51 +10,33 @@ const residentialPlans = [
     price: "39",
     features: [
       "Professional Cleaning",
-      "3 Bedrooms, 3 toilets",
+      "3 bedrooms, 3 toilets",
       "Rug and Carpet",
       "Landscaping 200sqm",
       "Moping and Cleaning",
     ],
-    bgColor: "bg-blue-600",
-    buttonColor: "bg-green-500",
-    hoverButtonColor: "hover:bg-green-600",
-    textColor: "text-white",
-    checkIconColor: "text-blue-600",
-    checkBgColor: "bg-green-200",
   },
   {
     name: "PROFESSIONAL",
     price: "59",
     features: [
       "Professional Cleaning",
-      "3 Bedrooms, 3 toilets",
+      "3 bedrooms, 3 toilets",
       "Rug and Carpet",
       "Landscaping 200sqm",
       "Moping and Cleaning",
     ],
-    bgColor: "bg-blue-600",
-    buttonColor: "bg-green-500",
-    hoverButtonColor: "hover:bg-green-600",
-    textColor: "text-white",
-    checkIconColor: "text-blue-600",
-    checkBgColor: "bg-green-200",
   },
   {
     name: "PREMIUM",
     price: "79",
     features: [
       "Professional Cleaning",
-      "3 Bedrooms, 3 toilets",
+      "3 bedrooms, 3 toilets",
       "Rug and Carpet",
       "Landscaping 200sqm",
       "Moping and Cleaning",
     ],
-    bgColor: "bg-blue-600",
-    buttonColor: "bg-green-500",
-    hoverButtonColor: "hover:bg-green-600",
-    textColor: "text-white",
-    checkIconColor: "text-blue-600",
-    checkBgColor: "bg-green-200",
   },
 ];
 
@@ -69,13 +51,6 @@ const industrialPlans = [
       "High-Pressure Surface Cleaning",
       "Safety Compliance Checks",
     ],
-    bgColor: "bg-slate-800",
-    buttonColor: "bg-yellow-500",
-    hoverButtonColor: "hover:bg-yellow-400",
-    textColor: "text-gray-100",
-    checkIconColor: "text-yellow-500",
-    checkBgColor: "bg-slate-700",
-    Icon: Briefcase,
   },
   {
     name: "HEAVY DUTY",
@@ -87,13 +62,6 @@ const industrialPlans = [
       "Confined Space Cleaning",
       "24/7 Emergency Support",
     ],
-    bgColor: "bg-gray-900",
-    buttonColor: "bg-amber-500",
-    hoverButtonColor: "hover:bg-amber-400",
-    textColor: "text-gray-50",
-    checkIconColor: "text-amber-500",
-    checkBgColor: "bg-gray-800",
-    Icon: Zap,
   },
   {
     name: "CRITICAL RESPONSE",
@@ -105,13 +73,6 @@ const industrialPlans = [
       "Specialized Equipment Cleaning",
       "Dedicated Site Supervisor",
     ],
-    bgColor: "bg-black",
-    buttonColor: "bg-orange-500",
-    hoverButtonColor: "hover:bg-orange-400",
-    textColor: "text-white",
-    checkIconColor: "text-orange-500",
-    checkBgColor: "bg-neutral-800",
-    Icon: Shield,
   },
 ];
 
@@ -123,44 +84,41 @@ const PricingSection = () => {
   return (
     <section
       id="pricing"
-      className={`py-16 relative overflow-hidden bg-gradient-to-b  ${activeTab !== "residential" ? "dark:from-neutral-900 dark:to-neutral-950" : "from-white to-gray-100"}`}
+      className={`py-16 relative overflow-hidden ${activeTab === "residential" ? "bg-blue-50" : "bg-white"}`}
     >
-      {/* Background image */}
-      <div className="absolute -top-40 right-0 w-full h-full opacity-50 z-0 pointer-events-none">
+      {/* Background bubbles */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         <Image
           src="/images/bubble.png"
-          alt="background pattern"
-          layout="fill"
-          objectFit="cover"
-          className="translate-x-[70%] rotate-12"
+          alt="Background Bubble"
+          width={600}
+          height={600}
+          className="absolute top-0 right-0 opacity-20 translate-x-1/2 -translate-y-1/4"
         />
       </div>
 
-      <div className="container mx-auto px-4 relative z-10">
-        <div className="text-center mb-12">
-          <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${activeTab !== "residential" ? "text-white" : "text-gray-800"}`}>
-            Our Pricing Plans
-          </h2>
-        </div>
+       {/* Dark blue background at the bottom */}
+       <div className="absolute hidden md:block bottom-0 left-0 right-0 h-80 bg-[#020223]" aria-hidden="true"></div>
 
+      <div className="container mx-auto px-4 relative z-10">
         {/* Toggle buttons */}
         <div className="flex justify-center mb-12">
-          <div className="inline-flex bg-gray-200 dark:bg-neutral-800 rounded-full p-1 shadow-md">
+          <div className="inline-flex rounded-xl overflow-hidden">
             <button
-              className={`px-6 py-2 rounded-full font-semibold transition-all duration-300 ease-in-out text-sm md:text-base ${
+              className={`px-8 py-2 font-medium font-majer transition-all duration-300 ease-in-out ${
                 activeTab === "residential"
-                  ? "bg-blue-600 text-white shadow-lg"
-                  : "text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-neutral-700"
+                  ? "bg-blue-600 text-white"
+                  : "bg-blue-100 text-blue-800 hover:bg-blue-200"
               }`}
               onClick={() => setActiveTab("residential")}
             >
               Residential
             </button>
             <button
-              className={`px-6 py-2 rounded-full font-semibold transition-all duration-300 ease-in-out text-sm md:text-base ${
+              className={`px-8 py-2 font-medium font-majer transition-all duration-300 ease-in-out ${
                 activeTab === "industrial"
-                  ? "bg-slate-700 text-white shadow-lg"
-                  : "text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-neutral-700"
+                  ? "bg-blue-600 text-white"
+                  : "bg-blue-100 text-blue-800 hover:bg-blue-200"
               }`}
               onClick={() => setActiveTab("industrial")}
             >
@@ -170,46 +128,37 @@ const PricingSection = () => {
         </div>
 
         {/* Pricing cards container */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
           {plans.map((plan, index) => (
             <div 
               key={index} 
-              className={`
-                ${plan.bgColor} ${plan.textColor} 
-                rounded-xl shadow-2xl overflow-hidden 
-                transform transition-all duration-300 hover:scale-105 hover:shadow-blue-400/50 dark:hover:shadow-yellow-400/40
-                flex flex-col
-              `}
+              className="bg-gradient-to-b from-[#176FD4] to-[#0C3A6E] text-white rounded-xl overflow-hidden flex flex-col"
             >
-              <div className="p-6 md:p-8 text-center flex-grow">
-                <h3 className="text-xl lg:text-2xl font-bold uppercase mb-4 tracking-wider">
+              <div className="p-6 text-center">
+                <h3 className="text-lg font-bold text-[#CDFFE8] mb-4">
                   {plan.name}
                 </h3>
                 <div className="flex items-baseline justify-center mb-1">
-                  <span className={`text-2xl font-medium ${plan.textColor === 'text-white' || plan.textColor === 'text-gray-50' || plan.textColor === 'text-gray-100' ? 'opacity-80' : 'opacity-70'}`}>£</span>
-                  <span className="text-6xl lg:text-7xl font-extrabold mx-1">{plan.price}</span>
-                  <span className={`text-xl lg:text-2xl font-bold ${plan.textColor === 'text-white' || plan.textColor === 'text-gray-50' || plan.textColor === 'text-gray-100' ? 'opacity-80' : 'opacity-70'}`}>.99</span>
+                  <span className="text-2xl">£</span>
+                  <span className="text-6xl font-bold font-majer mx-1">{plan.price}</span>
+                  <span className="text-xl font-majer">.99</span>
                 </div>
-                <p className={`mt-0 mb-6 text-sm ${plan.textColor === 'text-white' || plan.textColor === 'text-gray-50' || plan.textColor === 'text-gray-100' ? 'opacity-70' : 'opacity-60'}`}>Per Month</p>
+                <p className="mt-0 mb-4 text-sm opacity-80 font-majer">Monthly</p>
                 
-                <ul className="text-left space-y-3 mb-8 text-sm md:text-base">
+                <ul className="text-left space-y-3 mb-6">
                   {plan.features.map((feature, i) => (
-                    <li key={i} className="flex items-start">
-                      <div className={`rounded-md p-1 mr-3 flex-shrink-0 ${plan.checkBgColor} shadow-sm`}>
-                        <Check className={`h-4 w-4 ${plan.checkIconColor}`} />
+                    <li key={i} className="flex items-center">
+                      <div className="bg-green-200 rounded-md p-1 mr-2">
+                        <Check className="h-4 w-4 text-blue-600" />
                       </div>
-                      <span className={`${plan.textColor === 'text-white' || plan.textColor === 'text-gray-50' || plan.textColor === 'text-gray-100' ? 'opacity-90' : ''}`}>{feature}</span>
+                      <span>{feature}</span>
                     </li>
                   ))}
                 </ul>
               </div>
-              <div className="p-6 md:p-8 mt-auto">
+              <div className="p-4 mt-auto">
                 <button 
-                  className={`w-full ${plan.buttonColor} ${plan.hoverButtonColor} 
-                  ${plan.textColor === "text-white" || plan.textColor === "text-gray-50" || plan.textColor === "text-gray-100" ? "text-white" : "text-gray-800"} 
-                  font-semibold py-3 rounded-lg transition-colors duration-300 text-base md:text-lg shadow-md hover:shadow-lg_UPPERCASE}$
-                  uppercase tracking-wider
-                  `}
+                  className="w-full bg-green-500 text-white font-majer font-medium py-3 rounded-lg hover:bg-green-600 transition-colors duration-300"
                 >
                   Choose
                 </button>

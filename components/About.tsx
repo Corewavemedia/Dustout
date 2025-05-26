@@ -56,7 +56,7 @@ const AboutSection = () => {
             transition={{ duration: 0.8 }}
             className="mb-8"
           >
-            <div className="text-center">
+            <div className="text-center font-majer">
               <span className="text-green-500 font-medium">About Us</span>
               <h2 className="text-3xl font-bold text-blue-600 mb-5">
                 Best Cleaning in The UK
@@ -70,10 +70,10 @@ const AboutSection = () => {
                     key={index}
                     className="flex items-center bg-sky-100 rounded-md p-2"
                   >
-                    <div className="bg-white border border-blue-600 p-1 rounded-md mr-2">
+                    <div className="border border-blue-600 p-1 rounded-md mr-2">
                       <CheckIcon className="h-4 w-4 text-blue-600" />
                     </div>
-                    <span className="font-medium text-blue-600 text-sm">
+                    <span className="font-semibold text-blue-600 text-sm">
                       {feature}
                     </span>
                   </div>
@@ -81,7 +81,7 @@ const AboutSection = () => {
               )}
             </div>
 
-            <p className="text-gray-600 mb-6 leading-relaxed text-sm">
+            <p className="mb-6 leading-relaxed text-sm font-semibold text-[#777777] text-justify">
               At DustOut, we are the UK&apos;s top cleaning agency, specializing in
               industrial cleaning, residential cleaning, fumigation, and
               landscaping.
@@ -110,7 +110,7 @@ const AboutSection = () => {
               {/* Left column - Two stacked images */}
               <div className="col-span-2 grid grid-rows-2 gap-2">
                 {/* Top left image */}
-                <div className="rounded-lg overflow-hidden shadow-md">
+                <div className="rounded-3xl overflow-hidden shadow-md">
                   <div className="relative h-full">
                     <Image
                       src="/images/modern-house.png"
@@ -122,7 +122,7 @@ const AboutSection = () => {
                 </div>
 
                 {/* Bottom left image */}
-                <div className="rounded-lg overflow-hidden shadow-md">
+                <div className="rounded-3xl overflow-hidden shadow-md">
                   <div className="relative h-full">
                     <Image
                       src="/images/worker-cleaning.png"
@@ -135,7 +135,7 @@ const AboutSection = () => {
               </div>
 
               {/* Right column - Taller image */}
-              <div className="col-span-3 rounded-lg overflow-hidden shadow-md">
+              <div className="col-span-3 rounded-3xl overflow-hidden shadow-md">
                 <div className="relative h-full">
                   <Image
                     src="/images/men-high-five.png"
@@ -148,7 +148,7 @@ const AboutSection = () => {
             </div>
 
             {/* Bottom merged images - Two images that appear as one */}
-            <div className="rounded-lg overflow-hidden shadow-md h-24 bg-blue-400">
+            <div className="rounded-3xl overflow-hidden shadow-md h-24 bg-blue-400">
               <div className="grid grid-cols-2 h-full">
                 <div className="relative h-full">
                   <Image
@@ -254,13 +254,13 @@ const AboutSection = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <div className="sticky top-20">
+            <div className="sticky top-20 font-majer">
               <span className="text-green-500 font-medium">About Us</span>
               <h2 className="text-4xl md:text-5xl font-bold text-blue-600 mb-6">
                 Best Cleaning in The UK
               </h2>
 
-              <p className="text-gray-600 mb-8 leading-relaxed">
+              <p className="text-gray-600 mb-8 leading-relaxed font-poppins font-normal">
                 At DustOut, we are the UK&apos;s top cleaning agency, specializing in
                 industrial cleaning, residential cleaning, fumigation, and
                 landscaping.
@@ -280,7 +280,7 @@ const AboutSection = () => {
                       key={index}
                       className="flex items-center bg-sky-100 rounded-md p-3"
                     >
-                      <div className="bg-white p-1.5 border-2 border-blue-600 rounded-md mr-3">
+                      <div className="p-1.5 border-2 border-blue-600 rounded-md mr-3">
                         <CheckIcon className="h-5 w-5 text-blue-600" />
                       </div>
                       <span className="font-medium text-blue-600">

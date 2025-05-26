@@ -30,7 +30,7 @@ const TestimonialSection = () => {
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl text-blue-600 font-bold mb-4">What our clients are saying</h2>
+            <h2 className="text-3xl md:text-4xl text-blue-600 font-majer font-bold mb-4">What our clients are saying</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -45,7 +45,7 @@ const TestimonialSection = () => {
                 </svg>
 
                 </div>
-                <p className="text-blue-700 font-medium">{testimonial.text}</p>
+                <p className="text-blue-700 font-semibold">{testimonial.text}</p>
               </div>
             ))}
           </div>

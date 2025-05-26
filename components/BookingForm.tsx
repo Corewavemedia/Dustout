@@ -66,12 +66,12 @@ const BookingForm = () => {
       </div>
 
       {/* Dark blue background at the bottom */}
-      <div className="absolute hidden md:block bottom-0 left-0 right-0 h-48 bg-blue-900" aria-hidden="true"></div>
+      <div className="absolute hidden md:block bottom-0 left-0 right-0 h-80 bg-[#1A2D47]" aria-hidden="true"></div>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Mobile Booking Title (shows only on small screens) */}
         <div className="md:hidden text-center mb-8">
-          <h2 className="text-4xl font-bold text-blue-500">Book Us</h2>
+          <h2 className="text-4xl font-bold font-majer text-blue-500">Book Us</h2>
         </div>
 
         <div className="bg-blue-500 rounded-xl shadow-xl overflow-hidden">
@@ -85,7 +85,7 @@ const BookingForm = () => {
                 transition={{ duration: 0.8 }}
                 className="text-white mb-8 text-center"
               >
-                <h2 className="text-6xl font-bold mb-2">Get in</h2>
+                <h2 className="text-6xl font-bold font-majer mb-2">Get in</h2>
                 <h2 className="text-7xl font-bold">TOUCH</h2>
               </motion.div>
               
@@ -116,7 +116,7 @@ const BookingForm = () => {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="firstName" className="block text-white text-sm mb-1">First Name</label>
+                    <label htmlFor="firstName" className="block text-white font-majer text-sm mb-1">First Name</label>
                     <input
                       type="text"
                       id="firstName"
@@ -128,7 +128,7 @@ const BookingForm = () => {
                     />
                   </div>
                   <div>
-                    <label htmlFor="lastName" className="block text-white text-sm mb-1">Last Name</label>
+                    <label htmlFor="lastName" className="block text-white font-majer text-sm mb-1">Last Name</label>
                     <input
                       type="text"
                       id="lastName"
@@ -142,7 +142,7 @@ const BookingForm = () => {
                 </div>
 
                 <div>
-                  <label htmlFor="email" className="block text-white text-sm mb-1">Email Address</label>
+                  <label htmlFor="email" className="block text-white font-majer text-sm mb-1">Email Address</label>
                   <input
                     type="email"
                     id="email"
@@ -156,7 +156,7 @@ const BookingForm = () => {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="phone" className="block text-white text-sm mb-1">Phone Number</label>
+                    <label htmlFor="phone" className="block text-white font-majer text-sm mb-1">Phone Number</label>
                     <input
                       type="tel"
                       id="phone"
@@ -168,7 +168,7 @@ const BookingForm = () => {
                     />
                   </div>
                   <div>
-                    <label htmlFor="rooms" className="block text-white text-sm mb-1">No. of Rooms</label>
+                    <label htmlFor="rooms" className="block text-white font-majer text-sm mb-1">No. of Rooms</label>
                     <input
                       type="number"
                       id="rooms"
@@ -182,7 +182,7 @@ const BookingForm = () => {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="restrooms" className="block text-white text-sm mb-1">No. of RestRooms</label>
+                    <label htmlFor="restrooms" className="block text-white font-majer text-sm mb-1">No. of RestRooms</label>
                     <input
                       type="number"
                       id="restrooms"
@@ -193,7 +193,7 @@ const BookingForm = () => {
                     />
                   </div>
                   <div>
-                    <label htmlFor="landscape" className="block text-white text-sm mb-1">Number of Landscape</label>
+                    <label htmlFor="landscape" className="block text-white font-majer text-sm mb-1">Number of Landscape</label>
                     <input
                       type="number"
                       id="landscape"
@@ -206,7 +206,7 @@ const BookingForm = () => {
                 </div>
 
                 <div>
-                  <label htmlFor="instructions" className="block text-white text-sm mb-1">Special Instructions</label>
+                  <label htmlFor="instructions" className="block text-white font-majer text-sm mb-1">Special Instructions</label>
                   <textarea
                     id="instructions"
                     name="instructions"
@@ -220,7 +220,7 @@ const BookingForm = () => {
                 <div className="pt-2">
                   <button
                     type="submit"
-                    className="w-full bg-blue-800 hover:bg-blue-900 text-white font-bold py-3 px-4 rounded-md transition duration-300"
+                    className="w-full bg-blue-800 hover:bg-blue-900 text-white font-majer text-xl font-normal py-3 px-4 rounded-md transition duration-300"
                   >
                     Book Us
                   </button>

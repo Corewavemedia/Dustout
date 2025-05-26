@@ -7,8 +7,8 @@ const Footer = () => {
   return (
     <footer className="bg-primary-blue text-white py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row justify-between md:items-center">
-          <div className="flex items-center md:justify-center mb-10 md:mb-0">
+        <div className="flex flex-col md:flex-row justify-center md:justify-between md:items-center">
+          <div className="flex items-center justify-center mb-10 md:mb-0">
             <Link href="/">
               <Image
                 src="/images/dust-out-white.png"
@@ -19,7 +19,7 @@ const Footer = () => {
             </Link>
           </div>
 
-          <div className="mb-6 md:mb-0">
+          <div className="mb-6 md:mb-0 flex justify-center items-center flex-col text-center">
             <h3 className="text-xl font-bold mb-4">Contact Us</h3>
             <ul className="space-y-2">
               <li>
@@ -39,19 +39,7 @@ const Footer = () => {
             </ul>
           </div>
 
-          <div className="flex flex-col md:items-end">
-            <div className="flex mb-4">
-              <div className="bg-white rounded-l-md p-2">
-                <input 
-                  type="text" 
-                  placeholder="Enter your email" 
-                  className="bg-transparent text-gray-800 outline-none w-48"
-                />
-              </div>
-              <button className="bg-blue-700 text-white px-4 py-2 rounded-r-md hover:bg-blue-800 transition-colors">
-                Subscribe
-              </button>
-            </div>
+          <div className="flex flex-col justify-center items-center md:items-end">
             <div className="flex space-x-2">
               <a 
                 href="#" 

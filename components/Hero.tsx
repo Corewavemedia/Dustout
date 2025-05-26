@@ -19,8 +19,19 @@ export default function Hero() {
   return (
     <>
       <section className="relative overflow-hidden bg-blue-50 2xl:pt-24">
+        {/* Cloud background overlay */}
+        <div className="absolute inset-0 z-0">
+          <Image
+            src="/images/cloudbg.jpg"
+            alt="Cloud Background"
+            fill
+            className="object-cover opacity-30"
+            priority
+          />
+        </div>
+        
         {/* Background bubbles */}
-        <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-0 pointer-events-none z-5">
           <Image
             src="/images/bubble.png"
             alt="Bubble"
@@ -68,10 +79,10 @@ export default function Hero() {
         </div>
 
         {/* Mobile layout - hidden on medium screens and up */}
-        <div className="md:hidden relative z-20 mx-auto px-5 pt-24 pb-16 flex flex-col h-screen">
+        <div className="md:hidden relative z-20 mx-auto px-5 pt-32 pb-16 flex flex-col h-screen">
           {/* Hero Text Content - Centered */}
           <div className="flex-1 flex flex-col justify-center items-center text-center mb-6">
-            <h1 className="font-bold leading-tight mb-6">
+            <h1 className="font-bold leading-tight mb-6 font-majer">
               <span className="text-4xl sm:text-5xl text-green-500 block">
                 We Clean;
               </span>
@@ -83,16 +94,16 @@ export default function Hero() {
               </span>
             </h1>
 
-            <div className="flex flex-row gap-4 mt-6">
+            <div className="flex flex-row gap-4 mt-6 font-majer">
               <Link
                 href="#get-started"
-                className="bg-green-500 text-white font-semibold px-8 py-3 rounded-xl text-center shadow-lg hover:bg-opacity-90 transition-all"
+                className="bg-green-500 text-white font-normal px-8 py-3 rounded-xl text-center shadow-lg hover:bg-opacity-90 transition-all"
               >
                 Get Started
               </Link>
               <Link
                 href="#booking"
-                className="bg-white text-blue-500 border-2 border-blue-500 font-semibold px-8 py-3 rounded-xl text-center shadow-lg hover:bg-opacity-90 transition-all"
+                className="bg-white text-blue-500 border-2 border-blue-500 font-normal px-8 py-3 rounded-xl text-center shadow-lg hover:bg-opacity-90 transition-all"
               >
                 Book US
               </Link>
@@ -144,11 +155,11 @@ export default function Hero() {
 
         {/* Desktop layout - only visible on medium screens and up */}
         <div className="hidden md:block relative h-screen">
-          <div className="relative z-10 mx-auto max-w-7xl px-4 pt-15 pb-16 sm:px-6 lg:px-8 top-48">
+          <div className="relative z-20 mx-auto max-w-7xl px-4 pt-15 pb-16 sm:px-6 lg:px-8 top-48">
             <div className="grid grid-cols-2 gap-8 items-center">
               {/* Left Column - Text Content */}
               <div>
-                <h1 className="text-left font-bold leading-tight">
+                <h1 className="text-left font-bold leading-tight font-majer">
                   <span className="text-5xl md:text-6xl text-green-500">
                     We Clean;
                   </span>
@@ -162,16 +173,16 @@ export default function Hero() {
                   </span>
                 </h1>
 
-                <div className="flex flex-row gap-4 mt-10">
+                <div className="flex flex-row gap-4 mt-10 font-majer">
                   <Link
                     href="#get-started"
-                    className="bg-green-500 text-white font-semibold px-8 py-3 rounded-xl shadow-lg hover:bg-opacity-90 transition-all"
+                    className="bg-green-500 text-white font-normal px-8 py-3 rounded-xl shadow-lg hover:bg-opacity-90 transition-all"
                   >
                     Get Started
                   </Link>
                   <Link
                     href="#booking"
-                    className="bg-white border-2 border-blue-500 text-blue-500 font-semibold px-8 py-3 rounded-xl shadow-lg hover:bg-opacity-90 transition-all"
+                    className="bg-white border-2 border-blue-500 text-blue-500 font-normal px-8 py-3 rounded-xl shadow-lg hover:bg-opacity-90 transition-all"
                   >
                     Book Us
                   </Link>
@@ -223,14 +234,7 @@ export default function Hero() {
             alt="Bubble Large"
             width={600}
             height={600}
-            className="absolute -top-[15%] rotate-12 scale-150 transform left-[60%] opacity-60"
-          />
-          <Image
-            src="/images/bubble.png"
-            alt="Bubble"
-            width={600}
-            height={600}
-            className="object-cover absolute top-[50%] rotate-6 opacity-50 scale-150 transform left-[10%] z-0"
+            className="absolute -top-[15%] rotate-12 scale-150 transform left-[20%] opacity-60 z-10"
           />
         </div>
       </section>
