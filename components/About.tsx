@@ -8,7 +8,7 @@ const AboutSection = () => {
   return (
     <section
       id="about"
-      className="relative py-20 bg-gradient-to-b from-sky-50 to-white overflow-hidden"
+      className="relative py-20 bg-sky-50 overflow-hidden"
     >
       {/* Top fade effect for smooth transition */}
       <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-sky-50 to-transparent pointer-events-none"></div>
@@ -155,7 +155,7 @@ const AboutSection = () => {
                     src="/images/cleaning-tools-1.png"
                     alt="Cleaning Tools 1"
                     fill
-                    className="object-cover object-center"
+                    className="object-contain object-center"
                   />
                 </div>
                 <div className="relative h-full">
@@ -163,7 +163,7 @@ const AboutSection = () => {
                     src="/images/cleaning-tools-2.png"
                     alt="Cleaning Tools 2"
                     fill
-                    className="object-cover object-center"
+                    className="object-contain object-center"
                   />
                 </div>
               </div>
@@ -172,7 +172,7 @@ const AboutSection = () => {
         </div>
 
         {/* Desktop layout - Original side-by-side arrangement */}
-        <div className="hidden md:grid md:grid-cols-2 gap-8 items-start">
+        <div className="hidden md:grid md:grid-cols-2 gap-8 items-start lg:px-24">
           {/* Images Column - Left side */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
@@ -232,7 +232,7 @@ const AboutSection = () => {
                     src="/images/cleaning-tools-1.png"
                     alt="Cleaning Tools 1"
                     fill
-                    className="object-cover object-center"
+                    className="object-contain object-center"
                   />
                 </div>
                 <div className="relative h-full">
@@ -240,7 +240,7 @@ const AboutSection = () => {
                     src="/images/cleaning-tools-2.png"
                     alt="Cleaning Tools 2"
                     fill
-                    className="object-cover object-center"
+                    className="object-contain object-center"
                   />
                 </div>
               </div>
@@ -254,13 +254,13 @@ const AboutSection = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <div className="sticky top-20 font-majer">
+            <div className=" font-majer">
               <span className="text-green-500 font-medium">About Us</span>
-              <h2 className="text-4xl md:text-5xl font-bold text-blue-600 mb-6">
+              <h2 className="text-3xl md:text-3xl font-bold text-blue-600 mb-6">
                 Best Cleaning in The UK
               </h2>
 
-              <p className="text-gray-600 mb-8 leading-relaxed font-poppins font-normal">
+              <p className="text-[#777777] mb-8 sm:text-sm lg:text-base leading-relaxed font-poppins font-semibold">
                 At DustOut, we are the UK&apos;s top cleaning agency, specializing in
                 industrial cleaning, residential cleaning, fumigation, and
                 landscaping.

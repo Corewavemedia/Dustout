@@ -29,7 +29,7 @@ export default function Navbar() {
           : "bg-transparent py-4"
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-24">
         <div className="flex items-center justify-between h-16">
           {/* Logo - Different sizes for mobile and desktop */}
           <div className="flex-shrink-0">
@@ -39,9 +39,9 @@ export default function Navbar() {
                 <Image
                   src="/images/dustoutcolor.png"
                   alt="DustOut Logo"
-                  width={120}
-                  height={40}
-                  className="h-10 w-auto"
+                  width={150}
+                  height={50}
+                  className="h-14 w-auto"
                 />
               </div>
               <div className="md:hidden">

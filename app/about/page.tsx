@@ -24,7 +24,7 @@ const AboutPage = () => {
             src="/images/cloudbg.jpg"
             alt="Cloud Background"
             fill
-            className="object-cover opacity-30"
+            className="object-cover opacity-10"
             priority
           />
         </div>
@@ -49,8 +49,8 @@ const AboutPage = () => {
             transition={{ duration: 0.8 }}
             className="mb-8"
           >
-            <div className="text-center">
-              <h1 className="text-green-500 font-bold text-4xl">About Us</h1>
+            <div className="text-center font-majer">
+              <h1 className="text-green-500 font-semibold text-3xl">About Us</h1>
               <h2 className="text-3xl font-bold text-blue-600 mb-5">
                 Best Cleaning in The UK
               </h2>
@@ -63,10 +63,10 @@ const AboutPage = () => {
                     key={index}
                     className="flex items-center bg-sky-100 rounded-md p-2"
                   >
-                    <div className="bg-white border border-blue-600 p-1 rounded-md mr-2">
+                    <div className="border border-blue-600 p-1 rounded-md mr-2">
                       <CheckIcon className="h-4 w-4 text-blue-600" />
                     </div>
-                    <span className="font-medium text-blue-600 text-sm">
+                    <span className="font-semibold text-blue-600 text-sm">
                       {feature}
                     </span>
                   </div>
@@ -74,7 +74,7 @@ const AboutPage = () => {
               )}
             </div>
 
-            <p className="text-gray-600 mb-6 leading-relaxed text-sm">
+            <p className="mb-6 leading-relaxed text-sm font-semibold text-[#777777] text-justify">
               At DustOut, we are the UK&apos;s top cleaning agency, specializing in
               industrial cleaning, residential cleaning, fumigation, and
               landscaping.

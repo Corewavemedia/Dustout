@@ -22,7 +22,7 @@ const TestimonialSection = () => {
   return (
     <>
       {/* Testimonials Section */}
-      <section id="testimonials" className="py-16 bg-white relative overflow-hidden">
+      <section id="testimonials" className="py-4 bg-white relative overflow-hidden">
         <div className="absolute top-0 right-0 w-1/2 h-full opacity-20">
           <div className="absolute top-0 right-0 w-full h-full bg-contain bg-no-repeat bg-right" 
                style={{ backgroundImage: "url('/images/bubble.png')" }}></div>

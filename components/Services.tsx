@@ -45,7 +45,7 @@ const ServicesSection = () => {
         </div>
 
         {/* Desktop view - 3x2 Grid layout */}
-        <div className="hidden md:grid md:grid-cols-3 gap-8">
+        <div className="hidden md:grid md:grid-cols-3 gap-8 lg:px-40">
           {services.map((service, index) => (
             <motion.div
               key={service.id}

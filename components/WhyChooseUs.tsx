@@ -5,6 +5,7 @@ import EcoFriendlyIcon from './icons/EcoFriendlyIcon';
 import CustomerCareIcon from './icons/CustomerCareIcon';
 import HomeHandlingIcon from './icons/HomeHandlingIcon';
 import CleaningContainerIcon from './icons/CleaningContainerIcon';
+import MopingIcon from './icons/MopingIcon';
 
 interface WhyChooseUsProps {
   isAboutPage?: boolean;
@@ -28,8 +29,8 @@ const WhyChooseUs = ({ isAboutPage = false }: WhyChooseUsProps) => {
       bgColor: "bg-blue-700",
     },
     {
-      icon: <CleaningContainerIcon className="w-20 h-20 text-white" />,
-      title: "Professional Equipment",
+      icon: <MopingIcon className="w-20 h-20 text-white" />,
+      title: "Excellent Customer Care",
       bgColor: "bg-blue-500",
     },
     {
@@ -39,7 +40,7 @@ const WhyChooseUs = ({ isAboutPage = false }: WhyChooseUsProps) => {
     },
     {
       icon: <CleaningContainerIcon className="w-20 h-20 text-white" />,
-      title: "Timely Service Delivery",
+      title: "Excellent Customer Care",
       bgColor: "bg-blue-500",
     },
   ];
@@ -93,7 +94,7 @@ const WhyChooseUs = ({ isAboutPage = false }: WhyChooseUsProps) => {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className={`grid ${isAboutPage ? 'grid-cols-2' : 'grid-cols-1'} md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 px-6`}
+          className={`grid ${isAboutPage ? 'grid-cols-2' : 'grid-cols-1'} md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 px-6 md:px-40`}
         >
           {features.map((feature, index) => (
             <motion.div 

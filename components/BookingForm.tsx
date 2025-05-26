@@ -193,7 +193,7 @@ const BookingForm = () => {
   };
 
   return (
-    <section id="booking" className="w-full py-20 relative overflow-hidden bg-white hidden md:block">
+    <section id="booking" className="w-full py-20 relative overflow-hidden bg-sky-50 hidden md:block">
       {/* Background bubbles */}
       <div className="absolute inset-0 pointer-events-none">
         <Image
@@ -246,16 +246,16 @@ const BookingForm = () => {
               </motion.div>
               
               <div className="relative mt-auto flex transform -translate-y-[40%]">
-                <div className="relative z-10 transform translate-y-[18%] translate-x-[10%]">
+                <div className="relative transform translate-y-[18%] translate-x-[5%]">
                   <Image
                     src="/images/leftImage.png" 
                     alt="Cleaning Staff 1"
                     width={200}
                     height={300}
-                    className="object-contain scale-150 scale-x-[-1]"
+                    className="object-contain scale-150 scale-x-[-1.5]"
                   />
                 </div>
-                <div className="relative -ml-10 mt-6 transform -translate-x-[30%]">
+                <div className="relative z-10 -ml-10 mt-6 transform -translate-x-[30%]">
                   <Image
                     src="/images/rightImage.png" 
                     alt="Cleaning Staff 2"

@@ -18,7 +18,7 @@ const clients = ["/images/person3.jpg", "/images/person2.jpg", "/images/person1.
 export default function Hero() {
   return (
     <>
-      <section className="relative overflow-hidden bg-blue-50 2xl:pt-24">
+      <section className="relative overflow-hidden bg-blue-50 2xl:pt-24 lg:px-24">
         {/* Cloud background overlay */}
         <div className="absolute inset-0 z-0">
           <Image
@@ -111,12 +111,12 @@ export default function Hero() {
           </div>
 
           {/* Hero Image - Centered and wider */}
-          <div className="flex justify-center items-center relative min-h-[280px] w-[100%] max-w-[450px] mx-auto">
+          <div className="flex justify-center items-center relative min-h-[280px] w-[1000%] max-w-[450px] mx-auto">
             <Image
               src="/images/rectangle-13.png"
               alt="Cleaning Tools"
               fill
-              className="object-contain scale-150 transfrom -translate-y-[40%] -translate-x-[40%]"
+              className="object-contain scale-150 transfrom -translate-y-[40%] -translate-x-[50%]"
               priority
             />
           </div>
@@ -155,7 +155,7 @@ export default function Hero() {
 
         {/* Desktop layout - only visible on medium screens and up */}
         <div className="hidden md:block relative h-screen">
-          <div className="relative z-20 mx-auto max-w-7xl px-4 pt-15 pb-16 sm:px-6 lg:px-8 top-48">
+          <div className="relative z-20 mx-auto max-w-7xl px-4 pt-15 pb-10 sm:px-6 lg:px-8 top-48">
             <div className="grid grid-cols-2 gap-8 items-center">
               {/* Left Column - Text Content */}
               <div>
@@ -215,7 +215,7 @@ export default function Hero() {
 
               {/* Right Column - Image */}
               <div className="relative overflow-visible min-h-[400px]">
-                <div className="absolute inset-0 -left-[100%] -top-[100%] w-[200%] h-[200%]">
+                <div className="absolute inset-0 -left-[100%] -top-[90%] w-[200%] h-[200%]">
                   <Image
                     src="/images/rectangle-13.png"
                     alt="Cleaning Tools"
