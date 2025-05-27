@@ -67,7 +67,7 @@ export default function Navbar() {
                 Contact
               </Link>
               <Link
-                href="/#about"
+                href="/about"
                 className="text-blue-500 hover:text-cyan font-majer font-normal text-lg"
               >
                 About Us
@@ -114,7 +114,7 @@ export default function Navbar() {
               Contact
             </Link>
             <Link
-              href="/#about"
+              href="/about"
               className="block px-5 py-4 text-blue-700 hover:bg-blue-50 border-b border-gray-100 text-lg font-medium"
               onClick={() => setIsMenuOpen(false)}
             >

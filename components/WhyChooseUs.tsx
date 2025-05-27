@@ -94,14 +94,14 @@ const WhyChooseUs = ({ isAboutPage = false }: WhyChooseUsProps) => {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className={`grid ${isAboutPage ? 'grid-cols-2' : 'grid-cols-1'} md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 px-6 md:px-40`}
+          className={`grid ${isAboutPage ? 'grid-cols-2' : 'grid-cols-1'} md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 ${isAboutPage ? 'px-2' : 'px-6'} md:px-40`}
         >
           {features.map((feature, index) => (
             <motion.div 
               key={index} 
               variants={cardVariants}
               whileHover="hover"
-              className={`${feature.bgColor} rounded-lg p-4 flex flex-col items-center text-center`}
+              className={`${feature.bgColor} rounded-lg p-2 flex flex-col items-center text-center`}
             >
               <motion.div 
                 className="mb-4"
@@ -111,7 +111,7 @@ const WhyChooseUs = ({ isAboutPage = false }: WhyChooseUsProps) => {
                 {feature.icon}
               </motion.div>
               <motion.h3 
-                className="text-xl font-medium font-majer text-white mb-2"
+                className="text-lg font-normal font-majer text-white mb-2"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5, duration: 0.5 }}

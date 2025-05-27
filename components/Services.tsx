@@ -3,9 +3,11 @@
 import { motion } from 'framer-motion';
 import {services} from './data/ServicesData';
 
+interface ServicesProps {
+  isAboutPage?: boolean;
+}
 
-
-const ServicesSection = () => {
+const ServicesSection = ({ isAboutPage = false } : ServicesProps) => {
   return (
     <section id="services" className="py-20 relative overflow-hidden bg-sky-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -24,7 +26,7 @@ const ServicesSection = () => {
         </motion.div>
 
         {/* Mobile view - Vertical cards */}
-        <div className="grid grid-cols-1 gap-8 md:hidden px-6">
+        <div className={`grid ${isAboutPage ? 'grid-cols-2' : 'grid-cols-1'} gap-8 md:hidden ${isAboutPage ? 'px-2' : 'px-6'} `}>
           {services.map((service, index) => (
             <motion.div
               key={service.id}
@@ -32,10 +34,10 @@ const ServicesSection = () => {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.7, delay: index * 0.1, type: "spring", stiffness: 50 }}
-              className="bg-blue-500 rounded-xl p-8 text-center shadow-md border-2 border-dashed border-r-white"
+              className={`bg-blue-500 rounded-xl ${isAboutPage ? 'p-4' : 'p-8'}  text-center shadow-md border-2 border-dashed border-r-white`}
             >
-              <div className="flex flex-col items-center">
-                <div className="w-16 h-16 mb-10">
+              <div className="flex flex-col items-center justify-center">
+                <div className="w-16 h-16 mb-4 flex justify-center items-center">
                   <service.icon />
                 </div>
                 <h3 className="text-white text-lg font-medium">{service.title}</h3>
