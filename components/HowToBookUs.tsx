@@ -59,7 +59,7 @@ const HowToBookUs = () => {
         <div className="relative w-full">
           {/* Steps content - now full width on desktop */}
           <div className="w-full">
-            <div className="space-y-8 md:space-y-4 px-4 md:px-16">
+            <div className="space-y-8 md:space-y-4 px-4 lg:px-16">
               {steps.map((step, index) => (
                 <div 
                   key={index} 
@@ -83,7 +83,7 @@ const HowToBookUs = () => {
                 src="/images/howToBookUs.png"
                 alt="How to Book Dustout Cleaning Services"
                 fill
-                className="object-cover scale-150 translate-y-[30%] translate-x-[-10%]"
+                className="object-cover scale-150 translate-y-[30%] translate-x-[-20%] md:translate-x-[-10%] "
                 sizes="(max-width: 768px) 100vw, 50vw"
               />
             </div>
