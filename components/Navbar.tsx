@@ -79,7 +79,7 @@ export default function Navbar() {
                 Book Us
               </Link>
               <Link
-                href="/#about"
+                href="/signup"
                 className="bg-blue-700 text-white px-6 py-2 rounded-full font-majer font-normal text-lg hover:bg-mint-green transition-colors"
               >
                 Get Started
