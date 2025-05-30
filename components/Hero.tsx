@@ -96,7 +96,7 @@ export default function Hero() {
 
             <div className="flex flex-row gap-4 mt-6 font-majer">
               <Link
-                href="#get-started"
+                href="#about"
                 className="bg-green-500 text-white font-normal px-8 py-3 rounded-xl text-center shadow-lg hover:bg-opacity-90 transition-all"
               >
                 Get Started
@@ -105,7 +105,7 @@ export default function Hero() {
                 href="#booking"
                 className="bg-white text-blue-500 border-2 border-blue-500 font-normal px-8 py-3 rounded-xl text-center shadow-lg hover:bg-opacity-90 transition-all"
               >
-                Book US
+                Book Us
               </Link>
             </div>
           </div>
@@ -175,7 +175,7 @@ export default function Hero() {
 
                 <div className="flex flex-row gap-4 mt-10 font-majer">
                   <Link
-                    href="#get-started"
+                    href="#about"
                     className="bg-green-500 text-white font-normal px-8 py-3 rounded-xl shadow-lg hover:bg-opacity-90 transition-all"
                   >
                     Get Started

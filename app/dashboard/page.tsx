@@ -1,15 +1,23 @@
 "use client";
 
 import React from "react";
-import { MapPinIcon, CalendarIcon, ClockIcon } from "@heroicons/react/24/outline";
+import { useRouter } from "next/navigation";
+import { MapPinIcon } from "@heroicons/react/24/outline";
 import { services } from "@/components/data/ServicesData";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import EditprofileIcon from "@/components/icons/EditProfileicon";
 import BookUsIcon from "@/components/icons/BookUsIcon";
 import SubscriptionIcon from "@/components/icons/SubscriptionIcon";
+import LocationIcon from "@/components/icons/Locationicon";
+import DateIcon from "@/components/icons/DateIcon";
+import TimeRange from "@/components/icons/TimeRange";
+import Image from "next/image";
+
 
 const Dashboard = () => {
+  const router = useRouter();
+
   const orderHistory = [
     {
       id: 1,
@@ -46,11 +54,30 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-blue-50 relative overflow-hidden">
       <Navbar />
 
+      {/* Cloud Background */}
+      <div className="absolute inset-0 z-0">
+        <Image
+          src="/images/cloudbg.jpg"
+          alt="Cloud background"
+          fill
+          className="object-cover opacity-10"
+        />
+      </div>
+
+      {/* bubble */}
+      <Image
+        src="/images/bubble.png"
+        alt="Bubble"
+        width={400}
+        height={400}
+        className="absolute -right-20 top-[20%] transform rotate-12 opacity-30"
+      />
+
       {/* Main Content */}
-      <main className="px-4 pt-28 md:pt-48 md:px-8 lg:pt-24 max-w-7xl mx-auto">
+      <main className="relative z-10 px-4 pt-32 md:pt-48 md:px-8 lg:pt-32 max-w-7xl mx-auto">
         {/* Welcome Section */}
         <div className="relative mb-6">
           {/* Background Green Card */}
@@ -77,12 +104,26 @@ const Dashboard = () => {
 
               {/* Action Buttons */}
               <div className="flex flex-wrap gap-3">
-                <button className="bg-white/90 text-blue-600 px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center shadow-sm hover:bg-white transition-colors">
+                <button
+                  onClick={() => router.push('/settings')}
+                  className="bg-white/90 text-blue-600 px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center shadow-sm hover:bg-white transition-colors"
+                >
                   <EditprofileIcon />
                   Edit Profile
                 </button>
 
-                <button className="bg-white/90 text-blue-600 px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center shadow-sm hover:bg-white transition-colors">
+                <button 
+                  onClick={() => {
+                    const isMobile = window.innerWidth <= 768;
+
+                    if (isMobile) {
+                      router.push('/#MobileBookingForm');
+                    } else {
+                      router.push('/#booking');
+                    }
+                  }}
+                  className="bg-white/90 text-blue-600 px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center shadow-sm hover:bg-white transition-colors"
+                >
                   <BookUsIcon />
                   Book Us
                 </button>
@@ -98,10 +139,10 @@ const Dashboard = () => {
 
         {/* Services Section */}
         <div className="mb-8 px-4">
-          <div className="pt-10">
+          <div className="pt-10 md:pt-20">
             <h2 className="text-lg font-semibold text-[#12B368] font-majer text-center mb-4 md:text-xl">
-            What services do you need today?
-          </h2>
+              What services do you need today?
+            </h2>
           </div>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
             {services.map((service) => {
@@ -151,20 +192,20 @@ const Dashboard = () => {
                         </h3>
                         <div className="flex flex-col sm:flex-row sm:items-center text-sm text-gray-500 mt-1 space-y-1 sm:space-y-0 sm:space-x-4">
                           <div className="flex items-center">
-                            <MapPinIcon className="h-4 w-4 mr-1 text-[#12B368]" />
-                            <span className="text-[#538FDF]">
+                            <LocationIcon />
+                            <span className="text-[#538FDF] font-majer">
                               {order.location}
                             </span>
                           </div>
                           <div className="flex items-center">
-                            <CalendarIcon className="h-4 w-4 mr-1 text-[#12B368]" />
-                            <span className="text-[#538FDF]">
+                            <DateIcon />
+                            <span className="text-[#538FDF] font-majer">
                               {order.date}
                             </span>
                           </div>
                           <div className="flex items-center">
-                            <ClockIcon className="h-4 w-4 mr-1 text-[#12B368]" />
-                            <span className="text-[#538FDF]">
+                            <TimeRange />
+                            <span className="text-[#538FDF] font-majer">
                               {order.time}
                             </span>
                           </div>

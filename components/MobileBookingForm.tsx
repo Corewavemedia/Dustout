@@ -59,7 +59,7 @@ export const MobileBookingForm = () => {
   };
 
   return (
-    <div className="md:hidden w-full px-4 py-8 bg-white relative overflow-hidden">
+    <div className="md:hidden w-full px-4 py-8 bg-white relative overflow-hidden" id='MobileBookingForm'>
       {/* Big bubble center */}
       <Image 
         src="/images/bubble.png" 

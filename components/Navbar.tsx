@@ -61,10 +61,10 @@ export default function Navbar() {
           <div className="hidden md:block">
             <div className="ml-10 flex items-center space-x-8">
               <Link
-                href="/#contact"
+                href="/dashboard"
                 className="text-blue-500 hover:text-cyan font-majer font-normal text-lg"
               >
-                Contact
+                Dashboard
               </Link>
               <Link
                 href="/about"
