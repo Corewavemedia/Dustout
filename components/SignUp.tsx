@@ -12,7 +12,7 @@ const SignUp = () => {
     email: '',
     password: '',
     confirmPassword: '',
-  });``
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
