@@ -79,7 +79,7 @@ export default function Navbar() {
                 Book Us
               </Link>
               <Link
-                href="/#get-started"
+                href="/#about"
                 className="bg-blue-700 text-white px-6 py-2 rounded-full font-majer font-normal text-lg hover:bg-mint-green transition-colors"
               >
                 Get Started
@@ -107,11 +107,11 @@ export default function Navbar() {
         <div className="md:hidden bg-white shadow-lg rounded-lg mx-3 mt-2 overflow-hidden">
           <div className="py-3">
             <Link
-              href="/#contact"
+              href="/dashboard"
               className="block px-5 py-4 text-blue-700 hover:bg-blue-50 border-b border-gray-100 text-lg font-medium"
               onClick={() => setIsMenuOpen(false)}
             >
-              Contact
+              Dashboard
             </Link>
             <Link
               href="/about"
@@ -121,7 +121,7 @@ export default function Navbar() {
               About Us
             </Link>
             <Link
-              href="/#booking"
+              href="/#MobileBookingForm"
               className="block px-5 py-4 text-blue-700 hover:bg-blue-50 text-lg font-medium"
               onClick={() => setIsMenuOpen(false)}
             >

@@ -77,7 +77,7 @@ const Dashboard = () => {
       />
 
       {/* Main Content */}
-      <main className="relative z-10 px-4 pt-32 md:pt-48 md:px-8 lg:pt-32 max-w-7xl mx-auto">
+      <main className="relative z-10 px-4 pt-32 md:pt-48 md:px-8 lg:pt-32 lg:px-24 max-w-7xl mx-auto">
         {/* Welcome Section */}
         <div className="relative mb-6">
           {/* Background Green Card */}

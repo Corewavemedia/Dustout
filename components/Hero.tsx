@@ -94,15 +94,15 @@ export default function Hero() {
               </span>
             </h1>
 
-            <div className="flex flex-row gap-4 mt-6 font-majer">
+            <div className="flex flex-row gap-4 mt-6 font-majer relative z-40">
               <Link
-                href="#about"
+                href="/#about"
                 className="bg-green-500 text-white font-normal px-8 py-3 rounded-xl text-center shadow-lg hover:bg-opacity-90 transition-all"
               >
                 Get Started
               </Link>
               <Link
-                href="#booking"
+                href="#MobileBookingForm"
                 className="bg-white text-blue-500 border-2 border-blue-500 font-normal px-8 py-3 rounded-xl text-center shadow-lg hover:bg-opacity-90 transition-all"
               >
                 Book Us
@@ -173,7 +173,7 @@ export default function Hero() {
                   </span>
                 </h1>
 
-                <div className="flex flex-row gap-4 mt-10 font-majer">
+                <div className="flex flex-row gap-4 mt-10 font-majer relative z-40">
                   <Link
                     href="#about"
                     className="bg-green-500 text-white font-normal px-8 py-3 rounded-xl shadow-lg hover:bg-opacity-90 transition-all"
