@@ -1,5 +1,4 @@
 'use client';
-
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -44,9 +43,54 @@ export const MobileBookingForm = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
+    setIsSubmitting(true);
+    setSubmitMessage('');
+
+    try {
+      const response = await fetch('https://app.dustout.co.uk/api/booking.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+         await response.json();
+        setSubmitMessage('Booking submitted successfully! We will contact you soon.');
+        // Reset form
+        setFormData({
+          fullName: '',
+          phone: '',
+          email: '',
+          serviceAddress: '',
+          cityState: '',
+          postCode: '',
+          landmark: '',
+          serviceTypes: [],
+          serviceFrequency: '',
+          bedrooms: '',
+          bathrooms: '',
+          preferredDate: '',
+          preferredTime: '',
+          urgent: '',
+          specialNotes: ''
+        });
+        setCurrentStep(1);
+      } else {
+        throw new Error('Failed to submit booking');
+      }
+    } catch (error) {
+      console.error('Error submitting booking:', error);
+      setSubmitMessage('Failed to submit booking. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const nextStep = () => setCurrentStep(2);
@@ -333,11 +377,22 @@ export const MobileBookingForm = () => {
                 ></textarea>
               </div>
 
+              {submitMessage && (
+                <div className={`p-3 rounded-md text-center font-medium ${
+                  submitMessage.includes('successfully') 
+                    ? 'bg-green-100 text-green-800 border border-green-300' 
+                    : 'bg-red-100 text-red-800 border border-red-300'
+                }`}>
+                  {submitMessage}
+                </div>
+              )}
+
               <div className="pt-4 space-y-3">
                 <button
                   type="button"
                   onClick={prevStep}
-                  className="w-full bg-gray-500 hover:bg-gray-600 text-white font-majer text-xl font-normal py-3 px-4 rounded-md transition duration-300 flex items-center justify-center"
+                  disabled={isSubmitting}
+                  className="w-full bg-gray-500 hover:bg-gray-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-majer text-xl font-normal py-3 px-4 rounded-md transition duration-300 flex items-center justify-center"
                 >
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -346,9 +401,20 @@ export const MobileBookingForm = () => {
                 </button>
                 <button
                   type="submit"
-                  className="w-full bg-blue-800 hover:bg-blue-900 text-white font-majer text-xl font-normal py-3 px-4 rounded-md transition duration-300"
+                  disabled={isSubmitting}
+                  className="w-full bg-blue-800 hover:bg-blue-900 disabled:bg-blue-600 disabled:cursor-not-allowed text-white font-majer text-xl font-normal py-3 px-4 rounded-md transition duration-300 flex items-center justify-center"
                 >
-                  Book Us
+                  {isSubmitting ? (
+                    <>
+                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Submitting...
+                    </>
+                  ) : (
+                    'Book Us'
+                  )}
                 </button>
               </div>
             </motion.div>
