@@ -56,46 +56,24 @@ const BookingForm = () => {
     setSubmitMessage("");
 
     try {
-      // Validate required fields before submission
-      const requiredFields = {
-        fullName: formData.fullName.trim(),
-        phone: formData.phone.trim(),
-        email: formData.email.trim(),
-        serviceAddress: formData.serviceAddress.trim(),
-        serviceTypes: formData.serviceTypes,
-        serviceFrequency: formData.serviceFrequency.trim(),
-      };
-
-      // Check if any required field is empty
-      if (!requiredFields.fullName || !requiredFields.phone || !requiredFields.email || 
-          !requiredFields.serviceAddress || requiredFields.serviceTypes.length === 0 || 
-          !requiredFields.serviceFrequency) {
-        setSubmitMessage("Please fill in all required fields.");
-        setIsSubmitting(false);
-        return;
-      }
-
       // Transform form data to match backend expectations
       const backendData = {
-        full_name: requiredFields.fullName,
-        phone: requiredFields.phone,
-        email: requiredFields.email,
-        address: requiredFields.serviceAddress,
-        city_state: formData.cityState.trim() || "",
-        postcode: formData.postCode.trim() || "",
-        landmark: formData.landmark.trim() || "",
-        service_type: requiredFields.serviceTypes.join(", "),
-        frequency: requiredFields.serviceFrequency,
+        full_name: formData.fullName,
+        phone: formData.phone,
+        email: formData.email,
+        address: formData.serviceAddress,
+        city_state: formData.cityState,
+        postcode: formData.postCode,
+        landmark: formData.landmark,
+        service_type: formData.serviceTypes.join(", "),
+        frequency: formData.serviceFrequency,
         bedrooms: parseInt(formData.bedrooms) || 0,
         bathrooms: parseInt(formData.bathrooms) || 0,
-        preferred_date: formData.preferredDate || "",
-        time_slot: formData.preferredTime || "",
-        urgent: formData.urgent || "No",
-        notes: formData.specialNotes.trim() || "",
+        preferred_date: formData.preferredDate,
+        time_slot: formData.preferredTime,
+        urgent: formData.urgent,
+        notes: formData.specialNotes,
       };
-
-      // Debug: Log the data being sent
-      console.log("Sending booking data:", backendData);
 
       const response = await fetch(
         "https://app.dustout.co.uk/api/booking.php",
