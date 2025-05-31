@@ -223,7 +223,7 @@ const SignIn = () => {
 
             <div className="mt-8 text-center">
               <p className="text-blue-100">
-                Don't have an account?{' '}
+                Don&apos;t have an account?{' '}
                 <Link href="/signup" className="text-white hover:text-blue-200 font-medium underline transition duration-200">
                   Sign Up
                 </Link>
