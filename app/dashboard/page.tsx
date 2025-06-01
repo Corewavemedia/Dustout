@@ -51,9 +51,9 @@ const Dashboard = () => {
         // Fetch user profile data
         const userResponse = await fetch('https://api.dustout.co.uk/api/api.php', {
           method: 'POST',
+          mode: 'cors',
           headers: {
             'Content-Type': 'application/json',
-            'Origin': 'https://app.dustout.co.uk',
           },
           body: JSON.stringify({
             route: 'get_profile',
