@@ -49,7 +49,7 @@ const Dashboard = () => {
         }
 
         // Fetch user profile data
-        const userResponse = await fetch('https://api.dustout.co.uk/api/api.php', {
+        const userResponse = await fetch('https://app.dustout.co.uk/api/api.php', {
           method: 'POST',
           mode: 'cors',
           headers: {
