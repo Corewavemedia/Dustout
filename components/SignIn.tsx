@@ -80,21 +80,22 @@ const SignIn = () => {
       
       const data = await response.json();
       
-      if (response.ok && data.success) {
+      if (response.ok && data.status === 'success') {
         setMessage('Sign in successful!');
         setMessageType('success');
         
         // Store JWT token if provided
         if (data.token) {
-          localStorage.setItem('authToken', data.token);
+          localStorage.setItem('token', data.token);
         }
         
         // Clear form
         setFormData({ email: '', password: '' });
         
         // Redirect to dashboard
+        setTimeout(() => {
           router.push('/dashboard');
-        
+        }, 1000);
         
       } else {
         setMessage(data.message || 'Sign in failed. Please check your credentials.');
