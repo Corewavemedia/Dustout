@@ -93,9 +93,8 @@ const SignIn = () => {
         setFormData({ email: '', password: '' });
         
         // Redirect to dashboard
-        setTimeout(() => {
           router.push('/dashboard');
-        }, 1500);
+        
         
       } else {
         setMessage(data.message || 'Sign in failed. Please check your credentials.');

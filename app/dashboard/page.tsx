@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { MapPinIcon } from "@heroicons/react/24/outline";
 import { services } from "@/components/data/ServicesData";
@@ -14,44 +14,114 @@ import DateIcon from "@/components/icons/DateIcon";
 import TimeRange from "@/components/icons/TimeRange";
 import Image from "next/image";
 
+interface UserData {
+  id: number;
+  username: string;
+  email: string;
+  location?: string;
+}
+
+interface OrderData {
+  id: number;
+  service: string;
+  location: string;
+  date: string;
+  time: string;
+  price: string;
+  status?: string;
+}
+
 
 const Dashboard = () => {
   const router = useRouter();
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [orderHistory, setOrderHistory] = useState<OrderData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const orderHistory = [
-    {
-      id: 1,
-      service: "Landscaping",
-      location: "Heathrow",
-      date: "27.06.2025",
-      time: "12:00-3:00pm",
-      price: "$400",
-    },
-    {
-      id: 2,
-      service: "Landscaping",
-      location: "Heathrow",
-      date: "27.06.2025",
-      time: "12:00-3:00pm",
-      price: "$400",
-    },
-    {
-      id: 3,
-      service: "Landscaping",
-      location: "Heathrow",
-      date: "27.06.2025",
-      time: "12:00-3:00pm",
-      price: "$400",
-    },
-    {
-      id: 4,
-      service: "Landscaping",
-      location: "Heathrow",
-      date: "27.06.2025",
-      time: "12:00-3:00pm",
-      price: "$400",
-    },
-  ];
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          router.push('/signin');
+          return;
+        }
+
+        // Fetch user profile data
+        const userResponse = await fetch('https://app.dustout.co.uk/api/profile.php', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (userResponse.ok) {
+          const userResult = await userResponse.json();
+          setUserData(userResult.user);
+        } else {
+          throw new Error('Failed to fetch user data');
+        }
+
+        // Fetch order history
+        const ordersResponse = await fetch('https://app.dustout.co.uk/api/orders.php', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (ordersResponse.ok) {
+          const ordersResult = await ordersResponse.json();
+          setOrderHistory(ordersResult.orders || []);
+        } else {
+          console.warn('Failed to fetch order history');
+          setOrderHistory([]);
+        }
+      } catch (err) {
+        console.error('Error fetching data:', err);
+        setError('Failed to load dashboard data');
+        // If token is invalid, redirect to signin
+        if (err instanceof Error && err.message.includes('token')) {
+          localStorage.removeItem('token');
+          router.push('/signin');
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, [router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-blue-50 relative overflow-hidden">
@@ -94,12 +164,12 @@ const Dashboard = () => {
               {/* Location */}
               <div className="flex items-center mb-3">
                 <MapPinIcon className="h-4 w-4 mr-2" />
-                <span className="text-sm font-medium">London</span>
+                <span className="text-sm font-medium">{userData?.location || 'London'}</span>
               </div>
 
               {/* Welcome Text */}
               <h1 className="text-3xl font-normal mb-8 font-majer">
-                Welcome, <span className="text-5xl">John!</span>
+                Welcome, <span className="text-5xl">{userData?.username || 'User'}!</span>
               </h1>
 
               {/* Action Buttons */}
@@ -178,48 +248,83 @@ const Dashboard = () => {
               </button>
             </div>
             <div className="space-y-3">
-              {orderHistory.map((order) => (
-                <div
-                  key={order.id}
-                  className="bg-white rounded-lg p-4 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <div className="w-2 h-10 bg-blue-500 rounded-full mr-3"></div>
-                      <div>
-                        <h3 className="font-medium font-majer text-[#538FDF]">
-                          {order.service}
-                        </h3>
-                        <div className="flex flex-col sm:flex-row sm:items-center text-sm text-gray-500 mt-1 space-y-1 sm:space-y-0 sm:space-x-4">
-                          <div className="flex items-center">
-                            <LocationIcon />
-                            <span className="text-[#538FDF] font-majer">
-                              {order.location}
-                            </span>
-                          </div>
-                          <div className="flex items-center">
-                            <DateIcon />
-                            <span className="text-[#538FDF] font-majer">
-                              {order.date}
-                            </span>
-                          </div>
-                          <div className="flex items-center">
-                            <TimeRange />
-                            <span className="text-[#538FDF] font-majer">
-                              {order.time}
-                            </span>
+              {orderHistory.length > 0 ? (
+                orderHistory.map((order) => (
+                  <div
+                    key={order.id}
+                    className="bg-white rounded-lg p-4 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <div className="w-2 h-10 bg-blue-500 rounded-full mr-3"></div>
+                        <div>
+                          <h3 className="font-medium font-majer text-[#538FDF]">
+                            {order.service}
+                          </h3>
+                          <div className="flex flex-col sm:flex-row sm:items-center text-sm text-gray-500 mt-1 space-y-1 sm:space-y-0 sm:space-x-4">
+                            <div className="flex items-center">
+                              <LocationIcon />
+                              <span className="text-[#538FDF] font-majer">
+                                {order.location}
+                              </span>
+                            </div>
+                            <div className="flex items-center">
+                              <DateIcon />
+                              <span className="text-[#538FDF] font-majer">
+                                {order.date}
+                              </span>
+                            </div>
+                            <div className="flex items-center">
+                              <TimeRange />
+                              <span className="text-[#538FDF] font-majer">
+                                {order.time}
+                              </span>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-semibold font-majer text-[#538FDF]">
-                        {order.price}
+                      <div className="text-right">
+                        <div className="font-semibold font-majer text-[#538FDF]">
+                          {order.price}
+                        </div>
+                        {order.status && (
+                          <div className={`text-xs mt-1 px-2 py-1 rounded-full inline-block ${
+                            order.status === 'completed' ? 'bg-green-100 text-green-800' :
+                            order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                            order.status === 'cancelled' ? 'bg-red-100 text-red-800' :
+                            'bg-gray-100 text-gray-800'
+                          }`}>
+                            {order.status}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
+                ))
+              ) : (
+                <div className="bg-white rounded-lg p-8 shadow-sm border border-gray-100 text-center">
+                  <div className="text-gray-400 mb-2">
+                    <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-1">No orders yet</h3>
+                  <p className="text-gray-500 mb-4">Start by booking your first service with us!</p>
+                  <button 
+                    onClick={() => {
+                      const isMobile = window.innerWidth <= 768;
+                      if (isMobile) {
+                        router.push('/#MobileBookingForm');
+                      } else {
+                        router.push('/#booking');
+                      }
+                    }}
+                    className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+                  >
+                    Book Now
+                  </button>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>
