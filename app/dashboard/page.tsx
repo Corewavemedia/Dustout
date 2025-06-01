@@ -49,37 +49,37 @@ const Dashboard = () => {
         }
 
         // Fetch user profile data
-        const userResponse = await fetch('https://app.dustout.co.uk/api/profile.php', {
-          method: 'GET',
+        const userResponse = await fetch('https://api.dustout.co.uk/api/api.php', {
+          method: 'POST',
           headers: {
-            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
+            'Origin': 'https://app.dustout.co.uk',
           },
+          body: JSON.stringify({
+            route: 'get_profile',
+            token: token
+          })
         });
 
         if (userResponse.ok) {
           const userResult = await userResponse.json();
-          setUserData(userResult.user);
+          if (userResult.status === 'success') {
+            setUserData({
+              id: userResult.profile.id,
+              username: userResult.profile.name,
+              email: userResult.profile.email,
+              location: userResult.profile.phone || 'London' // Using phone as location fallback
+            });
+          } else {
+            throw new Error(userResult.message || 'Failed to fetch user data');
+          }
         } else {
           throw new Error('Failed to fetch user data');
         }
 
-        // Fetch order history
-        const ordersResponse = await fetch('https://app.dustout.co.uk/api/orders.php', {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (ordersResponse.ok) {
-          const ordersResult = await ordersResponse.json();
-          setOrderHistory(ordersResult.orders || []);
-        } else {
-          console.warn('Failed to fetch order history');
-          setOrderHistory([]);
-        }
+        // Note: Order history endpoint is not available in the API documentation
+        // Setting empty array for now
+        setOrderHistory([]);
       } catch (err) {
         console.error('Error fetching data:', err);
         setError('Failed to load dashboard data');
