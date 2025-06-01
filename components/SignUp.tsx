@@ -104,7 +104,7 @@ const SignUp = () => {
 
       const data = await response.json();
 
-      if (response.ok && data.success) {
+      if (response.ok && data.status === 'success') {
         setMessage("Account created successfully! You can now sign in.");
         setMessageType("success");
 
