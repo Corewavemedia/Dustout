@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Navbar from './Navbar';
 
@@ -11,6 +12,7 @@ interface SignInFormData {
 }
 
 const SignIn = () => {
+  const router = useRouter();
   const [formData, setFormData] = useState<SignInFormData>({
     email: '',
     password: ''
@@ -90,9 +92,9 @@ const SignIn = () => {
         // Clear form
         setFormData({ email: '', password: '' });
         
-        // Redirect or emit success event
+        // Redirect to dashboard
         setTimeout(() => {
-          window.location.href = '/dashboard';
+          router.push('/dashboard');
         }, 1500);
         
       } else {

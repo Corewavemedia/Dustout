@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Navbar from "./Navbar";
 import Image from "next/image";
@@ -12,6 +13,7 @@ interface SignUpFormData {
 }
 
 const SignUp = () => {
+  const router = useRouter();
   const [formData, setFormData] = useState<SignUpFormData>({
     username: "",
     email: "",
@@ -111,7 +113,7 @@ const SignUp = () => {
 
         // Redirect to sign in after success
         setTimeout(() => {
-          window.location.href = "/signin";
+          router.push("/signin");
         }, 2000);
       } else {
         setMessage(data.message || "Registration failed. Please try again.");
