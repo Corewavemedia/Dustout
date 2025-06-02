@@ -6,6 +6,12 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import SubscriptionModal from "./SubscriptionModal";
 
+interface Plan {
+  name: string;
+  price: string;
+  features: string[];
+}
+
 const residentialPlans = [
   {
     name: "BASIC CLEANING",
@@ -82,11 +88,11 @@ const PricingSection = () => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("residential");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<any>(null);
+  const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
 
   const plans = activeTab === "residential" ? residentialPlans : industrialPlans;
 
-  const handleChoosePlan = (plan: any) => {
+  const handleChoosePlan = (plan: Plan) => {
     // Check if user is signed in
     const token = localStorage.getItem('token');
     if (!token) {

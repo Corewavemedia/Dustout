@@ -121,7 +121,7 @@ const SubscriptionManagement = () => {
           </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">No Active Subscription</h3>
           <p className="text-gray-600 mb-4">
-            You don't have an active subscription yet. Choose a plan to get started with our services.
+            You don&apos;t have an active subscription yet. Choose a plan to get started with our services.
           </p>
           <button
             onClick={() => window.location.href = '/#pricing'}

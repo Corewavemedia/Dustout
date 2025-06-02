@@ -58,7 +58,7 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
       setPaymentData(prev => ({
         ...prev,
         [parent]: {
-          ...prev[parent as keyof PaymentFormData] as any,
+          ...(prev[parent as keyof PaymentFormData] as Record<string, string>),
           [child]: value
         }
       }));
