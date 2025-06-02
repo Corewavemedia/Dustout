@@ -12,6 +12,7 @@ import SubscriptionIcon from "@/components/icons/SubscriptionIcon";
 import LocationIcon from "@/components/icons/Locationicon";
 import DateIcon from "@/components/icons/DateIcon";
 import TimeRange from "@/components/icons/TimeRange";
+import SubscriptionManagement from "@/components/SubscriptionManagement";
 import Image from "next/image";
 
 interface UserData {
@@ -38,6 +39,7 @@ const Dashboard = () => {
   const [orderHistory, setOrderHistory] = useState<OrderData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showSubscription, setShowSubscription] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -77,7 +79,6 @@ const Dashboard = () => {
           throw new Error('Failed to fetch user data');
         }
 
-        // Note: Order history endpoint is not available in the API documentation
         // Setting empty array for now
         setOrderHistory([]);
       } catch (err) {
@@ -198,7 +199,9 @@ const Dashboard = () => {
                   Book Us
                 </button>
 
-                <button className="bg-white/90 text-blue-600 px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center shadow-sm hover:bg-white transition-colors">
+                <button 
+                onClick={() => setShowSubscription(!showSubscription)}
+                className="bg-white/90 text-blue-600 px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center shadow-sm hover:bg-white transition-colors">
                   <SubscriptionIcon />
                   Subscription
                 </button>
@@ -235,6 +238,24 @@ const Dashboard = () => {
             })}
           </div>
         </div>
+
+        {/* Subscription Management */}
+        {showSubscription && (
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-[#538FDF] md:text-xl">
+                Subscription Management
+              </h2>
+              <button 
+                onClick={() => setShowSubscription(false)}
+                className="text-blue-500 text-sm font-medium hover:text-blue-600 transition-colors"
+              >
+                Hide
+              </button>
+            </div>
+            <SubscriptionManagement />
+          </div>
+        )}
 
         <div className="">
           {/* Order History */}

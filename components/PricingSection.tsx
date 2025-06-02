@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import { Check } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import SubscriptionModal from "./SubscriptionModal";
 
 const residentialPlans = [
   {
@@ -77,9 +79,26 @@ const industrialPlans = [
 ];
 
 const PricingSection = () => {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState("residential");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<any>(null);
 
   const plans = activeTab === "residential" ? residentialPlans : industrialPlans;
+
+  const handleChoosePlan = (plan: any) => {
+    // Check if user is signed in
+    const token = localStorage.getItem('token');
+    if (!token) {
+      // Redirect to signin if not authenticated
+      router.push('/signin');
+      return;
+    }
+
+    // Open subscription modal with selected plan
+    setSelectedPlan(plan);
+    setIsModalOpen(true);
+  };
 
   return (
     <section
@@ -158,6 +177,7 @@ const PricingSection = () => {
               </div>
               <div className="p-4 mt-auto">
                 <button 
+                  onClick={() => handleChoosePlan(plan)}
                   className="w-full bg-green-500 text-white font-majer font-medium py-3 rounded-lg hover:bg-green-600 transition-colors duration-300"
                 >
                   Choose
@@ -167,6 +187,14 @@ const PricingSection = () => {
           ))}
         </div>
       </div>
+
+      {/* Subscription Modal */}
+      <SubscriptionModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        selectedPlan={selectedPlan}
+        planType={activeTab as "residential" | "industrial"}
+      />
     </section>
   );
 };

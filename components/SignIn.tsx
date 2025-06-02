@@ -87,6 +87,7 @@ const SignIn = () => {
         // Store JWT token if provided
         if (data.token) {
           localStorage.setItem('token', data.token);
+          localStorage.setItem("userData", JSON.stringify(data.user));
         }
         
         // Clear form
