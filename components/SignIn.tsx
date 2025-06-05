@@ -66,14 +66,17 @@ const SignIn = () => {
     setIsSubmitting(true);
     
     try {
-      const response = await fetch('https://app.dustout.co.uk/api/login.php', {
+      const response = await fetch('https://app.dustout.co.uk/api/api.php', {
         method: 'POST',
+        mode: 'cors',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
         body: JSON.stringify({
-          email: formData.email.trim(),
+          route: 'login',
+          email_or_username: formData.email.trim(),
           password: formData.password
         })
       });
