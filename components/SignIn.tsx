@@ -86,10 +86,10 @@ const SignIn = () => {
         setMessage('Sign in successful!');
         setMessageType('success');
         
-        // Store JWT token
+        // Store JWT token and user data
         if (data.token) {
           localStorage.setItem('token', data.token);
-          localStorage.setItem("userData", JSON.stringify(data.user));
+          localStorage.setItem('userData', JSON.stringify(data.user));
         }
         
         // Clear form

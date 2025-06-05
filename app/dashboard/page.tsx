@@ -68,14 +68,21 @@ const Dashboard = () => {
           if (userResult.status === 'success') {
             setUserData({
               id: userResult.profile.id,
-              username: userResult.profile.name,
+              username: userResult.profile.fullname || userResult.profile.username,
               email: userResult.profile.email,
-              location: userResult.profile.phone || 'London' // Using phone as location fallback
+              location: userResult.profile.address || 'London' // Using address as location
             });
           } else {
             throw new Error(userResult.message || 'Failed to fetch user data');
           }
         } else {
+          if (userResponse.status === 401) {
+            // Token is invalid, redirect to signin
+            localStorage.removeItem('token');
+            localStorage.removeItem('userData');
+            router.push('/signin');
+            return;
+          }
           throw new Error('Failed to fetch user data');
         }
 
@@ -85,8 +92,9 @@ const Dashboard = () => {
         console.error('Error fetching data:', err);
         setError('Failed to load dashboard data');
         // If token is invalid, redirect to signin
-        if (err instanceof Error && err.message.includes('token')) {
+        if (err instanceof Error && (err.message.includes('token') || err.message.includes('Invalid'))) {
           localStorage.removeItem('token');
+          localStorage.removeItem('userData');
           router.push('/signin');
         }
       } finally {
