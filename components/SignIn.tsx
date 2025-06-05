@@ -66,36 +66,27 @@ const SignIn = () => {
     setIsSubmitting(true);
     
     try {
+      // ✅ Use the unified API endpoint
       const response = await fetch('https://app.dustout.co.uk/api/api.php', {
         method: 'POST',
-        mode: 'cors',
-        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
         body: JSON.stringify({
           route: 'login',
-          email_or_username: formData.email.trim(),
+          email_or_username: formData.email.trim(), 
           password: formData.password
         })
       });
       
-      let data;
-      try {
-        data = await response.json();
-      } catch (jsonError) {
-        console.error('Failed to parse JSON response:', jsonError);
-        setMessage('Server error. Please try again later.');
-        setMessageType('error');
-        return;
-      }
+      const data = await response.json();
       
       if (response.ok && data.status === 'success') {
         setMessage('Sign in successful!');
         setMessageType('success');
         
-        // Store JWT token if provided
+        // Store JWT token
         if (data.token) {
           localStorage.setItem('token', data.token);
           localStorage.setItem("userData", JSON.stringify(data.user));
@@ -110,16 +101,7 @@ const SignIn = () => {
         }, 1000);
         
       } else {
-        // Handle different HTTP status codes
-        if (response.status === 500) {
-          setMessage('Server error. Please try again later or contact support.');
-        } else if (response.status === 401) {
-          setMessage('Invalid credentials. Please check your email and password.');
-        } else if (response.status === 404) {
-          setMessage('Service not found. Please contact support.');
-        } else {
-          setMessage(data?.message || 'Sign in failed. Please check your credentials.');
-        }
+        setMessage(data.message || 'Sign in failed. Please check your credentials.');
         setMessageType('error');
       }
     } catch (error) {

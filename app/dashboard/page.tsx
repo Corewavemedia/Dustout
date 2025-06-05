@@ -54,7 +54,6 @@ const Dashboard = () => {
         const userResponse = await fetch('https://app.dustout.co.uk/api/api.php', {
           method: 'POST',
           mode: 'cors',
-          credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
           },
@@ -64,47 +63,32 @@ const Dashboard = () => {
           })
         });
 
-        let userResult;
-        try {
-          userResult = await userResponse.json();
-        } catch (jsonError) {
-          console.error('Failed to parse JSON response:', jsonError);
-          throw new Error('Server returned invalid response');
-        }
-        
-        if (userResult.status === 'success') {
-          setUserData({
-            id: userResult.profile.id,
-            username: userResult.profile.name,
-            email: userResult.profile.email,
-            location: userResult.profile.phone || 'London' // Using phone as location fallback
-          });
-        } else {
-          // Handle invalid or expired token
-          if (userResult.message === 'Invalid or expired token') {
-            localStorage.removeItem('token');
-            localStorage.removeItem('userData');
-            router.push('/signin');
-            return;
+        if (userResponse.ok) {
+          const userResult = await userResponse.json();
+          if (userResult.status === 'success') {
+            setUserData({
+              id: userResult.profile.id,
+              username: userResult.profile.name,
+              email: userResult.profile.email,
+              location: userResult.profile.phone || 'London' // Using phone as location fallback
+            });
+          } else {
+            throw new Error(userResult.message || 'Failed to fetch user data');
           }
-          throw new Error(userResult.message || 'Failed to fetch user data');
+        } else {
+          throw new Error('Failed to fetch user data');
         }
 
         // Setting empty array for now
         setOrderHistory([]);
       } catch (err) {
         console.error('Error fetching data:', err);
-        
-        // Check if it's a token-related error
-        const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-        if (errorMessage.includes('Invalid or expired token') || errorMessage.includes('token')) {
+        setError('Failed to load dashboard data');
+        // If token is invalid, redirect to signin
+        if (err instanceof Error && err.message.includes('token')) {
           localStorage.removeItem('token');
-          localStorage.removeItem('userData');
           router.push('/signin');
-          return;
         }
-        
-        setError('Failed to load dashboard data. Please try again.');
       } finally {
         setLoading(false);
       }
