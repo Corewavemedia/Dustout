@@ -81,7 +81,15 @@ const SignIn = () => {
         })
       });
       
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        console.error('Failed to parse JSON response:', jsonError);
+        setMessage('Server error. Please try again later.');
+        setMessageType('error');
+        return;
+      }
       
       if (response.ok && data.status === 'success') {
         setMessage('Sign in successful!');
@@ -102,7 +110,16 @@ const SignIn = () => {
         }, 1000);
         
       } else {
-        setMessage(data.message || 'Sign in failed. Please check your credentials.');
+        // Handle different HTTP status codes
+        if (response.status === 500) {
+          setMessage('Server error. Please try again later or contact support.');
+        } else if (response.status === 401) {
+          setMessage('Invalid credentials. Please check your email and password.');
+        } else if (response.status === 404) {
+          setMessage('Service not found. Please contact support.');
+        } else {
+          setMessage(data?.message || 'Sign in failed. Please check your credentials.');
+        }
         setMessageType('error');
       }
     } catch (error) {

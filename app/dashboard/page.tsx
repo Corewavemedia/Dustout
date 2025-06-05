@@ -64,7 +64,13 @@ const Dashboard = () => {
           })
         });
 
-        const userResult = await userResponse.json();
+        let userResult;
+        try {
+          userResult = await userResponse.json();
+        } catch (jsonError) {
+          console.error('Failed to parse JSON response:', jsonError);
+          throw new Error('Server returned invalid response');
+        }
         
         if (userResult.status === 'success') {
           setUserData({
