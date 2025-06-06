@@ -66,7 +66,6 @@ const SignIn = () => {
     setIsSubmitting(true);
     
     try {
-      // ✅ Use the unified API endpoint
       const response = await fetch('https://app.dustout.co.uk/api/api.php', {
         method: 'POST',
         headers: {
@@ -80,9 +79,20 @@ const SignIn = () => {
         })
       });
       
+      // Check if response is ok before trying to parse JSON
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      // Check if response contains JSON
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('Server did not return JSON response');
+      }
+      
       const data = await response.json();
       
-      if (response.ok && data.status === 'success') {
+      if (data.status === 'success') {
         setMessage('Sign in successful!');
         setMessageType('success');
         
@@ -106,7 +116,11 @@ const SignIn = () => {
       }
     } catch (error) {
       console.error('Sign in error:', error);
-      setMessage('Network error. Please check your connection and try again.');
+      if (error instanceof Error && error.message.includes('500')) {
+        setMessage('Server error. Please try again later or contact support.');
+      } else {
+        setMessage('Network error. Please check your connection and try again.');
+      }
       setMessageType('error');
     } finally {
       setIsSubmitting(false);
