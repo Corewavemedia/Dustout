@@ -1,10 +1,12 @@
 "use client";
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Navbar from "./Navbar";
 import Image from "next/image";
+import { useAuth } from '@/lib/auth-context';
 
 interface SignUpFormData {
   username: string;
@@ -14,6 +16,8 @@ interface SignUpFormData {
 
 const SignUp = () => {
   const router = useRouter();
+  const { signUp, user, loading: authLoading } = useAuth();
+  
   const [formData, setFormData] = useState<SignUpFormData>({
     username: "",
     email: "",
@@ -24,6 +28,13 @@ const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState<"success" | "error">("error");
+  
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (user && !authLoading) {
+      router.push('/dashboard');
+    }
+  }, [user, authLoading, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -86,42 +97,30 @@ const SignUp = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(
-        "https://app.dustout.co.uk/api/register.php",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({
-            username: formData.username.trim(),
-            email: formData.email.trim(),
-            password: formData.password,
-          }),
-        }
+      const result = await signUp(
+        formData.username.trim(),
+        formData.email.trim(),
+        formData.password
       );
 
-      const data = await response.json();
-
-      if (response.ok && data.status === 'success') {
-        setMessage("Account created successfully! You can now sign in.");
+      if (result.error) {
+        setMessage(result.error);
+        setMessageType("error");
+      } else {
+        setMessage("Account created successfully! Redirecting to dashboard...");
         setMessageType("success");
 
         // Clear form
         setFormData({ username: "", email: "", password: "" });
 
-        // Redirect to sign in after success
+        // Redirect to dashboard
         setTimeout(() => {
-          router.push("/signin");
+          router.push("/dashboard");
         }, 2000);
-      } else {
-        setMessage(data.message || "Registration failed. Please try again.");
-        setMessageType("error");
       }
     } catch (error) {
-      console.error("Sign up error:", error);
-      setMessage("Network error. Please check your connection and try again.");
+      console.error("Registration error:", error);
+      setMessage("An error occurred. Please try again.");
       setMessageType("error");
     } finally {
       setIsSubmitting(false);

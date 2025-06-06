@@ -14,13 +14,7 @@ import DateIcon from "@/components/icons/DateIcon";
 import TimeRange from "@/components/icons/TimeRange";
 import SubscriptionManagement from "@/components/SubscriptionManagement";
 import Image from "next/image";
-
-interface UserData {
-  id: number;
-  username: string;
-  email: string;
-  location?: string;
-}
+import { useAuth } from '@/lib/auth-context';
 
 interface OrderData {
   id: number;
@@ -32,80 +26,28 @@ interface OrderData {
   status?: string;
 }
 
-
 const Dashboard = () => {
   const router = useRouter();
-  const [userData, setUserData] = useState<UserData | null>(null);
+  const { user, loading: authLoading } = useAuth();
   const [orderHistory, setOrderHistory] = useState<OrderData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [showSubscription, setShowSubscription] = useState(false);
 
+  // Redirect to signin if not authenticated
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          router.push('/signin');
-          return;
-        }
+    if (!authLoading && !user) {
+      router.push('/signin');
+    }
+  }, [user, authLoading, router]);
 
-        // Fetch user profile data
-        const userResponse = await fetch('https://app.dustout.co.uk/api/api.php', {
-          method: 'POST',
-          mode: 'cors',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            route: 'get_profile',
-            token: token
-          })
-        });
+  // Load order history (placeholder for now)
+  useEffect(() => {
+    if (user) {
+      // TODO: Implement order history fetching
+      setOrderHistory([]);
+    }
+  }, [user]);
 
-        if (userResponse.ok) {
-          const userResult = await userResponse.json();
-          if (userResult.status === 'success') {
-            setUserData({
-              id: userResult.profile.id,
-              username: userResult.profile.fullname || userResult.profile.username,
-              email: userResult.profile.email,
-              location: userResult.profile.address || 'London' // Using address as location
-            });
-          } else {
-            throw new Error(userResult.message || 'Failed to fetch user data');
-          }
-        } else {
-          if (userResponse.status === 401) {
-            // Token is invalid, redirect to signin
-            localStorage.removeItem('token');
-            localStorage.removeItem('userData');
-            router.push('/signin');
-            return;
-          }
-          throw new Error('Failed to fetch user data');
-        }
-
-        // Setting empty array for now
-        setOrderHistory([]);
-      } catch (err) {
-        console.error('Error fetching data:', err);
-        setError('Failed to load dashboard data');
-        // If token is invalid, redirect to signin
-        if (err instanceof Error && (err.message.includes('token') || err.message.includes('Invalid'))) {
-          localStorage.removeItem('token');
-          localStorage.removeItem('userData');
-          router.push('/signin');
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserData();
-  }, [router]);
-
-  if (loading) {
+  if (authLoading) {
     return (
       <div className="min-h-screen bg-blue-50 flex items-center justify-center">
         <div className="text-center">
@@ -116,21 +58,11 @@ const Dashboard = () => {
     );
   }
 
-  if (error) {
-    return (
-      <div className="min-h-screen bg-blue-50 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-600 mb-4">{error}</p>
-          <button 
-            onClick={() => window.location.reload()} 
-            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
-    );
+  if (!user) {
+    return null; // Will redirect to signin
   }
+
+
 
   return (
     <div className="min-h-screen bg-blue-50 relative overflow-hidden">
@@ -173,12 +105,12 @@ const Dashboard = () => {
               {/* Location */}
               <div className="flex items-center mb-3">
                 <MapPinIcon className="h-4 w-4 mr-2" />
-                <span className="text-sm font-medium">{userData?.location || 'London'}</span>
+                <span className="text-sm font-medium">{user.address || 'London'}</span>
               </div>
 
               {/* Welcome Text */}
               <h1 className="text-3xl font-normal mb-8 font-majer">
-                Welcome, <span className="text-5xl">{userData?.username || 'User'}!</span>
+                Welcome, <span className="text-5xl">{user.fullname || user.username}!</span>
               </h1>
 
               {/* Action Buttons */}
