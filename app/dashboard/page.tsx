@@ -109,7 +109,7 @@ const Dashboard = () => {
               </div>
 
               {/* Welcome Text */}
-              <h1 className="text-3xl font-normal mb-8 font-majer">
+              <h1 className="text-3xl font-normal mb-8 font-majer break-words">
                 Welcome, <span className="text-5xl">{user.fullname || user.username}!</span>
               </h1>
 

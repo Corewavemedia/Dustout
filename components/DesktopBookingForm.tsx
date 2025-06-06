@@ -19,7 +19,8 @@ const BookingForm = () => {
     bedrooms: "",
     bathrooms: "",
     preferredDate: "",
-    preferredTime: "",
+    startTime: "",
+    endTime: "",
     urgent: "",
     specialNotes: "",
   });
@@ -70,7 +71,8 @@ const BookingForm = () => {
         bedrooms: parseInt(formData.bedrooms) || 0,
         bathrooms: parseInt(formData.bathrooms) || 0,
         preferred_date: formData.preferredDate,
-        time_slot: formData.preferredTime,
+        start_time: formData.startTime,
+        end_time: formData.endTime,
         urgent: formData.urgent,
         notes: formData.specialNotes,
       };
@@ -107,7 +109,8 @@ const BookingForm = () => {
           bedrooms: "",
           bathrooms: "",
           preferredDate: "",
-          preferredTime: "",
+          startTime: "",
+          endTime: "",
           urgent: "",
           specialNotes: "",
         });
@@ -509,34 +512,60 @@ const BookingForm = () => {
                         </div>
                         <div>
                           <label
-                            htmlFor="preferredTime"
+                            htmlFor="startTime"
                             className="block text-white font-majer text-sm mb-1"
                           >
-                            Preferred Time Slot
+                            Start Time
                           </label>
                           <select
-                            id="preferredTime"
-                            name="preferredTime"
-                            value={formData.preferredTime}
+                            id="startTime"
+                            name="startTime"
+                            value={formData.startTime}
                             onChange={handleChange}
                             className="w-full p-3 rounded-md focus:outline-none"
                           >
-                            <option value="">Select time slot</option>
-                            <option value="8:00 AM – 10:00 AM">
-                              8:00 AM – 10:00 AM
-                            </option>
-                            <option value="10:00 AM – 12:00 PM">
-                              10:00 AM – 12:00 PM
-                            </option>
-                            <option value="12:00 PM – 2:00 PM">
-                              12:00 PM – 2:00 PM
-                            </option>
-                            <option value="2:00 PM – 4:00 PM">
-                              2:00 PM – 4:00 PM
-                            </option>
-                            <option value="4:00 PM – 6:00 PM">
-                              4:00 PM – 6:00 PM
-                            </option>
+                            <option value="">Select start time</option>
+                            <option value="6:00 AM">6:00 AM</option>
+                            <option value="7:00 AM">7:00 AM</option>
+                            <option value="8:00 AM">8:00 AM</option>
+                            <option value="9:00 AM">9:00 AM</option>
+                            <option value="10:00 AM">10:00 AM</option>
+                            <option value="11:00 AM">11:00 AM</option>
+                            <option value="12:00 PM">12:00 PM</option>
+                            <option value="1:00 PM">1:00 PM</option>
+                            <option value="2:00 PM">2:00 PM</option>
+                            <option value="3:00 PM">3:00 PM</option>
+                            <option value="4:00 PM">4:00 PM</option>
+                            <option value="5:00 PM">5:00 PM</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label
+                            htmlFor="endTime"
+                            className="block text-white font-majer text-sm mb-1"
+                          >
+                            End Time
+                          </label>
+                          <select
+                            id="endTime"
+                            name="endTime"
+                            value={formData.endTime}
+                            onChange={handleChange}
+                            className="w-full p-3 rounded-md focus:outline-none"
+                          >
+                            <option value="">Select end time</option>
+                            <option value="8:00 AM">8:00 AM</option>
+                            <option value="9:00 AM">9:00 AM</option>
+                            <option value="10:00 AM">10:00 AM</option>
+                            <option value="11:00 AM">11:00 AM</option>
+                            <option value="12:00 PM">12:00 PM</option>
+                            <option value="1:00 PM">1:00 PM</option>
+                            <option value="2:00 PM">2:00 PM</option>
+                            <option value="3:00 PM">3:00 PM</option>
+                            <option value="4:00 PM">4:00 PM</option>
+                            <option value="5:00 PM">5:00 PM</option>
+                            <option value="6:00 PM">6:00 PM</option>
+                            <option value="7:00 PM">7:00 PM</option>
                           </select>
                         </div>
                       </div>
