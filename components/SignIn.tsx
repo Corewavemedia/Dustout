@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Navbar from './Navbar';
 import { useAuth } from '@/lib/auth-context';
@@ -16,6 +16,8 @@ interface SignInFormData {
 const SignIn = () => {
   const router = useRouter();
   const { signIn, user, loading: authLoading } = useAuth();
+  const searchParams = useSearchParams();
+  const redirectUrl = searchParams.get('redirect');
   
   const [formData, setFormData] = useState<SignInFormData>({
     email: '',
@@ -27,12 +29,6 @@ const SignIn = () => {
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'success' | 'error'>('error');
   
-  // Redirect if already authenticated
-  useEffect(() => {
-    if (user && !authLoading) {
-      router.push('/dashboard');
-    }
-  }, [user, authLoading, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -89,8 +85,8 @@ const SignIn = () => {
         // Clear form
         setFormData({ email: '', password: '' });
         
-        // Redirect to dashboard immediately
-        window.location.href = '/dashboard';
+        // Redirect to dashboard immediately or the redirect url if it exists
+        router.push(redirectUrl || '/dashboard');
       }
     } catch (error) {
       console.error('Error during sign in:', error);

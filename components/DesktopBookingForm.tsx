@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../lib/auth-context';
 import { useBookingForm } from '../lib/hooks/useBookingForm';
+import Link from 'next/link';
 
 // This is the desktop version of the form that will be positioned after the About section
 export const DesktopBookingForm = () => {
@@ -28,23 +29,6 @@ export const DesktopBookingForm = () => {
     );
   }
 
-  // Show login prompt if user is not authenticated
-  if (!user) {
-    return (
-      <div className="bg-white rounded-lg shadow-lg p-6 mx-4 my-8 hidden md:block">
-        <div className="text-center">
-          <h3 className="text-xl font-normal text-blue-500 mb-4 font-majer">Please Log In</h3>
-          <p className="text-gray-600 mb-6">You need to be logged in to submit a booking request.</p>
-          <a 
-            href="/signin" 
-            className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Sign In
-          </a>
-        </div>
-      </div>
-    );
-  }
 
   const handleFormSubmit = handleSubmit;
 
@@ -57,6 +41,7 @@ export const DesktopBookingForm = () => {
   };
 
   return (
+    <div className='relative hidden md:block'>
     <section
       id="booking"
       className="w-full py-20 relative overflow-hidden bg-sky-50 hidden md:block"
@@ -613,6 +598,19 @@ export const DesktopBookingForm = () => {
         </div>
       </div>
     </section>
+    {/*  Conditional Overlay if the user isnt signed in yet */}
+    {!user && (
+      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-lg bg-white/10 p-6 text-center backdrop-blur-sm">
+        {/* The Smart Redirect Link to redirect back to the component after signin */}
+        <Link 
+          href="/signin?redirect=/#booking" 
+          className="bg-green-500 text-white px-8 py-3 rounded-lg font-majer font-normal text-lg hover:bg-green-600 transition-colors shadow-lg"
+        >
+          Sign In to Book
+        </Link>
+      </div>
+    )}
+    </div>
   );
 };
 

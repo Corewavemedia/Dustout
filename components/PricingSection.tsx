@@ -5,6 +5,7 @@ import { Check } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import SubscriptionModal from "./SubscriptionModal";
+import { useAuth } from "@/lib/auth-context";
 
 interface Plan {
   name: string;
@@ -89,13 +90,13 @@ const PricingSection = () => {
   const [activeTab, setActiveTab] = useState("residential");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
+  const { user } = useAuth();
 
   const plans = activeTab === "residential" ? residentialPlans : industrialPlans;
 
   const handleChoosePlan = (plan: Plan) => {
     // Check if user is signed in
-    const token = localStorage.getItem('token');
-    if (!token) {
+    if (!user) {
       // Redirect to signin if not authenticated
       router.push('/signin');
       return;

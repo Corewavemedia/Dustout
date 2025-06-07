@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../lib/auth-context';
 import { useBookingForm } from '../lib/hooks/useBookingForm';
+import Link from 'next/link';
 
 // This is the mobile version of the form that will be positioned after the About section
 export const MobileBookingForm = () => {
@@ -28,24 +29,6 @@ export const MobileBookingForm = () => {
     );
   }
 
-  // Show login prompt if user is not authenticated
-  if (!user) {
-    return (
-      <div className="bg-white rounded-lg shadow-lg p-6 mx-4 my-8 md:hidden">
-        <div className="text-center">
-          <h3 className="text-xl font-normal text-blue-500 mb-4 font-majer">Please Log In</h3>
-          <p className="text-gray-600 mb-6">You need to be logged in to submit a booking request.</p>
-          <a 
-            href="/signin" 
-            className="bg-green-500 text-white font-majer px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Sign In
-          </a>
-        </div>
-      </div>
-    );
-  }
-
   const handleFormSubmit = handleSubmit;
 
   const stepVariants = {
@@ -55,6 +38,7 @@ export const MobileBookingForm = () => {
   };
 
   return (
+    <div className="relative md:hidden">
     <div className="md:hidden w-full px-4 py-8 bg-white relative overflow-hidden" id='MobileBookingForm'>
       {/* Big bubble center */}
       <Image 
@@ -405,6 +389,19 @@ export const MobileBookingForm = () => {
           )}
         </AnimatePresence>
       </form>
+    </div>
+    {/*  Conditional Overlay if the user isnt signed in yet */}
+    {!user && (
+      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-lg bg-white/10 p-6 text-center backdrop-blur-sm">
+        {/* The Smart Redirect Link to redirect back to the component after signin */}
+        <Link 
+          href="/signin?redirect=/#MobileBookingForm" 
+          className="bg-green-500 text-white px-8 py-3 rounded-lg font-majer font-normal text-lg hover:bg-green-600 transition-colors shadow-lg"
+        >
+          Sign In to Book
+        </Link>
+      </div>
+    )}
     </div>
   );
 };
