@@ -22,7 +22,7 @@ export const MobileBookingForm = () => {
   // Show loading state
   if (loading) {
     return (
-      <div className="flex justify-center items-center p-8">
+      <div className="flex justify-center items-center p-8 md:hidden">
         <div className="text-lg">Loading...</div>
       </div>
     );
@@ -31,13 +31,13 @@ export const MobileBookingForm = () => {
   // Show login prompt if user is not authenticated
   if (!user) {
     return (
-      <div className="bg-white rounded-lg shadow-lg p-6 mx-4 my-8">
+      <div className="bg-white rounded-lg shadow-lg p-6 mx-4 my-8 md:hidden">
         <div className="text-center">
-          <h3 className="text-xl font-semibold mb-4">Please Log In</h3>
-          <p className="text-gray-600 mb-4">You need to be logged in to submit a booking request.</p>
+          <h3 className="text-xl font-normal text-blue-500 mb-4 font-majer">Please Log In</h3>
+          <p className="text-gray-600 mb-6">You need to be logged in to submit a booking request.</p>
           <a 
             href="/signin" 
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            className="bg-green-500 text-white font-majer px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
           >
             Sign In
           </a>
