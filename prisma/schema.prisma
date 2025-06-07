@@ -21,5 +21,37 @@ model User {
   address           String?
   phone             String?
   
+  // Relationship to bookings
+  bookings          Booking[]
+  
   @@map("users")
+}
+
+model Booking {
+  id              String   @id @default(uuid())
+  userId          String
+  fullName        String
+  phone           String
+  email           String
+  serviceAddress  String
+  cityState       String?
+  postCode        String?
+  landmark        String?
+  serviceTypes    String   // JSON string of selected services
+  serviceFrequency String
+  bedrooms        Int?
+  bathrooms       Int?
+  preferredDate   String?
+  startTime       String?
+  endTime         String?
+  isUrgent        String   @default("No")
+  notes           String?
+  status          String   @default("pending")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relationship to user
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("bookings")
 }

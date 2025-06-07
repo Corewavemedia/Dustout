@@ -6,7 +6,7 @@ import AboutSection from "@/components/About";
 import ContactSection from "@/components/TestimonialSection";
 import Footer from "@/components/Footer";
 import Hero from "@/components/Hero";
-import BookingForm from "@/components/DesktopBookingForm";
+import { DesktopBookingForm } from "@/components/DesktopBookingForm";
 import { MobileBookingForm } from "@/components/MobileBookingForm";
 import PricingSection from "@/components/PricingSection";
 import WhyChooseUs from "@/components/WhyChooseUs";
@@ -23,7 +23,7 @@ export default function Home() {
         <MobileBookingForm />
         <ServicesSection />
         {/* Desktop Booking Form - shows only on desktop */}
-        <BookingForm />
+        <DesktopBookingForm />
         <PricingSection />
         <WhyChooseUs />
         <HowToBookUs />

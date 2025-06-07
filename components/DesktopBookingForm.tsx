@@ -1,133 +1,54 @@
 'use client';
-import React, { useState } from "react";
-import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import React from 'react';
+import Image from 'next/image';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../lib/auth-context';
+import { useBookingForm } from '../lib/hooks/useBookingForm';
 
-// This is the original BookingForm component that will be shown on desktop
-const BookingForm = () => {
-  const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState({
-    fullName: "",
-    phone: "",
-    email: "",
-    serviceAddress: "",
-    cityState: "",
-    postCode: "",
-    landmark: "",
-    serviceTypes: [] as string[],
-    serviceFrequency: "",
-    bedrooms: "",
-    bathrooms: "",
-    preferredDate: "",
-    startTime: "",
-    endTime: "",
-    urgent: "",
-    specialNotes: "",
-  });
+// This is the desktop version of the form that will be positioned after the About section
+export const DesktopBookingForm = () => {
+  const { user, loading } = useAuth();
+  const {
+    currentStep,
+    formData,
+    isSubmitting,
+    submitMessage,
+    handleChange,
+    nextStep,
+    prevStep,
+    handleSubmit
+  } = useBookingForm(user);
 
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
-  ) => {
-    const { name, value, type } = e.target;
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center p-8">
+        <div className="text-lg">Loading...</div>
+      </div>
+    );
+  }
 
-    if (type === "checkbox") {
-      const checked = (e.target as HTMLInputElement).checked;
-      setFormData((prev) => ({
-        ...prev,
-        serviceTypes: checked
-          ? [...prev.serviceTypes, value]
-          : prev.serviceTypes.filter((item) => item !== value),
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-    }
-  };
+  // Show login prompt if user is not authenticated
+  if (!user) {
+    return (
+      <div className="bg-white rounded-lg shadow-lg p-6 mx-4 my-8">
+        <div className="text-center">
+          <h3 className="text-xl font-semibold mb-4">Please Log In</h3>
+          <p className="text-gray-600 mb-4">You need to be logged in to submit a booking request.</p>
+          <a 
+            href="/signin" 
+            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Sign In
+          </a>
+        </div>
+      </div>
+    );
+  }
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitMessage, setSubmitMessage] = useState("");
+  const handleFormSubmit = handleSubmit;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setSubmitMessage("");
 
-    try {
-      // Transform form data to match backend expectations
-      const backendData = {
-        full_name: formData.fullName,
-        phone: formData.phone,
-        email: formData.email,
-        address: formData.serviceAddress,
-        city_state: formData.cityState,
-        postcode: formData.postCode,
-        landmark: formData.landmark,
-        service_type: formData.serviceTypes.join(", "),
-        frequency: formData.serviceFrequency,
-        bedrooms: parseInt(formData.bedrooms) || 0,
-        bathrooms: parseInt(formData.bathrooms) || 0,
-        preferred_date: formData.preferredDate,
-        start_time: formData.startTime,
-        end_time: formData.endTime,
-        urgent: formData.urgent,
-        notes: formData.specialNotes,
-      };
-
-      const response = await fetch(
-        "https://app.dustout.co.uk/api/booking.php",
-        {
-          method: "POST",
-          mode: "cors",
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-          },
-          body: JSON.stringify(backendData),
-        }
-      );
-
-      if (response.ok) {
-        await response.json();
-        setSubmitMessage(
-          "Booking submitted successfully! We will contact you soon."
-        );
-        // Reset form
-        setFormData({
-          fullName: "",
-          phone: "",
-          email: "",
-          serviceAddress: "",
-          cityState: "",
-          postCode: "",
-          landmark: "",
-          serviceTypes: [],
-          serviceFrequency: "",
-          bedrooms: "",
-          bathrooms: "",
-          preferredDate: "",
-          startTime: "",
-          endTime: "",
-          urgent: "",
-          specialNotes: "",
-        });
-        setCurrentStep(1);
-      } else {
-        throw new Error("Failed to submit booking");
-      }
-    } catch (error) {
-      console.error("Error submitting booking:", error);
-      setSubmitMessage("Failed to submit booking. Please try again.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const nextStep = () => setCurrentStep(2);
-  const prevStep = () => setCurrentStep(1);
 
   const stepVariants = {
     hidden: { opacity: 0, x: 50 },
@@ -230,7 +151,7 @@ const BookingForm = () => {
 
             {/* Right Section - Form */}
             <div className="w-full md:w-7/12 bg-blue-500 p-6 md:p-10">
-              <form onSubmit={handleSubmit} className="min-h-[600px]">
+              <form onSubmit={handleFormSubmit} className="min-h-[600px]">
                 <AnimatePresence mode="wait">
                   {currentStep === 1 && (
                     <motion.div
@@ -695,4 +616,3 @@ const BookingForm = () => {
   );
 };
 
-export default BookingForm;
