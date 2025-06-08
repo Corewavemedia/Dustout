@@ -1,10 +1,16 @@
+'use client';
+
+import { Suspense } from 'react';
 import SignIn from '@/components/SignIn';
 
-export default function SignInPage() {
+function SignInContent() {
   return <SignIn />;
 }
 
-export const metadata = {
-  title: 'Sign In - DustOut',
-  description: 'Sign in to your DustOut account to manage your cleaning services.',
-};
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center min-h-screen"><div className="text-lg">Loading...</div></div>}>
+      <SignInContent />
+    </Suspense>
+  );
+}
