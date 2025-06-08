@@ -51,7 +51,7 @@ const DashboardOverview: React.FC = () => {
   ];
 
   // Current month for calendar
-  const currentMonth = "June";
+//   const currentMonth = "June";
 
   return (
     <div className="flex flex-col min-h-screen bg-bg-light">
@@ -294,7 +294,7 @@ const DashboardOverview: React.FC = () => {
                 
                 {/* Data Rows */}
                 <tbody className="divide-y divide-gray-200">
-                  {bookingHistory.map((booking, index) => (
+                  {bookingHistory.map((booking) => (
                     <tr key={booking.id} className="hover:bg-gray-50">
                       <td className="px-4 py-3 text-sm text-[#5B9BD5] font-normal font-majer">
                         {booking.id}
