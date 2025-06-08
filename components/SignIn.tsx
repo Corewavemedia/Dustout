@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -15,7 +15,7 @@ interface SignInFormData {
 
 const SignIn = () => {
   const router = useRouter();
-  const { signIn, user, loading: authLoading } = useAuth();
+  const { signIn } = useAuth();
   const searchParams = useSearchParams();
   const redirectUrl = searchParams.get('redirect');
   
