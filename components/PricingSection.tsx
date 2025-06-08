@@ -97,8 +97,8 @@ const PricingSection = () => {
   const handleChoosePlan = (plan: Plan) => {
     // Check if user is signed in
     if (!user) {
-      // Redirect to signin if not authenticated
-      router.push('/signin');
+      // Redirect to signin if not authenticated with redirect back to pricing section
+      router.push('/signin?redirect=/#pricing');
       return;
     }
 
