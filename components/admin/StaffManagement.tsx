@@ -3,16 +3,16 @@ import React, { useState } from "react";
 import AddStaffSidebar from "./AddStaffSidebar";
 import Stafflist from "./Stafflist";
 
-interface Staff {
-  id: string;
-  staffName: string;
-  role: string;
-  services: string[];
-  salary: string;
-  email: string;
-  phoneNumber: string;
-  address: string;
-}
+// interface Staff {
+//   id: string;
+//   staffName: string;
+//   role: string;
+//   services: string[];
+//   salary: string;
+//   email: string;
+//   phoneNumber: string;
+//   address: string;
+// }
 
 
 
