@@ -1,0 +1,139 @@
+import React from 'react'
+
+const AddStaffSidebar = () => {
+  return (
+    <>
+        <div className="w-72 bg-white shadow-lg overflow-y-auto font-majer">
+          <div className="p-6">
+            {/* Upload Picture Section */}
+            <div className="mb-6">
+              <div className="w-24 h-24 bg-blue-200 rounded-lg flex flex-col items-center justify-center mx-auto mb-4">
+                <svg
+                  width="48"
+                  height="48"
+                  viewBox="0 0 48 48"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fillRule="evenodd"
+                    clipRule="evenodd"
+                    d="M19.5556 42H28.4444C34.6866 42 37.8076 42 40.0496 40.5292C41.02 39.8924 41.8534 39.0742 42.502 38.1214C44 35.9202 44 32.8558 44 26.7272C44 20.5988 44 17.5344 42.502 15.3332C41.8534 14.3803 41.02 13.5621 40.0496 12.9254C38.6088 11.9803 36.8054 11.6425 34.044 11.5217C32.7262 11.5217 31.5918 10.5414 31.3334 9.27272C30.9456 7.36978 29.2438 6 27.2674 6H20.7326C18.7561 6 17.0543 7.36978 16.6667 9.27272C16.4082 10.5414 15.2737 11.5217 13.956 11.5217C11.1947 11.6425 9.3911 11.9803 7.95048 12.9254C6.9799 13.5621 6.14656 14.3803 5.49804 15.3332C4 17.5344 4 20.5988 4 26.7272C4 32.8558 4 35.9202 5.49804 38.1214C6.14656 39.0742 6.9799 39.8924 7.95048 40.5292C10.1925 42 13.3135 42 19.5556 42ZM24 18.5455C19.3976 18.5455 15.6667 22.2086 15.6667 26.7272C15.6667 31.246 19.3976 34.909 24 34.909C28.6024 34.909 32.3334 31.246 32.3334 26.7272C32.3334 22.2086 28.6024 18.5455 24 18.5455ZM24 21.8182C21.2386 21.8182 19 24.016 19 26.7272C19 29.4384 21.2386 31.6364 24 31.6364C26.7614 31.6364 29 29.4384 29 26.7272C29 24.016 26.7614 21.8182 24 21.8182ZM33.4444 20.1818C33.4444 19.2781 34.1906 18.5455 35.1112 18.5455H37.3334C38.2538 18.5455 39 19.2781 39 20.1818C39 21.0856 38.2538 21.8182 37.3334 21.8182H35.1112C34.1906 21.8182 33.4444 21.0856 33.4444 20.1818Z"
+                    fill="white"
+                  />
+                </svg>
+                <p className="text-center text-xs text-white">
+                  Upload Picture
+                </p>
+              </div>
+            </div>
+
+            {/* Form Fields */}
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs text-[#538FDF] mb-1">
+                    First Name
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full p-2 bg-[#E8F2FF] rounded text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-[#538FDF] mb-1">
+                    Last Name
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full p-2 bg-[#E8F2FF] rounded text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs text-[#538FDF] mb-1">
+                    Position
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full p-2 bg-[#E8F2FF] rounded text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-[#538FDF] mb-1">
+                    Address
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full p-2 bg-[#E8F2FF] rounded text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs text-[#538FDF] mb-1">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    className="w-full p-2 bg-[#E8F2FF] rounded text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-[#538FDF] mb-1">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    className="w-full p-2 bg-[#E8F2FF] rounded text-sm"
+                  />
+                </div>
+              </div>
+
+              {/* Services Section */}
+              <div>
+                <div className="grid grid-cols-2 gap-2 text-xs text-[#538FDF]">
+                  <div className="flex items-center">
+                    <input type="checkbox" className="mr-2" />
+                    <span>CarWashing</span>
+                  </div>
+                  <div className="flex items-center">
+                    <input type="checkbox" className="mr-2" />
+                    <span>Landscaping</span>
+                  </div>
+                  <div className="flex items-center">
+                    <input type="checkbox" className="mr-2" />
+                    <span>Residential Cleaning</span>
+                  </div>
+                  <div className="flex items-center">
+                    <input type="checkbox" className="mr-2" />
+                    <span>Industrial Cleaning</span>
+                  </div>
+                  <div className="flex items-center">
+                    <input type="checkbox" className="mr-2" />
+                    <span>Fumigation</span>
+                  </div>
+                  <div className="flex items-center">
+                    <input type="checkbox" className="mr-2" />
+                    <span>Refuse Disposal</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Add Staff Button */}
+              <button 
+              
+              className="w-full bg-[#12B368] text-white py-3 rounded-lg font-medium mt-6">
+                + Add Staff
+              </button>
+            </div>
+          </div>
+        </div>
+    </>
+  )
+}
+
+export default AddStaffSidebar

@@ -4,7 +4,11 @@ import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import DashboardOverview from "@/components/admin/DashboardOverview";
+import StaffManagement from "@/components/admin/StaffManagement";
 import Footer from "@/components/Footer";
+import ClientsManagement from "@/components/admin/ClientsManagement";
+import BookingManagement from "@/components/admin/BookingManagement";
+import ServicesManagement from "@/components/admin/ServicesManagement";
 
 const AdminPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -15,32 +19,18 @@ const AdminPage: React.FC = () => {
       case "dashboard":
         return <DashboardOverview />;
       case "manage-staff":
-        return (
-          <div className="p-6">
-            <h1 className="text-2xl font-bold">Manage Staff</h1>
-            <p>Staff management functionality will be implemented here.</p>
-          </div>
-        );
+        return <StaffManagement />;
       case "booking":
         return (
-          <div className="p-6">
-            <h1 className="text-2xl font-bold">Booking</h1>
-            <p>Booking functionality will be implemented here.</p>
-          </div>
+          <BookingManagement />
         );
       case "clients":
         return (
-          <div className="p-6">
-            <h1 className="text-2xl font-bold">Clients</h1>
-            <p>Client management functionality will be implemented here.</p>
-          </div>
+          <ClientsManagement />
         );
-      case "profile":
+      case "services":
         return (
-          <div className="p-6">
-            <h1 className="text-2xl font-bold">Profile</h1>
-            <p>Profile management functionality will be implemented here.</p>
-          </div>
+          <ServicesManagement />
         );
       case "settings":
         return (
@@ -212,29 +202,6 @@ const AdminPage: React.FC = () => {
                 </button>
               </li>
               <li>
-                <button
-                  onClick={() => setActiveTab("profile")}
-                  className={`w-full flex items-center p-4 text-sm rounded-md transition-colors ${
-                    activeTab === "profile"
-                      ? "bg-gradient-to-r from-[#538FDF] to-[#171AD4] text-white"
-                      : "text-[#538FDF] hover:bg-gray-100 bg-white"
-                  }`}
-                >
-                  <svg
-                    width="20"
-                    height="27"
-                    viewBox="0 0 20 27"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="mr-3"
-                  >
-                    <path
-                      d="M11 0C8.51562 0 6.5 2.11161 6.5 4.71429C6.5 7.31696 8.51562 9.42857 11 9.42857C13.4844 9.42857 15.5 7.31696 15.5 4.71429C15.5 2.11161 13.4844 0 11 0ZM8.75 11C5.01172 11 2 14.1551 2 18.0714V18.8571C2 20.6004 3.33594 22 5 22H17C18.6641 22 20 20.6004 20 18.8571V18.0714C20 14.1551 16.9883 11 13.25 11H8.75Z"
-                      fill="#538FDF"
-                    />
-                  </svg>
-                  Profile
-                </button>
               </li>
               <li>
                 <button
@@ -555,7 +522,7 @@ const AdminPage: React.FC = () => {
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Render the active component */}
-          <main className="flex-1 overflow-y-auto">
+          <main className="flex-1 overflow-y-auto z-10">
             {renderActiveComponent()}
           </main>   
         </div>
