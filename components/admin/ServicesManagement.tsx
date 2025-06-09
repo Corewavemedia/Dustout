@@ -18,7 +18,6 @@ interface ServiceData {
 }
 
 const ServicesManagement: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState("");
   const [selectedService, setSelectedService] = useState<string>("");
   const [serviceVariables, setServiceVariables] = useState<ServiceVariable[]>([
     { id: "1", variable: "1 bedroom", amount: 30 },
@@ -108,9 +107,7 @@ const ServicesManagement: React.FC = () => {
     ]);
   };
 
-  const filteredServices = serviceData.filter(service =>
-    service.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  
 
   return (
     <div className="flex flex-col min-h-screen bg-bg-light">
@@ -243,7 +240,7 @@ const ServicesManagement: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredServices.map((service) => (
+                  {serviceData.map((service) => (
                     <tr key={service.id}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         {service.title}

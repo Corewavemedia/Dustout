@@ -17,16 +17,16 @@ interface Staff {
 
 
 const StaffManagement: React.FC = () => {
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
+  // const [isEditMode, setIsEditMode] = useState(false);
+  // const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isStaffEditMode, setIsStaffEditMode] = useState(false);
  
 
-  const handleAddStaff = () => {
-    setSelectedStaff(null);
-    setIsEditMode(true);
-  };
+  // const handleAddStaff = () => {
+  //   setSelectedStaff(null);
+  //   setIsEditMode(true);
+  // };
 
  
 
@@ -58,7 +58,7 @@ const StaffManagement: React.FC = () => {
             {/* Action Buttons */}
             <div className="flex items-center justify-center font-majer flex-col sm:flex-row gap-3 mt-4">
               <button
-                onClick={handleAddStaff}
+                // onClick={handleAddStaff}
                 className="bg-[#12B368] text-white px-6 py-2 rounded-lg font-medium hover:bg-green-600 transition-colors flex items-center justify-center gap-2"
               >
                 +Add Staff

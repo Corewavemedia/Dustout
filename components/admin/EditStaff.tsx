@@ -22,7 +22,7 @@ interface EditStaffViewProps {
 export  const EditStaff: React.FC<EditStaffViewProps> = ({
     staff,
     onSave,
-    onCancel,
+    // onCancel,
     onDelete,
   }) => {
     const [formData, setFormData] = useState<Staff>({

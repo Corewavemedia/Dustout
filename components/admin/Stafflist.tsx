@@ -21,7 +21,7 @@ interface StafflistProps {
 const Stafflist: React.FC<StafflistProps> = ({ onEditModeChange }) => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
-  const [searchTerm, setSearchTerm] = useState("");
+  // const [searchTerm, setSearchTerm] = useState("");
 
   // Sample staff data
 const [staffList, setStaffList] = useState<Staff[]>([
@@ -126,14 +126,14 @@ const [staffList, setStaffList] = useState<Staff[]>([
     onEditModeChange?.(true);
   };
 
-  const filteredStaff = staffList.filter(
-    (staff) =>
-      staff.staffName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      staff.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      staff.services.some((service) =>
-        service.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-  );
+  // const filteredStaff = staffList.filter(
+  //   (staff) =>
+  //     staff.staffName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     staff.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     staff.services.some((service) =>
+  //       service.toLowerCase().includes(searchTerm.toLowerCase())
+  //     )
+  // );
 
   return (
     <>
@@ -153,7 +153,7 @@ const [staffList, setStaffList] = useState<Staff[]>([
 
         {/* Table Body */}
         <div className="divide-y divide-gray-200">
-          {filteredStaff.map((staff) => (
+          {staffList.map((staff) => (
             <div
               key={staff.id}
               className="grid grid-cols-7 font-majer gap-4 p-4 hover:bg-gray-50 transition-colors"
