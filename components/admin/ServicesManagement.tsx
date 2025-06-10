@@ -27,8 +27,6 @@ const ServicesManagement: React.FC = () => {
   const [newAmount, setNewAmount] = useState<string>("");
   const [serviceName, setServiceName] = useState<string>("");
   const [serviceDescription, setServiceDescription] = useState<string>("");
-  const [selectedServiceForVariables, setSelectedServiceForVariables] =
-    useState<string>("");
 
   // Sample service data for the table
   const serviceData: ServiceData[] = [
@@ -74,30 +72,18 @@ const ServicesManagement: React.FC = () => {
     },
   ];
 
-  // Update the selected service for variables when a service is selected
-  useEffect(() => {
-    if (selectedService) {
-      setSelectedServiceForVariables(selectedService);
-    }
-  }, [selectedService]);
+  // const handleAddVariable = () => {
+  //   if (newVariable && newAmount) {
+  //     const newId = (serviceVariables.length + 1).toString();
+  //     setServiceVariables([
+  //       ...serviceVariables,
+  //       { id: newId, variable: newVariable, amount: parseFloat(newAmount) },
+  //     ]);
+  //     setNewVariable("");
+  //     setNewAmount("");
+  //   }
+  // };
 
-  const handleAddVariable = () => {
-    if (newVariable && newAmount) {
-      const newId = (serviceVariables.length + 1).toString();
-      setServiceVariables([
-        ...serviceVariables,
-        { id: newId, variable: newVariable, amount: parseFloat(newAmount) },
-      ]);
-      setNewVariable("");
-      setNewAmount("");
-    }
-  };
-
-  const handleRemoveVariable = (id: string) => {
-    setServiceVariables(
-      serviceVariables.filter((variable) => variable.id !== id)
-    );
-  };
 
   const handleAddService = () => {
     // This function will be implemented when backend integration is done
