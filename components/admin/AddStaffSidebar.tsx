@@ -63,7 +63,7 @@ const AddStaffSidebar = () => {
                 </div>
                 <div>
                   <label className="block text-xs text-[#538FDF] mb-1">
-                    Address
+                    Salary
                   </label>
                   <input
                     type="text"
@@ -88,6 +88,18 @@ const AddStaffSidebar = () => {
                   </label>
                   <input
                     type="tel"
+                    className="w-full p-2 bg-[#E8F2FF] rounded text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-3">
+                <div>
+                  <label className="block text-xs text-[#538FDF] mb-1">
+                    Address
+                  </label>
+                  <input
+                    type="text"
                     className="w-full p-2 bg-[#E8F2FF] rounded text-sm"
                   />
                 </div>

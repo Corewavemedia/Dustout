@@ -126,15 +126,6 @@ const [staffList, setStaffList] = useState<Staff[]>([
     onEditModeChange?.(true);
   };
 
-  // const filteredStaff = staffList.filter(
-  //   (staff) =>
-  //     staff.staffName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //     staff.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //     staff.services.some((service) =>
-  //       service.toLowerCase().includes(searchTerm.toLowerCase())
-  //     )
-  // );
-
   return (
     <>
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">

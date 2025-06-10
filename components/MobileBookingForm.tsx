@@ -228,6 +228,7 @@ export const MobileBookingForm = () => {
                     type="number"
                     id="mobileBedrooms"
                     name="bedrooms"
+                    min="1"
                     value={formData.bedrooms}
                     onChange={handleChange}
                     className="w-full p-3 rounded-md bg-blue-500 text-white placeholder-blue-200 focus:outline-none"
@@ -239,6 +240,7 @@ export const MobileBookingForm = () => {
                     type="number"
                     id="mobileBathrooms"
                     name="bathrooms"
+                    min="1"
                     value={formData.bathrooms}
                     onChange={handleChange}
                     className="w-full p-3 rounded-md bg-blue-500 text-white placeholder-blue-200 focus:outline-none"

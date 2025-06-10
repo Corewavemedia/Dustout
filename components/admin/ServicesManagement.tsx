@@ -27,7 +27,8 @@ const ServicesManagement: React.FC = () => {
   const [newAmount, setNewAmount] = useState<string>("");
   const [serviceName, setServiceName] = useState<string>("");
   const [serviceDescription, setServiceDescription] = useState<string>("");
-  const [selectedServiceForVariables, setSelectedServiceForVariables] = useState<string>("");
+  const [selectedServiceForVariables, setSelectedServiceForVariables] =
+    useState<string>("");
 
   // Sample service data for the table
   const serviceData: ServiceData[] = [
@@ -93,7 +94,9 @@ const ServicesManagement: React.FC = () => {
   };
 
   const handleRemoveVariable = (id: string) => {
-    setServiceVariables(serviceVariables.filter(variable => variable.id !== id));
+    setServiceVariables(
+      serviceVariables.filter((variable) => variable.id !== id)
+    );
   };
 
   const handleAddService = () => {
@@ -107,13 +110,10 @@ const ServicesManagement: React.FC = () => {
     ]);
   };
 
-  
-
   return (
     <div className="flex flex-col min-h-screen bg-bg-light">
       <div className="flex flex-1 overflow-hidden">
         {/* Left Sidebar */}
-        
 
         {/* Main Content */}
         <div className="flex-1 overflow-y-auto px-2 bg-sky-50">
@@ -215,26 +215,25 @@ const ServicesManagement: React.FC = () => {
           {/* Services Table */}
           <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-majer text-[#538FDF]">Services</h2>
-             
+              <h2 className="text-lg font-majer text-[#12B368]">Services</h2>
             </div>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+                <thead className="bg-[#538FDF]">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-sm font-medium font-majer text-white tracking-wider">
                       Services
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-sm font-medium font-majer text-white tracking-wider">
                       Number of Bookings
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-sm font-medium font-majer text-white tracking-wider">
                       Staff
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-sm font-medium font-majer text-white tracking-wider">
                       Revenue Generated
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-sm font-medium font-majer text-white tracking-wider">
                       Actions
                     </th>
                   </tr>
@@ -242,21 +241,21 @@ const ServicesManagement: React.FC = () => {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {serviceData.map((service) => (
                     <tr key={service.id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-majer font-medium text-[#538FDF]">
                         {service.title}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-majer text-[#538FDF]">
                         {service.numberOfBookings}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-majer text-[#538FDF]">
                         {service.staff}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-majer text-[#538FDF]">
                         {service.revenueGenerated}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-majer text-[#538FDF]">
                         <div className="flex space-x-2">
-                          <button 
+                          <button
                             className="text-blue-500 hover:text-blue-700"
                             onClick={() => setSelectedService(service.title)}
                           >
@@ -313,112 +312,92 @@ const ServicesManagement: React.FC = () => {
         {/* Right Sidebar */}
         <div className="w-80 bg-white p-4 shadow-md hidden md:block">
           <div className="mb-4">
-            <h2 className="text-lg font-majer text-red-500 mb-2">• Add Services</h2>
+            <div className="flex items-center mb-4">
+              <div className="w-2 h-2 bg-red-500 rounded-full mr-2"></div>
+              <h3 className="text-lg font-normal font-majer text-[#12B368]">
+                Add Services
+              </h3>
+            </div>
+
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+              <label className="block text-sm font-medium font-majer text-[#171AD4] mb-1">
+                Name
+              </label>
               <input
                 type="text"
                 value={serviceName}
                 onChange={(e) => setServiceName(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Fumigation"
+                className="w-full px-3 py-2 text-[#538FDF] font-majer bg-[#F0F7FF] border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Upload Icon</label>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-500">drag or click to upload</span>
-                <button className="bg-blue-500 text-white px-3 py-1 rounded-md text-sm">Upload</button>
+              <label className="block text-sm font-medium font-majer text-[#171AD4] mb-1">
+                Upload Icon
+              </label>
+              <div className="flex items-center justify-between bg-[#F0F7FF]">
+                <span className="text-sm px-3 py-2 rounded-md font-majer text-[#538FDF]">
+                  drag or click to upload
+                </span>
+                <button className="bg-[#538FDF] text-white px-3 py-2 rounded-md text-sm">
+                  Upload
+                </button>
               </div>
             </div>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+              <label className="block text-sm font-medium font-majer text-[#171AD4] mb-1">
+                Description
+              </label>
               <textarea
                 value={serviceDescription}
                 onChange={(e) => setServiceDescription(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border font-majer text-[#538FDF] bg-[#F0F7FF] border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 rows={3}
-                placeholder="Service description..."
               ></textarea>
             </div>
           </div>
 
+          {/* Variable Section */}
           <div className="mb-4">
-            <div className="flex justify-between items-center mb-2">
-              <h3 className="text-sm font-medium text-gray-700">Variables</h3>
-              {selectedServiceForVariables && (
-                <div className="text-sm text-blue-500">
-                  For: {selectedServiceForVariables}
-                </div>
-              )}
-            </div>
+            <div className="flex justify-between items-center mb-2"></div>
             <div className="space-y-2 mb-4 max-h-40 overflow-y-auto">
               {serviceVariables.map((variable) => (
-                <div key={variable.id} className="flex justify-between items-center">
-                  <div>
-                    <p className="text-sm font-medium">{variable.variable}</p>
-                    <p className="text-sm text-gray-500">${variable.amount}</p>
+                <div key={variable.id} className="grid grid-cols-2 w-full">
+                  <div className="flex items-center justify-center bg-[#F0F7FF]">
+                    <p className="text-sm py-3 font-majer text-[#538FDF] font-medium">{variable.variable}</p>
                   </div>
-                  <button
-                    onClick={() => handleRemoveVariable(variable.id)}
-                    className="text-red-500 hover:text-red-700"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                      />
-                    </svg>
-                  </button>
+                  <div className="flex items-center justify-center bg-[#F0F7FF]">
+                    <p className="text-sm py-3 font-majer text-[#538FDF]">${variable.amount}</p>
+                  </div>
+                  
                 </div>
               ))}
             </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Add Variable</label>
-              <div className="flex space-x-2">
-                <input
-                  type="text"
-                  value={newVariable}
-                  onChange={(e) => setNewVariable(e.target.value)}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="3 bedroom"
-                />
-                <input
-                  type="number"
-                  value={newAmount}
-                  onChange={(e) => setNewAmount(e.target.value)}
-                  className="w-24 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="$"
-                />
-              </div>
+
+            <div className="flex space-y-6 flex-col">
               <button
-                onClick={handleAddVariable}
-                className="mt-2 w-full bg-blue-500 text-white px-3 py-2 rounded-md text-sm hover:bg-blue-600 transition-colors"
-              >
-                + Add Variable
-              </button>
-            </div>
+              onClick={handleAddService}
+              className="w-full bg-[#F0F7FF] text-[#538FDF] font-majer border border-[#538FDF] px-3 py-2 rounded-md text-sm transition-colors"
+            >
+              +Add Variable
+            </button>
+            
             <button
               onClick={handleAddService}
-              className="w-full bg-green-500 text-white px-3 py-2 rounded-md text-sm hover:bg-green-600 transition-colors"
+              className="w-full bg-green-500 text-white font-majer px-3 py-2 rounded-md text-sm hover:bg-green-600 transition-colors"
             >
               Add Service
             </button>
+            </div>
+            
           </div>
         </div>
       </div>
 
       {/* Mobile Service Selection (only visible on mobile) */}
       <div className="md:hidden bg-white p-4 shadow-md mb-4 rounded-lg">
-        <label className="block text-sm font-medium text-gray-700 mb-2">Select Service</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Select Service
+        </label>
         <select
           value={selectedService}
           onChange={(e) => setSelectedService(e.target.value)}

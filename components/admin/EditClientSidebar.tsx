@@ -113,7 +113,7 @@ const EditClientSidebar: React.FC<EditClientSidebarProps> = ({ client, isEditMod
                 type="text"
                 value={firstName}
                 onChange={(e) => updateName(e.target.value, lastName)}
-                className="w-full p-2 bg-[#E8F2FF] rounded text-sm"
+                className="w-full p-2 bg-[#E8F2FF] text-[#538FDF] rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
               />
             </div>
             <div>
@@ -124,7 +124,7 @@ const EditClientSidebar: React.FC<EditClientSidebarProps> = ({ client, isEditMod
                 type="text"
                 value={lastName}
                 onChange={(e) => updateName(firstName, e.target.value)}
-                className="w-full p-2 bg-[#E8F2FF] rounded text-sm"
+                className="w-full p-2 bg-[#E8F2FF] text-[#538FDF] rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
               />
             </div>
           </div>
@@ -138,7 +138,7 @@ const EditClientSidebar: React.FC<EditClientSidebarProps> = ({ client, isEditMod
               name="revenue"
               value={formData.revenue}
               onChange={handleChange}
-              className="w-full p-2 bg-[#E8F2FF] rounded text-sm"
+              className="w-full p-2 bg-[#E8F2FF] text-[#538FDF] rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
             />
           </div>
 
@@ -151,7 +151,7 @@ const EditClientSidebar: React.FC<EditClientSidebarProps> = ({ client, isEditMod
               name="address"
               value={formData.address}
               onChange={handleChange}
-              className="w-full p-2 bg-[#E8F2FF] rounded text-sm"
+              className="w-full p-2 bg-[#E8F2FF] text-[#538FDF] rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
             />
           </div>
 
@@ -164,7 +164,7 @@ const EditClientSidebar: React.FC<EditClientSidebarProps> = ({ client, isEditMod
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full p-2 bg-[#E8F2FF] rounded text-sm"
+              className="w-full p-2 bg-[#E8F2FF] text-[#538FDF] rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
             />
           </div>
 
@@ -177,7 +177,7 @@ const EditClientSidebar: React.FC<EditClientSidebarProps> = ({ client, isEditMod
               name="phoneNumber"
               value={formData.phoneNumber}
               onChange={handleChange}
-              className="w-full p-2 bg-[#E8F2FF] rounded text-sm"
+              className="w-full p-2 bg-[#E8F2FF] text-[#538FDF] focus:outline-none focus:ring-2 focus:ring-blue-500 rounded text-sm"
             />
           </div>
 
@@ -189,7 +189,7 @@ const EditClientSidebar: React.FC<EditClientSidebarProps> = ({ client, isEditMod
               name="specialInstructions"
               value={formData.specialInstructions}
               onChange={handleChange}
-              className="w-full p-2 bg-[#E8F2FF] rounded text-sm"
+              className="w-full p-2 bg-[#E8F2FF] text-[#538FDF] focus:outline-none focus:ring-2 focus:ring-blue-500 rounded text-sm"
               rows={3}
             />
           </div>

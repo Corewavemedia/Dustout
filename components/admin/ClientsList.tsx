@@ -19,7 +19,6 @@ interface ClientsListProps {
 }
 
 const ClientsList: React.FC<ClientsListProps> = ({ 
-  // onEditModeChange, 
   onSelectClient,
   searchTerm 
 }) => {

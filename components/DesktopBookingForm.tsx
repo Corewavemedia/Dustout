@@ -376,6 +376,7 @@ export const DesktopBookingForm = () => {
                             type="number"
                             id="bedrooms"
                             name="bedrooms"
+                            min="1"
                             value={formData.bedrooms}
                             onChange={handleChange}
                             className="w-full p-3 rounded-md focus:outline-none"
@@ -392,6 +393,7 @@ export const DesktopBookingForm = () => {
                             type="number"
                             id="bathrooms"
                             name="bathrooms"
+                            min="1"
                             value={formData.bathrooms}
                             onChange={handleChange}
                             className="w-full p-3 rounded-md focus:outline-none"

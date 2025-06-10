@@ -3,6 +3,7 @@ import BookingHistory from "./BookingHistory";
 import UpcomingBookingSidebar from "./UpcomingBookingSidebar";
 import ServicesManagement from "./ServicesManagement";
 import BookingManagement from "./BookingManagement";
+import GenerateInvoice from "./GenerateInvoice";
 
 const DashboardOverview: React.FC = () => {
   const [activeTab, setActiveTab] = useState("");
@@ -11,7 +12,7 @@ const DashboardOverview: React.FC = () => {
     case "services":
       return <ServicesManagement />;
     case "invoice":
-      return <UpcomingBookingSidebar />;
+      return <GenerateInvoice />;
       case "schedule":
       return <BookingManagement />;
       case "subscription":
