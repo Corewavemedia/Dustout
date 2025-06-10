@@ -1,15 +1,29 @@
 "use client";
-import React, { useState } from "react";
-import { services } from "../data/ServicesData";
+import React, { useState, useEffect } from "react";
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 interface ServiceVariable {
   id: string;
-  variable: string;
-  amount: number;
+  name: string;
+  unitPrice: number;
+}
+
+interface Service {
+  id: string;
+  name: string;
+  description?: string;
+  icon?: string;
+  variables: ServiceVariable[];
+  createdAt: string;
 }
 
 interface ServiceData {
-  id: number;
+  id: string;
   title: string;
   numberOfBookings: number;
   staff: string;
@@ -18,57 +32,61 @@ interface ServiceData {
 }
 
 const ServicesManagement: React.FC = () => {
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedService, setSelectedService] = useState<string>("");
   const [serviceVariables, setServiceVariables] = useState<ServiceVariable[]>([
-    { id: "1", variable: "1 bedroom", amount: 30 },
-    { id: "2", variable: "2 bedroom", amount: 60 },
+    { id: "1", name: "1 bedroom", unitPrice: 30 },
+    { id: "2", name: "2 bedroom", unitPrice: 60 },
   ]);
   const [serviceName, setServiceName] = useState<string>("");
   const [serviceDescription, setServiceDescription] = useState<string>("");
+  const [serviceIcon, setServiceIcon] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [message, setMessage] = useState("");
+  const [newVariableName, setNewVariableName] = useState<string>("");
+  const [newVariablePrice, setNewVariablePrice] = useState<string>("");
 
-  // Sample service data for the table
-  const serviceData: ServiceData[] = [
-    {
-      id: 1,
-      title: "Fumigation",
-      numberOfBookings: 648,
-      staff: "James Jackson",
-      revenueGenerated: "$400.00",
-      actions: "",
-    },
-    {
-      id: 2,
-      title: "Residential Cleaning",
-      numberOfBookings: 532,
-      staff: "Sarah Johnson",
-      revenueGenerated: "$350.00",
-      actions: "",
-    },
-    {
-      id: 3,
-      title: "Industrial Cleaning",
-      numberOfBookings: 421,
-      staff: "Michael Brown",
-      revenueGenerated: "$620.00",
-      actions: "",
-    },
-    {
-      id: 4,
-      title: "Landscaping",
-      numberOfBookings: 389,
-      staff: "Emily Davis",
-      revenueGenerated: "$480.00",
-      actions: "",
-    },
-    {
-      id: 5,
-      title: "Deep Cleaning",
-      numberOfBookings: 275,
-      staff: "Robert Wilson",
-      revenueGenerated: "$520.00",
-      actions: "",
-    },
-  ];
+  // Fetch services on component mount
+  useEffect(() => {
+    fetchServices();
+  }, []);
+
+  const fetchServices = async () => {
+    try {
+      const response = await fetch('/api/services');
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Update the services state with properly mapped variables
+        const servicesWithMappedVariables = data.services.map((service: any) => ({
+          ...service,
+          variables: service.variables.map((variable: any) => ({
+            name: variable.name,
+            unitPrice: variable.unitPrice
+          }))
+        }));
+        setServices(servicesWithMappedVariables);
+      } else {
+        setMessage('Failed to fetch services');
+      }
+    } catch (error) {
+      console.error('Error fetching services:', error);
+      setMessage('Error fetching services');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Convert services to table data format
+  const serviceData: ServiceData[] = services.map(service => ({
+    id: service.id,
+    title: service.name,
+    numberOfBookings: 0, // This would come from actual booking data
+    staff: "Admin", // This would come from actual staff assignment
+    revenueGenerated: "$0.00", // This would be calculated from bookings
+    actions: "",
+  }));
 
   // const handleAddVariable = () => {
   //   if (newVariable && newAmount) {
@@ -83,15 +101,110 @@ const ServicesManagement: React.FC = () => {
   // };
 
 
-  const handleAddService = () => {
-    // This function will be implemented when backend integration is done
-    // For now, just reset the form
-    setServiceName("");
-    setServiceDescription("");
-    setServiceVariables([
-      { id: "1", variable: "1 bedroom", amount: 30 },
-      { id: "2", variable: "2 bedroom", amount: 60 },
-    ]);
+  const addVariable = () => {
+    if (!newVariableName.trim() || !newVariablePrice.trim()) {
+      setMessage('Error: Please enter both variable name and price');
+      return;
+    }
+
+    const price = parseFloat(newVariablePrice);
+    if (isNaN(price) || price <= 0) {
+      setMessage('Error: Please enter a valid price greater than 0');
+      return;
+    }
+
+    const newVariable: ServiceVariable = {
+      id: Date.now().toString(),
+      name: newVariableName.trim(),
+      unitPrice: price
+    };
+    setServiceVariables([...serviceVariables, newVariable]);
+    setNewVariableName('');
+    setNewVariablePrice('');
+    setMessage('');
+  };
+
+  const updateVariable = (index: number, field: 'name' | 'unitPrice', value: string | number) => {
+    setServiceVariables(prev => 
+      prev.map((variable, i) => 
+        i === index 
+          ? { ...variable, [field]: value }
+          : variable
+      )
+    );
+  };
+
+  const removeVariable = (index: number) => {
+    setServiceVariables(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleAddService = async () => {
+    if (!serviceName.trim() || serviceVariables.length === 0) {
+      setMessage('Please provide service name and at least one variable');
+      return;
+    }
+
+    // Validate variables
+    const validVariables = serviceVariables.filter(v => v.name.trim() && v.unitPrice > 0);
+    if (validVariables.length === 0) {
+      setMessage('Please provide valid variable names and unit prices');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setMessage('');
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.access_token) {
+        setMessage('Please log in to add services');
+        setIsSubmitting(false);
+        return;
+      }
+
+      const serviceData = {
+        name: serviceName.trim(),
+        description: serviceDescription.trim() || null,
+        icon: serviceIcon.trim() || null,
+        variables: validVariables.map(v => ({
+          name: v.name.trim(),
+          unitPrice: v.unitPrice
+        }))
+      };
+
+      const response = await fetch('/api/services', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify(serviceData),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setMessage('Service added successfully!');
+        // Reset form
+        setServiceName("");
+        setServiceDescription("");
+        setServiceIcon("");
+        setServiceVariables([
+          { id: "1", name: "1 bedroom", unitPrice: 30 },
+          { id: "2", name: "2 bedroom", unitPrice: 60 },
+        ]);
+        // Refresh services list
+        fetchServices();
+      } else {
+        setMessage(result.error || 'Failed to add service');
+      }
+    } catch (error) {
+      console.error('Error adding service:', error);
+      setMessage('Error adding service');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -342,59 +455,82 @@ const ServicesManagement: React.FC = () => {
 
           {/* Variable Section */}
           <div className="mb-4">
-            <div className="flex justify-between items-center mb-2"></div>
+            <div className="flex justify-between items-center mb-2">
+              <h4 className="text-sm font-medium font-majer text-[#171AD4]">Service Variables</h4>
+            </div>
+            
+            {/* Add Variable Form */}
+            <div className="mb-4 p-3 bg-gray-50 rounded-md">
+              <div className="grid grid-cols-2 gap-2 mb-2">
+                <input
+                  type="text"
+                  placeholder="Variable name (e.g., Bedroom)"
+                  value={newVariableName}
+                  onChange={(e) => setNewVariableName(e.target.value)}
+                  className="px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                />
+                <input
+                  type="number"
+                  placeholder="Unit price"
+                  value={newVariablePrice}
+                  onChange={(e) => setNewVariablePrice(e.target.value)}
+                  className="px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+              <button
+                onClick={addVariable}
+                className="w-full bg-[#F0F7FF] text-[#538FDF] font-majer border border-[#538FDF] px-2 py-1 rounded-md text-sm transition-colors"
+              >
+                +Add Variable
+              </button>
+            </div>
+
+            {/* Variables List */}
             <div className="space-y-2 mb-4 max-h-40 overflow-y-auto">
-              {serviceVariables.map((variable) => (
-                <div key={variable.id} className="grid grid-cols-2 w-full">
-                  <div className="flex items-center justify-center bg-[#F0F7FF]">
-                    <p className="text-sm py-3 font-majer text-[#538FDF] font-medium">{variable.variable}</p>
-                  </div>
-                  <div className="flex items-center justify-center bg-[#F0F7FF]">
-                    <p className="text-sm py-3 font-majer text-[#538FDF]">${variable.amount}</p>
-                  </div>
-                  
+              {serviceVariables.map((variable, index) => (
+                <div key={index} className="grid grid-cols-3 gap-1 items-center">
+                  <input
+                    type="text"
+                    value={variable.name}
+                    onChange={(e) => updateVariable(index, 'name', e.target.value)}
+                    className="px-2 py-2 text-sm bg-[#F0F7FF] border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  />
+                  <input
+                    type="number"
+                    value={variable.unitPrice}
+                    onChange={(e) => updateVariable(index, 'unitPrice', parseFloat(e.target.value) || 0)}
+                    className="px-2 py-2 text-sm bg-[#F0F7FF] border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  />
+                  <button
+                    onClick={() => removeVariable(index)}
+                    className="text-red-500 hover:text-red-700 text-sm px-2 py-1"
+                  >
+                    Remove
+                  </button>
                 </div>
               ))}
             </div>
 
-            <div className="flex space-y-6 flex-col">
-              <button
-              onClick={handleAddService}
-              className="w-full bg-[#F0F7FF] text-[#538FDF] font-majer border border-[#538FDF] px-3 py-2 rounded-md text-sm transition-colors"
-            >
-              +Add Variable
-            </button>
-            
             <button
               onClick={handleAddService}
-              className="w-full bg-green-500 text-white font-majer px-3 py-2 rounded-md text-sm hover:bg-green-600 transition-colors"
+              disabled={isSubmitting}
+              className="w-full bg-green-500 text-white font-majer px-3 py-2 rounded-md text-sm hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Add Service
+              {isSubmitting ? 'Adding Service...' : 'Add Service'}
             </button>
-            </div>
             
+            {message && (
+              <div className={`mt-2 p-2 rounded-md text-sm ${
+                message.includes('Error') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
+              }`}>
+                {message}
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Mobile Service Selection (only visible on mobile) */}
-      <div className="md:hidden bg-white p-4 shadow-md mb-4 rounded-lg">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Select Service
-        </label>
-        <select
-          value={selectedService}
-          onChange={(e) => setSelectedService(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-        >
-          <option value="">Select a service</option>
-          {services.map((service) => (
-            <option key={service.id} value={service.title}>
-              {service.title}
-            </option>
-          ))}
-        </select>
-      </div>
+      
     </div>
   );
 };

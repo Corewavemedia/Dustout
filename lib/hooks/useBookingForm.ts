@@ -15,6 +15,31 @@ interface User {
   };
 }
 
+interface Service {
+  id: string;
+  name: string;
+  description?: string;
+  icon?: string;
+  variables: ServiceVariable[];
+}
+
+interface ServiceVariable {
+  id: string;
+  name: string;
+  unitPrice: number;
+}
+
+interface SelectedServiceVariable {
+  variableId: string;
+  quantity: number;
+}
+
+interface SelectedService {
+  serviceId: string;
+  serviceName: string;
+  variables: SelectedServiceVariable[];
+}
+
 interface FormData {
   fullName: string;
   phone: string;
@@ -23,21 +48,22 @@ interface FormData {
   cityState: string;
   postCode: string;
   landmark: string;
-  serviceTypes: string[];
+  selectedServices: SelectedService[];
   serviceFrequency: string;
-  bedrooms: string;
-  bathrooms: string;
   preferredDate: string;
   startTime: string;
   endTime: string;
   urgent: string;
   specialNotes: string;
+  estimatedPrice: number;
 }
 
 export const useBookingForm = (user?: User | null) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState('');
+  const [services, setServices] = useState<Service[]>([]);
+  const [loadingServices, setLoadingServices] = useState(true);
   
   const [formData, setFormData] = useState<FormData>({
     fullName: user?.user_metadata?.full_name || '',
@@ -47,16 +73,34 @@ export const useBookingForm = (user?: User | null) => {
     cityState: '',
     postCode: '',
     landmark: '',
-    serviceTypes: [],
+    selectedServices: [],
     serviceFrequency: '',
-    bedrooms: '',
-    bathrooms: '',
     preferredDate: '',
     startTime: '',
     endTime: '',
     urgent: '',
-    specialNotes: ''
+    specialNotes: '',
+    estimatedPrice: 0
   });
+
+  // Fetch services on component mount
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const response = await fetch('/api/services');
+        if (response.ok) {
+          const data = await response.json();
+          setServices(data.services);
+        }
+      } catch (error) {
+        console.error('Error fetching services:', error);
+      } finally {
+        setLoadingServices(false);
+      }
+    };
+
+    fetchServices();
+  }, []);
 
   // Update form data when user changes
   useEffect(() => {
@@ -70,23 +114,104 @@ export const useBookingForm = (user?: User | null) => {
     }
   }, [user]);
 
+  // Calculate estimated price whenever selected services change
+  useEffect(() => {
+    const calculatePrice = () => {
+      let basePrice = 0;
+      
+      formData.selectedServices.forEach(selectedService => {
+        const service = services.find(s => s.id === selectedService.serviceId);
+        if (service) {
+          selectedService.variables.forEach(variable => {
+            const serviceVariable = service.variables.find(v => v.id === variable.variableId);
+            if (serviceVariable) {
+              basePrice += serviceVariable.unitPrice * variable.quantity;
+            }
+          });
+        }
+      });
+
+      // Apply frequency multiplier
+      let frequencyMultiplier = 1;
+      switch (formData.serviceFrequency) {
+        case 'weekly':
+          frequencyMultiplier = 4; // 4 weeks in a month
+          break;
+        case 'bi-weekly':
+          frequencyMultiplier = 2; // 2 times in a month
+          break;
+        case 'monthly':
+          frequencyMultiplier = 12; // 12 months in a year
+          break;
+        case 'one-time':
+        default:
+          frequencyMultiplier = 1;
+          break;
+      }
+
+      const estimatedPrice = basePrice * frequencyMultiplier;
+      
+      setFormData(prev => ({
+        ...prev,
+        estimatedPrice
+      }));
+    };
+
+    calculatePrice();
+  }, [formData.selectedServices, formData.serviceFrequency]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target;
+    const { name, value } = e.target;
     
-    if (type === 'checkbox') {
-      const checked = (e.target as HTMLInputElement).checked;
-      setFormData(prev => ({
-        ...prev,
-        serviceTypes: checked
-          ? [...prev.serviceTypes, value]
-          : prev.serviceTypes.filter(item => item !== value)
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: value
-      }));
-    }
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const addService = (serviceId: string, serviceName: string) => {
+    const selectedService: SelectedService = {
+      serviceId,
+      serviceName,
+      variables: []
+    };
+
+    setFormData(prev => ({
+      ...prev,
+      selectedServices: [...prev.selectedServices, selectedService]
+    }));
+  };
+
+  const removeService = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      selectedServices: prev.selectedServices.filter((_, i) => i !== index)
+    }));
+  };
+
+  const updateServiceQuantity = (serviceId: string, variableId: string, quantity: number) => {
+    setFormData(prev => ({
+      ...prev,
+      selectedServices: prev.selectedServices.map(selectedService => {
+        if (selectedService.serviceId === serviceId) {
+          const existingVariableIndex = selectedService.variables.findIndex(v => v.variableId === variableId);
+          
+          if (existingVariableIndex >= 0) {
+            // Update existing variable
+            const updatedVariables = [...selectedService.variables];
+            updatedVariables[existingVariableIndex] = { variableId, quantity };
+            return { ...selectedService, variables: updatedVariables };
+          } else {
+            // Add new variable
+            return {
+              ...selectedService,
+              variables: [...selectedService.variables, { variableId, quantity }]
+            };
+          }
+        }
+        return selectedService;
+      })
+    }));
   };
 
   const nextStep = () => {
@@ -109,12 +234,16 @@ export const useBookingForm = (user?: User | null) => {
         phone: formData.phone.trim(),
         email: formData.email.trim(),
         serviceAddress: formData.serviceAddress.trim(),
-        serviceTypes: formData.serviceTypes,
+        services: formData.selectedServices.map(service => ({
+          serviceId: service.serviceId,
+          variableName: service.serviceName,
+          variables: service.variables
+        })),
         serviceFrequency: formData.serviceFrequency.trim(),
       };
 
       if (!requiredFields.fullName || !requiredFields.phone || !requiredFields.email || 
-          !requiredFields.serviceAddress || requiredFields.serviceTypes.length === 0 || 
+          !requiredFields.serviceAddress || requiredFields.services.length === 0 || 
           !requiredFields.serviceFrequency) {
         setSubmitMessage('Please fill in all required fields.');
         setIsSubmitting(false);
@@ -139,15 +268,14 @@ export const useBookingForm = (user?: User | null) => {
         cityState: formData.cityState.trim() || '',
         postCode: formData.postCode.trim() || '',
         landmark: formData.landmark.trim() || '',
-        serviceTypes: requiredFields.serviceTypes,
+        services: requiredFields.services,
         serviceFrequency: requiredFields.serviceFrequency,
-        bedrooms: formData.bedrooms,
-        bathrooms: formData.bathrooms,
         preferredDate: formData.preferredDate || '',
         startTime: formData.startTime,
         endTime: formData.endTime,
         urgent: formData.urgent || 'No',
         specialNotes: formData.specialNotes.trim() || '',
+        estimatedPrice: formData.estimatedPrice
       };
 
       // Submit to the bookings API
@@ -173,17 +301,16 @@ export const useBookingForm = (user?: User | null) => {
           cityState: '',
           postCode: '',
           landmark: '',
-          serviceTypes: [],
+          selectedServices: [],
           serviceFrequency: '',
-          bedrooms: '',
-          bathrooms: '',
           preferredDate: '',
           startTime: '',
           endTime: '',
           urgent: '',
-          specialNotes: ''
+          specialNotes: '',
+          estimatedPrice: 0
         });
-        setCurrentStep(2);
+        setCurrentStep(1);
       } else {
         setSubmitMessage(result.error || 'Failed to submit booking. Please try again.');
       }
@@ -199,9 +326,15 @@ export const useBookingForm = (user?: User | null) => {
     currentStep,
     setCurrentStep,
     formData,
+    setFormData,
     isSubmitting,
     submitMessage,
+    services,
+    loadingServices,
     handleChange,
+    addService,
+    removeService,
+    updateServiceQuantity,
     nextStep,
     prevStep,
     handleSubmit

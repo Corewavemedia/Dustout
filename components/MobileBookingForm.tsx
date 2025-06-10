@@ -14,10 +14,15 @@ export const MobileBookingForm = () => {
     formData,
     isSubmitting,
     submitMessage,
+    services,
+    loadingServices,
     handleChange,
+    addService,
+    removeService,
+    updateServiceQuantity,
     nextStep,
     prevStep,
-    handleSubmit
+    handleSubmit,
   } = useBookingForm(user);
 
   // Show loading state
@@ -29,7 +34,12 @@ export const MobileBookingForm = () => {
     );
   }
 
-  const handleFormSubmit = handleSubmit;
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (currentStep === 3) {
+      handleSubmit(e);
+    }
+  };
 
   const stepVariants = {
     hidden: { opacity: 0, x: 50 },
@@ -54,6 +64,7 @@ export const MobileBookingForm = () => {
         <div className="flex justify-center mt-4 space-x-2">
           <div className={`w-3 h-3 rounded-full ${currentStep === 1 ? 'bg-blue-500' : 'bg-blue-200'}`}></div>
           <div className={`w-3 h-3 rounded-full ${currentStep === 2 ? 'bg-blue-500' : 'bg-blue-200'}`}></div>
+          <div className={`w-3 h-3 rounded-full ${currentStep === 3 ? 'bg-blue-500' : 'bg-blue-200'}`}></div>
         </div>
       </div>
       
@@ -186,20 +197,32 @@ export const MobileBookingForm = () => {
             >
               <div>
                 <label className="block text-blue-500 font-majer text-sm mb-2 font-medium">Type of Service *</label>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  {['Home Cleaning', 'Office Cleaning', 'Deep Cleaning', 'Post-Construction', 'Move-In/Move-Out', 'Carpet/Upholstery Cleaning'].map((service) => (
-                    <label key={service} className="flex items-center text-blue-500">
-                      <input
-                        type="checkbox"
-                        name="serviceTypes"
-                        value={service}
-                        onChange={handleChange}
-                        className="mr-2 accent-blue-500"
-                      />
-                      <span className="text-xs">{service}</span>
-                    </label>
-                  ))}
-                </div>
+                {loadingServices ? (
+                  <div className="text-blue-500 text-sm">Loading services...</div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    {services.map((service) => {
+                      const isSelected = formData.selectedServices.some(s => s.serviceId === service.id);
+                      return (
+                        <label key={service.id} className="flex items-center text-blue-500">
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                addService(service.id, service.name);
+                              } else {
+                                removeService(Number(service.id));
+                              }
+                            }}
+                            className="mr-2 accent-blue-500"
+                          />
+                          <span className="text-xs">{service.name}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
               <div>
@@ -221,32 +244,37 @@ export const MobileBookingForm = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label htmlFor="mobileBedrooms" className="block text-blue-500 font-majer text-sm mb-1 font-medium">No. of Bedrooms</label>
-                  <input
-                    type="number"
-                    id="mobileBedrooms"
-                    name="bedrooms"
-                    min="1"
-                    value={formData.bedrooms}
-                    onChange={handleChange}
-                    className="w-full p-3 rounded-md bg-blue-500 text-white placeholder-blue-200 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="mobileBathrooms" className="block text-blue-500 font-majer text-sm mb-1 font-medium">No. of Bathrooms</label>
-                  <input
-                    type="number"
-                    id="mobileBathrooms"
-                    name="bathrooms"
-                    min="1"
-                    value={formData.bathrooms}
-                    onChange={handleChange}
-                    className="w-full p-3 rounded-md bg-blue-500 text-white placeholder-blue-200 focus:outline-none"
-                  />
-                </div>
-              </div>
+              {/* Dynamic Service Variables */}
+              {formData.selectedServices.map((selectedService) => {
+                const service = services.find(s => s.id === selectedService.serviceId);
+                if (!service || !service.variables || service.variables.length === 0) return null;
+
+                return (
+                  <div key={selectedService.serviceId} className="space-y-3">
+                    <h4 className="text-blue-500 font-majer text-sm font-medium">{service.name} Details</h4>
+                    {service.variables.map((variable) => (
+                      <div key={variable.id} className="space-y-2">
+                        <label className="block text-blue-500 font-majer text-xs mb-1 font-medium">
+                          {variable.name} (${variable.unitPrice} per unit)
+                        </label>
+                        <input
+                          type="number"
+                          min="1"
+                          value={selectedService.variables.find(v => v.variableId === variable.id)?.quantity || 1}
+                          onChange={(e) => {
+                            const quantity = parseInt(e.target.value) || 1;
+                            updateServiceQuantity(selectedService.serviceId, variable.id, quantity);
+                          }}
+                          className="w-full p-2 rounded-md bg-blue-500 text-white placeholder-blue-200 focus:outline-none text-sm"
+                        />
+                        <div className="text-blue-400 text-xs">
+                          Subtotal: ${((selectedService.variables.find(v => v.variableId === variable.id)?.quantity || 1) * variable.unitPrice).toFixed(2)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })}
 
               <div>
                 <label htmlFor="mobilePreferredDate" className="block text-blue-500 font-majer text-sm mb-1 font-medium">Preferred Date</label>
@@ -370,6 +398,158 @@ export const MobileBookingForm = () => {
                   Back
                 </button>
                 <button
+                  type="button"
+                  onClick={nextStep}
+                  disabled={formData.selectedServices.length === 0}
+                  className="w-full bg-blue-800 hover:bg-blue-900 disabled:bg-blue-600 disabled:cursor-not-allowed text-white font-majer text-xl font-normal py-3 px-4 rounded-md transition duration-300 flex items-center justify-center"
+                >
+                  Next
+                  <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {currentStep === 3 && (
+            <motion.div
+              key="step3"
+              variants={stepVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              transition={{ duration: 0.3 }}
+              className="space-y-4"
+            >
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <h3 className="text-blue-800 font-majer text-lg font-medium mb-4">Order Summary</h3>
+                
+                {/* Customer Information */}
+                <div className="mb-4">
+                  <h4 className="text-blue-700 font-majer text-sm font-medium mb-2">Customer Information</h4>
+                  <div className="text-blue-600 text-sm space-y-1">
+                    <p><strong>Name:</strong> {formData.fullName}</p>
+                    <p><strong>Phone:</strong> {formData.phone}</p>
+                    <p><strong>Email:</strong> {formData.email}</p>
+                    <p><strong>Address:</strong> {formData.serviceAddress}, {formData.cityState} {formData.postCode}</p>
+                    {formData.landmark && <p><strong>Landmark:</strong> {formData.landmark}</p>}
+                  </div>
+                </div>
+
+                {/* Selected Services */}
+                <div className="mb-4">
+                  <h4 className="text-blue-700 font-majer text-sm font-medium mb-2">Selected Services</h4>
+                  <div className="space-y-2">
+                    {formData.selectedServices.map((selectedService) => {
+                      const service = services.find(s => s.id === selectedService.serviceId);
+                      if (!service) return null;
+                      
+                      const serviceTotal = selectedService.variables.reduce((total, variable) => {
+                        const serviceVariable = service.variables?.find(v => v.id === variable.variableId);
+                        return total + (serviceVariable ? serviceVariable.unitPrice * variable.quantity : 0);
+                      }, 0);
+
+                      return (
+                        <div key={selectedService.serviceId} className="bg-white p-3 rounded border">
+                          <div className="flex justify-between items-start mb-2">
+                            <span className="text-blue-800 font-medium text-sm">{service.name}</span>
+                            <span className="text-blue-800 font-medium text-sm">${serviceTotal.toFixed(2)}</span>
+                          </div>
+                          <div className="text-blue-600 text-xs space-y-1">
+                            {selectedService.variables.map((variable) => {
+                              const serviceVariable = service.variables?.find(v => v.id === variable.variableId);
+                              if (!serviceVariable) return null;
+                              return (
+                                <div key={variable.variableId} className="flex justify-between">
+                                  <span>{serviceVariable.name} x {variable.quantity}</span>
+                                  <span>${(serviceVariable.unitPrice * variable.quantity).toFixed(2)}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Pricing Details */}
+                <div className="mb-4">
+                  <h4 className="text-blue-700 font-majer text-sm font-medium mb-2">Pricing Details</h4>
+                  <div className="bg-white p-3 rounded border space-y-2 text-sm">
+                    <div className="flex justify-between text-blue-600">
+                      <span>Service Frequency:</span>
+                      <span>{formData.serviceFrequency}</span>
+                    </div>
+                    <div className="flex justify-between text-blue-600">
+                      <span>Base Total:</span>
+                      <span>${formData.selectedServices.reduce((total, selectedService) => {
+                        const service = services.find(s => s.id === selectedService.serviceId);
+                        if (!service) return total;
+                        
+                        return total + selectedService.variables.reduce((serviceTotal, variable) => {
+                          const serviceVariable = service.variables?.find(v => v.id === variable.variableId);
+                          return serviceTotal + (serviceVariable ? serviceVariable.unitPrice * variable.quantity : 0);
+                        }, 0);
+                      }, 0).toFixed(2)}</span>
+                    </div>
+                    <div className="border-t pt-2 flex justify-between text-blue-800 font-medium">
+                      <span>Estimated Total:</span>
+                      <span>${(formData.selectedServices.reduce((total, selectedService) => {
+                        const service = services.find(s => s.id === selectedService.serviceId);
+                        if (!service) return total;
+                        
+                        return total + selectedService.variables.reduce((serviceTotal, variable) => {
+                          const serviceVariable = service.variables?.find(v => v.id === variable.variableId);
+                          return serviceTotal + (serviceVariable ? serviceVariable.unitPrice * variable.quantity : 0);
+                        }, 0);
+                      }, 0) * (formData.serviceFrequency === 'Weekly' ? 4 : formData.serviceFrequency === 'Bi-weekly' ? 2 : formData.serviceFrequency === 'Monthly' ? 12 : 1)).toFixed(2)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Schedule Information */}
+                <div className="mb-4">
+                  <h4 className="text-blue-700 font-majer text-sm font-medium mb-2">Schedule</h4>
+                  <div className="text-blue-600 text-sm space-y-1">
+                    {formData.preferredDate && <p><strong>Date:</strong> {formData.preferredDate}</p>}
+                    {formData.startTime && <p><strong>Start Time:</strong> {formData.startTime}</p>}
+                    {formData.endTime && <p><strong>End Time:</strong> {formData.endTime}</p>}
+                    {formData.urgent && <p><strong>Urgent Request:</strong> {formData.urgent}</p>}
+                  </div>
+                </div>
+
+                {/* Special Notes */}
+                {formData.specialNotes && (
+                  <div className="mb-4">
+                    <h4 className="text-blue-700 font-majer text-sm font-medium mb-2">Special Notes</h4>
+                    <div className="bg-white p-3 rounded border text-blue-600 text-sm">
+                      {formData.specialNotes}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {submitMessage && (
+                <div className={`p-3 rounded-md text-center font-medium ${submitMessage.includes('successfully') ? 'bg-green-100 text-green-800 border border-green-300' : 'bg-red-100 text-red-800 border border-red-300'}`}>
+                  {submitMessage}
+                </div>
+              )}
+
+              <div className="pt-4 space-y-3">
+                <button
+                  type="button"
+                  onClick={prevStep}
+                  disabled={isSubmitting}
+                  className="w-full bg-gray-500 hover:bg-gray-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-majer text-xl font-normal py-3 px-4 rounded-md transition duration-300 flex items-center justify-center"
+                >
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                  Back
+                </button>
+                <button
                   type="submit"
                   disabled={isSubmitting}
                   className="w-full bg-blue-800 hover:bg-blue-900 disabled:bg-blue-600 disabled:cursor-not-allowed text-white font-majer text-xl font-normal py-3 px-4 rounded-md transition duration-300 flex items-center justify-center"
@@ -383,7 +563,7 @@ export const MobileBookingForm = () => {
                       Submitting...
                     </>
                   ) : (
-                    'Book Us'
+                    'Confirm Booking'
                   )}
                 </button>
               </div>

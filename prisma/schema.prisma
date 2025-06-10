@@ -27,6 +27,36 @@ model User {
   @@map("users")
 }
 
+model Service {
+  id          String            @id @default(uuid())
+  name        String
+  description String?
+  icon        String?           // URL or path to icon
+  isActive    Boolean           @default(true)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  
+  // Relationships
+  variables   ServiceVariable[]
+  bookings    BookingService[]
+  
+  @@map("services")
+}
+
+model ServiceVariable {
+  id        String   @id @default(uuid())
+  serviceId String
+  name      String   // e.g., "1 bedroom", "2 bedroom", "per square meter"
+  unitPrice Float    // Price per unit
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relationship
+  service   Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  
+  @@map("service_variables")
+}
+
 model Booking {
   id              String   @id @default(uuid())
   userId          String
@@ -37,21 +67,34 @@ model Booking {
   cityState       String?
   postCode        String?
   landmark        String?
-  serviceTypes    String   // JSON string of selected services
   serviceFrequency String
-  bedrooms        Int?
-  bathrooms       Int?
   preferredDate   String?
   startTime       String?
   endTime         String?
   isUrgent        String   @default("No")
   notes           String?
   status          String   @default("pending")
+  estimatedPrice  Float?   // Calculated estimated price
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   
-  // Relationship to user
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Relationships
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  services        BookingService[]
   
   @@map("bookings")
+}
+
+model BookingService {
+  id        String @id @default(uuid())
+  bookingId String
+  serviceId String
+  quantity  Int    @default(1) // e.g., number of bedrooms, bathrooms, etc.
+  unitPrice Float  // Price at time of booking
+  
+  // Relationships
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  service   Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  
+  @@map("booking_services")
 }

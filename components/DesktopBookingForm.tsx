@@ -14,10 +14,16 @@ export const DesktopBookingForm = () => {
     formData,
     isSubmitting,
     submitMessage,
+    services,
+    loadingServices,
     handleChange,
+    addService,
+    removeService,
+    updateServiceQuantity,
     nextStep,
     prevStep,
-    handleSubmit
+    handleSubmit,
+    setFormData,
   } = useBookingForm(user);
 
   // Show loading state
@@ -30,7 +36,12 @@ export const DesktopBookingForm = () => {
   }
 
 
-  const handleFormSubmit = handleSubmit;
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (currentStep === 3) {
+      handleSubmit(e);
+    }
+  };
 
 
 
@@ -107,6 +118,11 @@ export const DesktopBookingForm = () => {
                   <div
                     className={`w-4 h-4 rounded-full ${
                       currentStep === 2 ? "bg-white" : "bg-blue-300"
+                    }`}
+                  ></div>
+                  <div
+                    className={`w-4 h-4 rounded-full ${
+                      currentStep === 3 ? "bg-white" : "bg-blue-300"
                     }`}
                   ></div>
                 </div>
@@ -312,30 +328,42 @@ export const DesktopBookingForm = () => {
                         <label className="block text-white font-majer text-sm mb-2">
                           Type of Service *
                         </label>
-                        <div className="grid grid-cols-2 gap-2">
-                          {[
-                            "Home Cleaning",
-                            "Office Cleaning",
-                            "Deep Cleaning",
-                            "Post-Construction",
-                            "Move-In/Move-Out",
-                            "Carpet/Upholstery Cleaning",
-                          ].map((service) => (
-                            <label
-                              key={service}
-                              className="flex items-center text-white text-sm"
-                            >
-                              <input
-                                type="checkbox"
-                                name="serviceTypes"
-                                value={service}
-                                onChange={handleChange}
-                                className="mr-2 accent-blue-300"
-                              />
-                              {service}
-                            </label>
-                          ))}
-                        </div>
+                        {loadingServices ? (
+                          <div className="text-white text-sm">Loading services...</div>
+                        ) : (
+                          <div className="grid grid-cols-2 gap-2">
+                            {services.map((service) => (
+                              <label
+                                key={service.id}
+                                className="flex items-center text-white text-sm"
+                              >
+                                <input
+                                  type="checkbox"
+                                  name="serviceTypes"
+                                  value={service.id}
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      // Add service with default variable if available
+                                      if (service.variables.length > 0) {
+                                        addService(service.id, service.variables[0].name);
+                                      }
+                                    } else {
+                                      // Remove all instances of this service
+                                      const indicesToRemove = formData.selectedServices
+                                        .map((s, index) => s.serviceId === service.id ? index : -1)
+                                        .filter(index => index !== -1)
+                                        .reverse();
+                                      indicesToRemove.forEach(index => removeService(index));
+                                    }
+                                  }}
+                                  checked={formData.selectedServices.some(s => s.serviceId === service.id)}
+                                  className="mr-2 accent-blue-300"
+                                />
+                                {service.name}
+                              </label>
+                            ))}
+                          </div>
+                        )}
                       </div>
 
                       <div>
@@ -364,42 +392,53 @@ export const DesktopBookingForm = () => {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label
-                            htmlFor="bedrooms"
-                            className="block text-white font-majer text-sm mb-1"
-                          >
-                            No. of Bedrooms
-                          </label>
-                          <input
-                            type="number"
-                            id="bedrooms"
-                            name="bedrooms"
-                            min="1"
-                            value={formData.bedrooms}
-                            onChange={handleChange}
-                            className="w-full p-3 rounded-md focus:outline-none"
-                          />
+                      {/* Dynamic Service Variables */}
+                      {formData.selectedServices.length > 0 && (
+                        <div className="space-y-4">
+                          <h3 className="text-white font-majer text-sm mb-2">Service Details</h3>
+                          {formData.selectedServices.map((selectedService, index) => {
+                            const service = services.find(s => s.id === selectedService.serviceId);
+                            if (!service || !service.variables || service.variables.length === 0) return null;
+
+                            return (
+                              <div key={selectedService.serviceId} className="bg-blue-600 p-4 rounded-md">
+                                <div className="flex justify-between items-center mb-2">
+                                  <h4 className="text-white font-medium">{service.name} Details</h4>
+                                  <button
+                                    type="button"
+                                    onClick={() => removeService(index)}
+                                    className="text-red-300 hover:text-red-100"
+                                  >
+                                    ✕
+                                  </button>
+                                </div>
+                                <div className="space-y-3">
+                                  {service.variables.map((variable) => (
+                                    <div key={variable.id} className="space-y-2">
+                                      <label className="block text-white text-sm mb-1">
+                                        {variable.name} (${variable.unitPrice} per unit)
+                                      </label>
+                                      <input
+                                        type="number"
+                                        min="1"
+                                        value={selectedService.variables.find(v => v.variableId === variable.id)?.quantity || 1}
+                                        onChange={(e) => {
+                                          const quantity = parseInt(e.target.value) || 1;
+                                          updateServiceQuantity(selectedService.serviceId, variable.id, quantity);
+                                        }}
+                                        className="w-full p-2 rounded-md focus:outline-none text-sm"
+                                      />
+                                      <div className="text-white text-xs">
+                                        Subtotal: ${((selectedService.variables.find(v => v.variableId === variable.id)?.quantity || 1) * variable.unitPrice).toFixed(2)}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            );
+                          })}
                         </div>
-                        <div>
-                          <label
-                            htmlFor="bathrooms"
-                            className="block text-white font-majer text-sm mb-1"
-                          >
-                            No. of Bathrooms
-                          </label>
-                          <input
-                            type="number"
-                            id="bathrooms"
-                            name="bathrooms"
-                            min="1"
-                            value={formData.bathrooms}
-                            onChange={handleChange}
-                            className="w-full p-3 rounded-md focus:outline-none"
-                          />
-                        </div>
-                      </div>
+                      )}
 
                       <div className="grid grid-cols-2 gap-4">
                         <div>
@@ -539,6 +578,175 @@ export const DesktopBookingForm = () => {
                         <button
                           type="button"
                           onClick={prevStep}
+                          className="w-full bg-gray-500 hover:bg-gray-600 text-white font-majer text-xl font-normal py-3 px-4 rounded-md transition duration-300 flex items-center justify-center"
+                        >
+                          <svg
+                            className="w-5 h-5 mr-2"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M15 19l-7-7 7-7"
+                            />
+                          </svg>
+                          Back
+                        </button>
+                        <button
+                          type="button"
+                          onClick={nextStep}
+                          disabled={formData.selectedServices.length === 0}
+                          className="w-full bg-blue-800 hover:bg-blue-900 disabled:bg-blue-600 disabled:cursor-not-allowed text-white font-majer text-xl font-normal py-3 px-4 rounded-md transition duration-300 flex items-center justify-center"
+                        >
+                          Next
+                          <svg
+                            className="w-5 h-5 ml-2"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M9 5l7 7-7 7"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {currentStep === 3 && (
+                    <motion.div
+                      key="step3"
+                      variants={stepVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                      transition={{ duration: 0.3 }}
+                      className="space-y-4"
+                    >
+                      <div className="text-center mb-6">
+                        <h3 className="text-white font-majer text-2xl mb-2">Order Summary</h3>
+                        <p className="text-blue-200 text-sm">Please review your booking details before confirming</p>
+                      </div>
+
+                      {/* Customer Information */}
+                      <div className="bg-blue-600 p-4 rounded-md">
+                        <h4 className="text-white font-medium mb-2">Customer Information</h4>
+                        <div className="text-blue-200 text-sm space-y-1">
+                          <p><span className="font-medium">Name:</span> {formData.fullName}</p>
+                          <p><span className="font-medium">Phone:</span> {formData.phone}</p>
+                          <p><span className="font-medium">Email:</span> {formData.email}</p>
+                          <p><span className="font-medium">Address:</span> {formData.serviceAddress}</p>
+                          {formData.cityState && <p><span className="font-medium">City/State:</span> {formData.cityState}</p>}
+                          {formData.postCode && <p><span className="font-medium">Post Code:</span> {formData.postCode}</p>}
+                        </div>
+                      </div>
+
+                      {/* Service Details */}
+                      <div className="bg-blue-600 p-4 rounded-md">
+                        <h4 className="text-white font-medium mb-2">Selected Services</h4>
+                        <div className="space-y-2">
+                          {formData.selectedServices.map((selectedService, index) => {
+                            const service = services.find(s => s.id === selectedService.serviceId);
+                            if (!service) return null;
+                            
+                            return (
+                              <div key={index} className="space-y-1">
+                                <div className="text-white font-medium">{selectedService.serviceName}</div>
+                                {selectedService.variables.map((variable) => {
+                                  const serviceVariable = service.variables.find(v => v.id === variable.variableId);
+                                  if (!serviceVariable) return null;
+                                  
+                                  return (
+                                    <div key={variable.variableId} className="flex justify-between items-center text-blue-200 text-sm ml-4">
+                                      <span>{serviceVariable.name} × {variable.quantity}</span>
+                                      <span className="font-medium">${(serviceVariable.unitPrice * variable.quantity).toFixed(2)}</span>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Frequency and Pricing */}
+                      <div className="bg-blue-600 p-4 rounded-md">
+                        <h4 className="text-white font-medium mb-2">Pricing Details</h4>
+                        <div className="text-blue-200 text-sm space-y-1">
+                          <div className="flex justify-between">
+                            <span>Service Frequency:</span>
+                            <span className="font-medium capitalize">{formData.serviceFrequency}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Base Price:</span>
+                            <span>${formData.selectedServices.reduce((total, selectedService) => {
+                              const service = services.find(s => s.id === selectedService.serviceId);
+                              if (!service) return total;
+                              
+                              return total + selectedService.variables.reduce((serviceTotal, variable) => {
+                                const serviceVariable = service.variables.find(v => v.id === variable.variableId);
+                                return serviceTotal + (serviceVariable ? serviceVariable.unitPrice * variable.quantity : 0);
+                              }, 0);
+                            }, 0).toFixed(2)}</span>
+                          </div>
+                          {formData.serviceFrequency !== 'one-time' && (
+                            <div className="flex justify-between">
+                              <span>Frequency Multiplier:</span>
+                              <span>×{formData.serviceFrequency === 'weekly' ? '4' : formData.serviceFrequency === 'bi-weekly' ? '2' : '12'}</span>
+                            </div>
+                          )}
+                          <hr className="border-blue-400 my-2" />
+                          <div className="flex justify-between text-white font-medium text-lg">
+                            <span>Total Estimated Price:</span>
+                            <span>${formData.estimatedPrice.toFixed(2)}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Schedule Information */}
+                      {(formData.preferredDate || formData.startTime || formData.endTime) && (
+                        <div className="bg-blue-600 p-4 rounded-md">
+                          <h4 className="text-white font-medium mb-2">Schedule</h4>
+                          <div className="text-blue-200 text-sm space-y-1">
+                            {formData.preferredDate && <p><span className="font-medium">Date:</span> {formData.preferredDate}</p>}
+                            {formData.startTime && <p><span className="font-medium">Start Time:</span> {formData.startTime}</p>}
+                            {formData.endTime && <p><span className="font-medium">End Time:</span> {formData.endTime}</p>}
+                            {formData.urgent === 'Yes' && <p className="text-yellow-300 font-medium">⚡ Urgent Request</p>}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Special Notes */}
+                      {formData.specialNotes && (
+                        <div className="bg-blue-600 p-4 rounded-md">
+                          <h4 className="text-white font-medium mb-2">Special Notes</h4>
+                          <p className="text-blue-200 text-sm">{formData.specialNotes}</p>
+                        </div>
+                      )}
+
+                      {submitMessage && (
+                        <div
+                          className={`p-3 rounded-md text-center font-medium ${
+                            submitMessage.includes("successfully")
+                              ? "bg-green-100 text-green-800 border border-green-300"
+                              : "bg-red-100 text-red-800 border border-red-300"
+                          }`}
+                        >
+                          {submitMessage}
+                        </div>
+                      )}
+
+                      <div className="pt-4 space-y-3">
+                        <button
+                          type="button"
+                          onClick={prevStep}
                           disabled={isSubmitting}
                           className="w-full bg-gray-500 hover:bg-gray-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-majer text-xl font-normal py-3 px-4 rounded-md transition duration-300 flex items-center justify-center"
                         >
@@ -560,7 +768,7 @@ export const DesktopBookingForm = () => {
                         <button
                           type="submit"
                           disabled={isSubmitting}
-                          className="w-full bg-blue-800 hover:bg-blue-900 disabled:bg-blue-600 disabled:cursor-not-allowed text-white font-majer text-xl font-normal py-3 px-4 rounded-md transition duration-300 flex items-center justify-center"
+                          className="w-full bg-green-600 hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed text-white font-majer text-xl font-normal py-3 px-4 rounded-md transition duration-300 flex items-center justify-center"
                         >
                           {isSubmitting ? (
                             <>
@@ -584,10 +792,10 @@ export const DesktopBookingForm = () => {
                                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                 ></path>
                               </svg>
-                              Submitting...
+                              Confirming Booking...
                             </>
                           ) : (
-                            "Book Us"
+                            "Confirm Booking"
                           )}
                         </button>
                       </div>

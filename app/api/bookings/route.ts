@@ -38,51 +38,86 @@ export async function POST(request: NextRequest) {
       cityState,
       postCode,
       landmark,
-      serviceTypes,
+      services,
       serviceFrequency,
-      bedrooms,
-      bathrooms,
       preferredDate,
       startTime,
       endTime,
       urgent,
-      specialNotes
+      specialNotes,
+      estimatedPrice
     } = bookingData;
 
     // Validate required fields
-    if (!fullName || !phone || !email || !serviceAddress || !serviceTypes || !serviceFrequency) {
+    if (!fullName || !phone || !email || !serviceAddress || !services || !serviceFrequency) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
       );
     }
 
-    // Convert serviceTypes array to string if it's an array
-    const serviceTypesString = Array.isArray(serviceTypes) 
-      ? serviceTypes.join(', ') 
-      : serviceTypes;
+    if (!Array.isArray(services) || services.length === 0) {
+      return NextResponse.json(
+        { error: 'At least one service must be selected' },
+        { status: 400 }
+      );
+    }
 
-    // Create the booking in the database
-    const booking = await prisma.booking.create({
-      data: {
-        userId: user.id,
-        fullName,
-        phone,
-        email,
-        serviceAddress,
-        cityState: cityState || null,
-        postCode: postCode || null,
-        landmark: landmark || null,
-        serviceTypes: serviceTypesString,
-        serviceFrequency,
-        bedrooms: bedrooms ? parseInt(bedrooms) : null,
-        bathrooms: bathrooms ? parseInt(bathrooms) : null,
-        preferredDate: preferredDate || null,
-        startTime: startTime || null,
-        endTime: endTime || null,
-        isUrgent: urgent || 'No',
-        notes: specialNotes || null,
-      },
+    // Create the booking with services in a transaction
+    const booking = await prisma.$transaction(async (tx) => {
+      // Create the main booking
+      const newBooking = await tx.booking.create({
+        data: {
+          userId: user.id,
+          fullName,
+          phone,
+          email,
+          serviceAddress,
+          cityState: cityState || null,
+          postCode: postCode || null,
+          landmark: landmark || null,
+          serviceFrequency,
+          preferredDate: preferredDate || null,
+          startTime: startTime || null,
+          endTime: endTime || null,
+          isUrgent: urgent || 'No',
+          notes: specialNotes || null,
+          estimatedPrice: estimatedPrice || null,
+        },
+      });
+
+      // Create booking services
+      for (const service of services) {
+        // Get the service data
+        const serviceData = await tx.service.findUnique({
+          where: { id: service.serviceId },
+          include: { variables: true }
+        });
+
+        if (!serviceData) {
+          throw new Error(`Service with ID ${service.serviceId} not found`);
+        }
+
+        // Create booking services for each variable in the service
+        for (const serviceVariable of service.variables) {
+          // Find the corresponding variable in the service data
+          const variable = serviceData.variables.find(v => v.id === serviceVariable.variableId);
+          if (!variable) {
+            throw new Error(`Variable with ID ${serviceVariable.variableId} not found for service ${serviceData.name}`);
+          }
+
+          await tx.bookingService.create({
+            data: {
+              bookingId: newBooking.id,
+              serviceId: service.serviceId,
+              quantity: serviceVariable.quantity,
+              unitPrice: variable.unitPrice
+            }
+          });
+        }
+      }
+
+      return newBooking;
     });
 
     return NextResponse.json(
