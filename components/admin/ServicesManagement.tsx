@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { services } from "../data/ServicesData";
 
 interface ServiceVariable {
@@ -23,8 +23,6 @@ const ServicesManagement: React.FC = () => {
     { id: "1", variable: "1 bedroom", amount: 30 },
     { id: "2", variable: "2 bedroom", amount: 60 },
   ]);
-  const [newVariable, setNewVariable] = useState<string>("");
-  const [newAmount, setNewAmount] = useState<string>("");
   const [serviceName, setServiceName] = useState<string>("");
   const [serviceDescription, setServiceDescription] = useState<string>("");
 
