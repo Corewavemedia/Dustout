@@ -1,20 +1,46 @@
-import React from 'react'
+import React, { useState, useEffect } from "react";
 
-  // Sample data for upcoming bookings
-  const upcomingBookings = [
-    {
-      id: "1",
-      clientName: "Johnson Doe",
-      service: "Landscaping",
-      date: "5/5/2023",
-      time: "2:30-2:45pm",
-      staff: "Heather & Jones",
-      address:
-        "42 Elmbridge Road, Sutton Coldfield WestMidlands, B75 6JR, United Kingdom",
-    },
-  ];
+interface UpcomingBooking {
+  id: string;
+  clientName: string;
+  service: string;
+  date: string;
+  time: string;
+  staff: string;
+  address: string;
+}
 
 const UpcomingBookingSidebar = () => {
+  const [upcomingBooking, setUpcomingBooking] = useState<UpcomingBooking | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch the most recent unassigned booking
+  useEffect(() => {
+    const fetchUpcomingBooking = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch('/api/admin/bookings/upcoming');
+        
+        if (response.ok) {
+          const data = await response.json();
+          setUpcomingBooking(data);
+        } else if (response.status === 404) {
+          // No unassigned bookings found
+          setUpcomingBooking(null);
+        } else {
+          setError('Failed to fetch upcoming booking');
+        }
+      } catch (error) {
+        console.error('Error fetching upcoming booking:', error);
+        setError('An error occurred while fetching upcoming booking');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUpcomingBooking();
+  }, []);
   return (
     <>
         <div className="w-80 bg-white py-4 overflow-y-auto border-l">
@@ -27,8 +53,16 @@ const UpcomingBookingSidebar = () => {
               </h3>
             </div>
 
-            {upcomingBookings.map((booking) => (
-  <div key={booking.id} className="mb-4 font-majer">
+            {isLoading ? (
+              <div className="text-center py-8">
+                <div className="text-gray-500 font-majer">Loading upcoming booking...</div>
+              </div>
+            ) : error ? (
+              <div className="text-center py-8">
+                <div className="text-red-500 font-majer">{error}</div>
+              </div>
+            ) : upcomingBooking ? (
+              <div className="mb-4 font-majer">
     {/* First row: Name and Service */}
     <div className="grid grid-cols-2 gap-3 mb-3">
       {/* Name section */}
@@ -50,8 +84,8 @@ const UpcomingBookingSidebar = () => {
         <div>
           <p className="text-[#171AD4] text-sm font-medium">Name</p>
           <p className="text-[#538FDF] text-sm">
-            {booking.clientName}
-          </p>
+                  {upcomingBooking.clientName}
+                </p>
         </div>
       </div>
 
@@ -75,7 +109,7 @@ const UpcomingBookingSidebar = () => {
           <p className="text-[#171AD4] text-sm font-medium">
             Service
           </p>
-          <p className="text-[#538FDF] text-sm">{booking.service}</p>
+          <p className="text-[#538FDF] text-sm">{upcomingBooking.service}</p>
         </div>
       </div>
     </div>
@@ -146,7 +180,7 @@ const UpcomingBookingSidebar = () => {
             Date/Time
           </p>
           <p className="text-[#538FDF] text-sm">
-            {booking.date}, {booking.time}
+            {upcomingBooking.date}, {upcomingBooking.time}
           </p>
         </div>
       </div>
@@ -169,7 +203,7 @@ const UpcomingBookingSidebar = () => {
         </div>
         <div>
           <p className="text-[#171AD4] text-sm font-medium">Staff</p>
-          <p className="text-[#538FDF] text-sm">{booking.staff}</p>
+          <p className="text-[#538FDF] text-sm">{upcomingBooking.staff}</p>
         </div>
       </div>
     </div>
@@ -196,17 +230,23 @@ const UpcomingBookingSidebar = () => {
         <p className="text-[#171AD4] text-sm font-medium">
           Address
         </p>
-        <p className="text-[#538FDF] text-sm">{booking.address}</p>
+        <p className="text-[#538FDF] text-sm">{upcomingBooking.address}</p>
       </div>
     </div>
-  </div>
-))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <div className="text-gray-500 font-majer">No unassigned bookings found</div>
+                <p className="text-sm text-gray-400 mt-2">All current bookings have been assigned to staff members.</p>
+              </div>
+            )}
 
-            <div className="mt-4">
+            {/* <div className="mt-4">
               <button className="w-full font-majer bg-[#0000FF] text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors">
                 See Full Details
               </button>
-            </div>
+            </div> */}
+            
           </div>
 
           {/* Calendar */}

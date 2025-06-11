@@ -1,83 +1,67 @@
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import { EditStaff } from "./EditStaff";
 
-interface Staff {
+interface DatabaseStaff {
   id: string;
-  staffName: string;
+  firstName: string;
+  lastName: string;
   role: string;
-  services: string[];
+  servicesRendered: string[];
   salary: string;
   email: string;
   phoneNumber: string;
   address: string;
+  staffImage?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 
 interface StafflistProps {
-  onEditModeChange?: (isEditMode: boolean) => void;
+  onEditModeChange: (isEditMode: boolean) => void;
 }
 
-const Stafflist: React.FC<StafflistProps> = ({ onEditModeChange }) => {
+interface StafflistRef {
+  refreshStaffData: () => void;
+}
+
+const Stafflist = forwardRef<StafflistRef, StafflistProps>(({ onEditModeChange }, ref) => {
   const [isEditMode, setIsEditMode] = useState(false);
-  const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
-  // const [searchTerm, setSearchTerm] = useState("");
+  const [selectedStaff, setSelectedStaff] = useState<DatabaseStaff | null>(null);
+  const [staffList, setStaffList] = useState<DatabaseStaff[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Sample staff data
-const [staffList, setStaffList] = useState<Staff[]>([
-    {
-      id: "2024",
-      staffName: "John Doe",
-      role: "Cleaner",
-      services: ["Landscaping", "Cleaning"],
-      salary: "£40,000",
-      email: "john@dustout.com",
-      phoneNumber: "+44560299226",
-      address: "42 Oakwood Drive, Hampton, Middlesex",
-    },
-    {
-      id: "2025",
-      staffName: "Jane Doe",
-      role: "Cleaner",
-      services: ["Landscaping", "Cleaning"],
-      salary: "£40,000",
-      email: "jane@dustout.com",
-      phoneNumber: "+44560299227",
-      address: "43 Oakwood Drive, Hampton, Middlesex",
-    },
-    {
-      id: "2026",
-      staffName: "John Doe",
-      role: "Cleaner",
-      services: ["Landscaping", "Cleaning"],
-      salary: "£40,000",
-      email: "john2@dustout.com",
-      phoneNumber: "+44560299228",
-      address: "44 Oakwood Drive, Hampton, Middlesex",
-    },
-    {
-      id: "2027",
-      staffName: "John Doe",
-      role: "Cleaner",
-      services: ["Landscaping", "Cleaning"],
-      salary: "£40,000",
-      email: "john3@dustout.com",
-      phoneNumber: "+44560299229",
-      address: "45 Oakwood Drive, Hampton, Middlesex",
-    },
-    {
-      id: "2028",
-      staffName: "John Doe",
-      role: "Cleaner",
-      services: ["Landscaping", "Cleaning"],
-      salary: "£40,000",
-      email: "john4@dustout.com",
-      phoneNumber: "+44560299230",
-      address: "46 Oakwood Drive, Hampton, Middlesex",
-    },
-  ]);
+  // Fetch staff data on component mount
+  useEffect(() => {
+    fetchStaffData();
+  }, []);
 
-  const handleSaveStaff = (staffData: Staff) => {
+  // Expose refreshStaffData method to parent component
+  useImperativeHandle(ref, () => ({
+    refreshStaffData: fetchStaffData,
+  }));
+
+  const fetchStaffData = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch('/api/staff');
+      if (response.ok) {
+        const data = await response.json();
+        setStaffList(data);
+      } else {
+        setError('Failed to fetch staff data');
+      }
+    } catch (error) {
+      console.error('Error fetching staff:', error);
+      setError('Failed to fetch staff data');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSaveStaff = (staffData: DatabaseStaff) => {
     if (selectedStaff) {
       // Update existing staff
       setStaffList((prev) =>
@@ -118,154 +102,168 @@ const [staffList, setStaffList] = useState<Staff[]>([
       />
     );
   }
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-lg text-gray-600">Loading staff data...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-lg text-red-600">{error}</div>
+      </div>
+    );
+  }
   
 
-  const handleEditStaff = (staff: Staff) => {
+  const handleEditStaff = (staff: DatabaseStaff) => {
     setSelectedStaff(staff);
     setIsEditMode(true);
     onEditModeChange?.(true);
   };
 
+  // Helper function to format staff ID
+  const formatStaffId = (id: string, index: number) => {
+    return String(index + 1).padStart(3, '0');
+  };
+
   return (
     <>
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-        {/* Table Header */}
-        <div className="bg-[#538FDF] text-white">
-          <div className="grid grid-cols-7 font-majer gap-4 p-4 font-medium text-sm">
-            <div>ID</div>
-            <div></div>
-            <div>Staff Name</div>
-            <div>Role</div>
-            <div>Services Rendered</div>
-            <div>Salary</div>
-            <div></div>
-          </div>
-        </div>
-
-        {/* Table Body */}
-        <div className="divide-y divide-gray-200">
-          {staffList.map((staff) => (
-            <div
-              key={staff.id}
-              className="grid grid-cols-7 font-majer gap-4 p-4 hover:bg-gray-50 transition-colors"
-            >
-              <div className="flex items-center text-[#538FDF] ">
-                {staff.id}
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                  <Image
-                    src="/images/dustoutcolor.png"
-                    alt="DustOut Logo"
-                    width={50}
-                    height={50}
-                    className="h-8 w-auto"
-                  />
-                </div>
-              </div>
-              <div className="font-medium flex items-center justify-center text-[#538FDF]">
-                {staff.staffName}
-              </div>
-              <div className="flex items-center text-[#538FDF]">
-                {staff.role}
-              </div>
-              <div className="flex flex-1 items-center text-[#538FDF]  overflow-clip">
-                {staff.services.join(", ")}
-              </div>
-              <div className="flex items-center text-[#538FDF]">
-                {staff.salary}
-              </div>
-              <div className="flex items-center">
-                <button
-                  onClick={() => {
-                    if (
-                      confirm("Are you sure you want to delete this staff?")
-                    ) {
-                      setStaffList(staffList.filter((s) => s.id !== staff.id));
-                    }
-                  }}
-                  className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                  title="Delete Staff"
-                >
-                  <svg
-                    width="40"
-                    height="40"
-                    viewBox="0 0 40 40"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M9 12H22L20.7162 23.5545C20.6248 24.3774 19.9291 25 19.1011 25H11.8989C11.0709 25 10.3753 24.3774 10.2838 23.5545L9 12Z"
-                      stroke="#538FDF"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M12.1208 9.14716C12.3959 8.44685 12.9831 8 13.6283 8H18.3717C19.0169 8 19.6041 8.44685 19.8792 9.14716L21 12H11L12.1208 9.14716Z"
-                      stroke="#538FDF"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M7 12H24"
-                      stroke="#538FDF"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M14 16V20"
-                      stroke="#538FDF"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M17 16V20"
-                      stroke="#538FDF"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </button>
-                <button
-                  onClick={() => handleEditStaff(staff)}
-                  className="p-2 text-[#538FDF] hover:bg-blue-50 rounded-lg transition-colors"
-                  title="Edit Staff"
-                >
-                  <svg
-                    width="15"
-                    height="15"
-                    viewBox="0 0 15 15"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <g clipPath="url(#clip0_538_169)">
-                      <path
-                        fillRule="evenodd"
-                        clipRule="evenodd"
-                        d="M0 14.6429H15V13.222H0V14.6429ZM7.3815 10.3802H4.5V7.46451L11.8793 0.357178L15 3.29701L7.3815 10.3802Z"
-                        fill="#538FDF"
+      <div className="bg-white rounded-lg shadow-sm p-4">
+        <h2 className="text-lg font-majer text-[#12B368] mb-4">
+          Staff List
+        </h2>
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-[#538FDF] text-white font-majer">
+              <tr>
+                <th className="px-6 py-3 text-left text-sm font-medium tracking-wider">
+                  ID
+                </th>
+                <th className="px-6 py-3 text-left text-sm font-medium tracking-wider">
+                 
+                </th>
+                <th className="px-6 py-3 text-left text-sm font-medium tracking-wider">
+                  Staff Name
+                </th>
+                <th className="px-6 py-3 text-left text-sm font-medium tracking-wider">
+                  Role
+                </th>
+                <th className="px-6 py-3 text-left text-sm font-medium tracking-wider">
+                  Services Rendered
+                </th>
+                <th className="px-6 py-3 text-left text-sm font-medium tracking-wider">
+                  Salary
+                </th>
+                <th className="px-6 py-3 text-left text-sm font-medium tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {staffList.map((staff, index) => (
+                <tr key={staff.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium font-majer text-[#538FDF]">
+                    {formatStaffId(staff.id, index)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                      <Image
+                        src="/images/dustoutcolor.png"
+                        alt="DustOut Logo"
+                        width={50}
+                        height={50}
+                        className="h-8 w-auto"
                       />
-                    </g>
-                    <defs>
-                      <clipPath id="clip0_538_169">
-                        <rect width="15" height="15" fill="white" />
-                      </clipPath>
-                    </defs>
-                  </svg>
-                </button>
-              </div>
-              <div></div>
-            </div>
-          ))}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-majer text-[#538FDF]">
+                    {`${staff.firstName} ${staff.lastName}`}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-majer text-[#538FDF]">
+                    {staff.role}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-majer text-[#538FDF]">
+                    {staff.servicesRendered.join(", ")}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-majer text-[#538FDF]">
+                    ${staff.salary}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={async () => {
+                          if (
+                            confirm("Are you sure you want to delete this staff?")
+                          ) {
+                            try {
+                              const response = await fetch(`/api/staff?id=${staff.id}`, {
+                                method: 'DELETE',
+                              });
+                              
+                              if (response.ok) {
+                                setStaffList(staffList.filter((s) => s.id !== staff.id));
+                                alert('Staff deleted successfully!');
+                              } else {
+                                const errorData = await response.json();
+                                alert(`Error: ${errorData.error}`);
+                              }
+                            } catch (error) {
+                              console.error('Error deleting staff:', error);
+                              alert('Failed to delete staff. Please try again.');
+                            }
+                          }
+                        }}
+                        className="text-red-600 hover:text-red-800 transition-colors"
+                      >
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={() => handleEditStaff(staff)}
+                        className="text-blue-600 hover:text-blue-800 transition-colors"
+                      >
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </>
   );
-};
+});
+
+Stafflist.displayName = 'Stafflist';
 
 export default Stafflist;

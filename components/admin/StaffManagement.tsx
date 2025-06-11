@@ -1,32 +1,23 @@
 "use client";
-import React, { useState } from "react";
-import AddStaffSidebar from "./AddStaffSidebar";
+import React, { useState, useRef } from "react";
+import { AddStaffSidebar } from "./AddStaffSidebar";
 import Stafflist from "./Stafflist";
-
-// interface Staff {
-//   id: string;
-//   staffName: string;
-//   role: string;
-//   services: string[];
-//   salary: string;
-//   email: string;
-//   phoneNumber: string;
-//   address: string;
-// }
 
 
 
 const StaffManagement: React.FC = () => {
-  // const [isEditMode, setIsEditMode] = useState(false);
-  // const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isStaffEditMode, setIsStaffEditMode] = useState(false);
+  const stafflistRef = useRef<{ refreshStaffData: () => void } | null>(null);
  
 
-  // const handleAddStaff = () => {
-  //   setSelectedStaff(null);
-  //   setIsEditMode(true);
-  // };
+
+  const handleStaffAdded = () => {
+    // Refresh the staff list when new staff is added
+    if (stafflistRef.current) {
+      stafflistRef.current.refreshStaffData();
+    }
+  };
 
  
 
@@ -72,11 +63,14 @@ const StaffManagement: React.FC = () => {
           
 
           {/* Staff List Table */}
-          <Stafflist onEditModeChange={setIsStaffEditMode} />
+          <Stafflist 
+            ref={stafflistRef}
+            onEditModeChange={setIsStaffEditMode} 
+          />
         </div>
 
         {/* Right Sidebar - Only show when not in edit mode */}
-        {!isStaffEditMode && <AddStaffSidebar />}
+        {!isStaffEditMode && <AddStaffSidebar onStaffAdded={handleStaffAdded} />}
       </div>
     </div>
   );

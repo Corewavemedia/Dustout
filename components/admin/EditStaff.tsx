@@ -1,22 +1,34 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import UpcomingBookingSidebar from "./UpcomingBookingSidebar";
 
 interface EditStaffViewProps {
-  staff: Staff | null;
-  onSave: (staff: Staff) => void;
+  staff: DatabaseStaff | null;
+  onSave: (staff: DatabaseStaff) => void;
   onCancel: () => void;
   onDelete?: () => void;
 }
 
-interface Staff {
+interface DatabaseStaff {
   id: string;
-  staffName: string;
+  firstName: string;
+  lastName: string;
   role: string;
-  services: string[];
+  servicesRendered: string[];
   salary: string;
   email: string;
   phoneNumber: string;
   address: string;
+  staffImage?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface Service {
+  id: string;
+  name: string;
+  description?: string;
+  icon?: string;
+  isActive: boolean;
 }
 
 export const EditStaff: React.FC<EditStaffViewProps> = ({
@@ -25,38 +37,113 @@ export const EditStaff: React.FC<EditStaffViewProps> = ({
   // onCancel,
   onDelete,
 }) => {
-  const [formData, setFormData] = useState<Staff>({
+  const [services, setServices] = useState<Service[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState<DatabaseStaff>({
     id: staff?.id || "",
-    staffName: staff?.staffName || "",
+    firstName: staff?.firstName || "",
+    lastName: staff?.lastName || "",
     role: staff?.role || "Head Cleaner",
-    services: staff?.services || [],
-    salary: staff?.salary || "£40,000",
+    servicesRendered: staff?.servicesRendered || [],
+    salary: staff?.salary || "",
     email: staff?.email || "",
     phoneNumber: staff?.phoneNumber || "",
     address: staff?.address || "",
+    staffImage: staff?.staffImage || "",
+    createdAt: staff?.createdAt || "",
+    updatedAt: staff?.updatedAt || "",
   });
 
-  const serviceOptions = [
-    "Landscaping",
-    "CarWashing",
-    "Residential Cleaning",
-    "Industrial Cleaning",
-    "Fumigation",
-    "Refuse Disposal",
-  ];
+  // Fetch services on component mount
+  useEffect(() => {
+    fetchServices();
+  }, []);
+
+  const fetchServices = async () => {
+    try {
+      const response = await fetch('/api/services');
+      if (response.ok) {
+        const data = await response.json();
+        setServices(data.services || []);
+      }
+    } catch (error) {
+      console.error('Error fetching services:', error);
+    }
+  };
 
   const handleServiceToggle = (service: string) => {
     setFormData((prev) => ({
       ...prev,
-      services: prev.services.includes(service)
-        ? prev.services.filter((s) => s !== service)
-        : [...prev.services, service],
+      servicesRendered: prev.servicesRendered.includes(service)
+        ? prev.servicesRendered.filter((s) => s !== service)
+        : [...prev.servicesRendered, service],
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData);
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('/api/staff', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        const updatedStaff = await response.json();
+        onSave(updatedStaff);
+        alert('Staff updated successfully!');
+      } else {
+        const errorData = await response.json();
+        alert(`Error: ${errorData.error}`);
+      }
+    } catch (error) {
+      console.error('Error updating staff:', error);
+      alert('Failed to update staff. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!staff?.id) return;
+    
+    if (confirm('Are you sure you want to delete this staff member?')) {
+      setIsLoading(true);
+      
+      try {
+        const response = await fetch(`/api/staff?id=${staff.id}`, {
+          method: 'DELETE',
+        });
+
+        if (response.ok) {
+          if (onDelete) {
+            onDelete();
+          }
+          alert('Staff deleted successfully!');
+        } else {
+          const errorData = await response.json();
+          alert(`Error: ${errorData.error}`);
+        }
+      } catch (error) {
+        console.error('Error deleting staff:', error);
+        alert('Failed to delete staff. Please try again.');
+      } finally {
+        setIsLoading(false);
+      }
+    }
   };
 
   return (
@@ -70,7 +157,7 @@ export const EditStaff: React.FC<EditStaffViewProps> = ({
             <div className="w-24 h-24 bg-blue-300 rounded-lg mr-8 flex items-center justify-center">
               <div className="w-16 h-16 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
                 <span className="text-2xl font-bold font-majer text-white">
-                  {formData.staffName ? formData.staffName.charAt(0) : "S"}
+                  {formData.firstName ? formData.firstName.charAt(0) : "S"}
                 </span>
               </div>
             </div>
@@ -78,7 +165,7 @@ export const EditStaff: React.FC<EditStaffViewProps> = ({
             {/* Staff Info */}
             <div>
               <h1 className="text-3xl font-normal font-majer mb-2">
-                {formData.staffName || "Staff Name"}
+                {`${formData.firstName} ${formData.lastName}` || "Staff Name"}
               </h1>
               <p className="text-blue-100 font-majer text-lg">
                 {formData.role}
@@ -92,6 +179,36 @@ export const EditStaff: React.FC<EditStaffViewProps> = ({
             className="bg-white font-majer rounded-lg shadow-sm p-6"
           >
             <div className="grid grid-cols-2 gap-6 mb-6">
+              {/* First Name */}
+              <div>
+                <label className="block text-sm font-medium text-[#538FDF] mb-2">
+                  First Name
+                </label>
+                <input
+                  type="text"
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 bg-[#E8F2FF] text-[#538FDF] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="John"
+                />
+              </div>
+
+              {/* Last Name */}
+              <div>
+                <label className="block text-sm font-medium text-[#538FDF] mb-2">
+                  Last Name
+                </label>
+                <input
+                  type="text"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 bg-[#E8F2FF] text-[#538FDF] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Doe"
+                />
+              </div>
+
               {/* Role */}
               <div>
                 <label className="block text-sm font-medium text-[#538FDF] mb-2">
@@ -99,10 +216,9 @@ export const EditStaff: React.FC<EditStaffViewProps> = ({
                 </label>
                 <input
                   type="text"
+                  name="role"
                   value={formData.role}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, role: e.target.value }))
-                  }
+                  onChange={handleInputChange}
                   className="w-full px-3 py-2 bg-[#E8F2FF] text-[#538FDF] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Head Cleaner"
                 />
@@ -115,13 +231,9 @@ export const EditStaff: React.FC<EditStaffViewProps> = ({
                 </label>
                 <input
                   type="tel"
+                  name="phoneNumber"
                   value={formData.phoneNumber}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      phoneNumber: e.target.value,
-                    }))
-                  }
+                  onChange={handleInputChange}
                   className="w-full px-3 py-2 bg-[#E8F2FF] text-[#538FDF] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="123456789"
                 />
@@ -134,13 +246,9 @@ export const EditStaff: React.FC<EditStaffViewProps> = ({
                 </label>
                 <input
                   type="email"
+                  name="email"
                   value={formData.email}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      email: e.target.value,
-                    }))
-                  }
+                  onChange={handleInputChange}
                   className="w-full px-3 py-2 bg-[#E8F2FF] text-[#538FDF] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="headcleaner@dustout.com"
                 />
@@ -153,13 +261,9 @@ export const EditStaff: React.FC<EditStaffViewProps> = ({
                 </label>
                 <input
                   type="text"
+                  name="salary"
                   value={formData.salary}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      salary: e.target.value,
-                    }))
-                  }
+                  onChange={handleInputChange}
                   className="w-full px-3 py-2 bg-[#E8F2FF] text-[#538FDF] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -170,13 +274,9 @@ export const EditStaff: React.FC<EditStaffViewProps> = ({
                 </label>
                 <input
                   type="text"
+                  name="address"
                   value={formData.address}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      address: e.target.value,
-                    }))
-                  }
+                  onChange={handleInputChange}
                   className="w-full px-3 py-2 bg-[#E8F2FF] text-[#538FDF] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -184,19 +284,22 @@ export const EditStaff: React.FC<EditStaffViewProps> = ({
 
             {/* Services Section */}
             <div className="mb-6">
+              <label className="block text-sm font-medium text-[#538FDF] mb-2">
+                Services Rendered
+              </label>
               <div className="grid grid-cols-2 gap-4">
-                {serviceOptions.map((service) => (
+                {services.map((service) => (
                   <label
-                    key={service}
+                    key={service.id}
                     className="flex items-center text-sm text-blue-600"
                   >
                     <input
                       type="checkbox"
-                      checked={formData.services.includes(service)}
-                      onChange={() => handleServiceToggle(service)}
+                      checked={formData.servicesRendered.includes(service.name)}
+                      onChange={() => handleServiceToggle(service.name)}
                       className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                     />
-                    {service}
+                    {service.name}
                   </label>
                 ))}
               </div>
@@ -206,16 +309,18 @@ export const EditStaff: React.FC<EditStaffViewProps> = ({
             <div className="flex gap-4">
               <button
                 type="submit"
-                className="bg-[#12B368] text-white px-8 py-3 rounded-lg font-medium hover:bg-green-600 transition-colors"
+                disabled={isLoading}
+                className="bg-[#12B368] text-white px-8 py-3 rounded-lg font-medium hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Save Changes
+                {isLoading ? 'Saving...' : 'Save Changes'}
               </button>
               <button
                 type="button"
-                onClick={onDelete}
-                className="bg-[#538FDF] text-white px-8 py-3 rounded-lg font-medium hover:bg-blue-600 transition-colors"
+                onClick={handleDelete}
+                disabled={isLoading}
+                className="bg-red-500 text-white px-8 py-3 rounded-lg font-medium hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Delete Staff
+                {isLoading ? 'Deleting...' : 'Delete Staff'}
               </button>
             </div>
           </form>

@@ -104,47 +104,50 @@ const ClientsList: React.FC<ClientsListProps> = ({
   );
 
   return (
-    <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-      {/* Table Header */}
-      <div className="bg-[#538FDF] text-white">
-        <div className="grid grid-cols-7 font-majer gap-4 p-4 font-medium text-sm">
-          <div>ID</div>
-          <div>Client Name</div>
-          <div>Date and Time</div>
-          <div>Services Ordered</div>
-          <div>Address</div>
-          <div>Revenue</div>
-          <div></div>
-        </div>
-      </div>
-
-      {/* Table Body */}
-      <div className="divide-y divide-gray-200">
-        {filteredClients.map((client) => (
-          <div
-            key={client.id}
-            className="grid grid-cols-7 font-majer gap-4 p-4 hover:bg-gray-50 transition-colors cursor-pointer"
-            onClick={() => onSelectClient(client)}
-          >
-            <div className="flex items-center text-[#538FDF]">
-              {client.id}
-            </div>
-            <div className="font-medium flex items-center text-[#538FDF]">
-              {client.clientName}
-            </div>
-            <div className="flex items-center text-[#538FDF]">
-              {client.dateAndTime}
-            </div>
-            <div className="flex items-center text-[#538FDF]">
-              {client.servicesOrdered}
-            </div>
-            <div className="flex items-center text-[#538FDF]">
-              {client.address}
-            </div>
-            <div className="flex items-center text-[#538FDF]">
-              {client.revenue}
-            </div>
-            <div className="flex items-center space-x-2">
+    <div className="bg-white rounded-lg shadow-sm p-4">
+      <h2 className="text-lg font-majer text-[#12B368] mb-4">
+        Clients List
+      </h2>
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-[#538FDF] text-white font-majer">
+            <tr>
+              <th className="px-6 py-3 text-left text-sm font-medium tracking-wider">ID</th>
+              <th className="px-6 py-3 text-left text-sm font-medium tracking-wider">Client Name</th>
+              <th className="px-6 py-3 text-left text-sm font-medium tracking-wider">Date and Time</th>
+              <th className="px-6 py-3 text-left text-sm font-medium tracking-wider">Services Ordered</th>
+              <th className="px-6 py-3 text-left text-sm font-medium tracking-wider">Address</th>
+              <th className="px-6 py-3 text-left text-sm font-medium tracking-wider">Revenue</th>
+              <th className="px-6 py-3 text-left text-sm font-medium tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {filteredClients.map((client) => (
+              <tr
+                key={client.id}
+                className="hover:bg-gray-50 transition-colors cursor-pointer"
+                onClick={() => onSelectClient(client)}
+              >
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium font-majer text-[#538FDF]">
+                  {client.id}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-majer text-[#538FDF]">
+                  {client.clientName}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-majer text-[#538FDF]">
+                  {client.dateAndTime}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-majer text-[#538FDF]">
+                  {client.servicesOrdered}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-majer text-[#538FDF]">
+                  {client.address}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-majer text-[#538FDF]">
+                  {client.revenue}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <div className="flex items-center space-x-2">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -229,12 +232,15 @@ const ClientsList: React.FC<ClientsListProps> = ({
                   </defs>
                 </svg>
               </button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+                   </div>
+                 </td>
+               </tr>
+             ))}
+           </tbody>
+         </table>
+       </div>
+     </div>
+   );
 };
 
 export default ClientsList;

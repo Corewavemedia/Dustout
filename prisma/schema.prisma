@@ -75,11 +75,13 @@ model Booking {
   notes           String?
   status          String   @default("pending")
   estimatedPrice  Float?   // Calculated estimated price
+  staffId         String?  // Optional staff assignment
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   
   // Relationships
   user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  staff           Staff?           @relation(fields: [staffId], references: [id], onDelete: SetNull)
   services        BookingService[]
   
   @@map("bookings")
@@ -97,4 +99,24 @@ model BookingService {
   service   Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
   
   @@map("booking_services")
+}
+
+model Staff {
+  id            String   @id @default(uuid())
+  staffImage    String?  // URL or path to staff image
+  firstName     String
+  lastName      String
+  role          String
+  servicesRendered String[] // Array of service IDs or names
+  salary        String
+  email         String   @unique
+  phoneNumber   String
+  address       String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Relationships
+  bookings      Booking[]
+  
+  @@map("staff")
 }

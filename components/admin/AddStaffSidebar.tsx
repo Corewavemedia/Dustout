@@ -1,6 +1,110 @@
-import React from 'react'
+import React, { useState, useEffect } from "react";
 
-const AddStaffSidebar = () => {
+interface Service {
+  id: string;
+  name: string;
+  description?: string;
+  icon?: string;
+  isActive: boolean;
+}
+
+interface AddStaffSidebarProps {
+  onStaffAdded?: () => void;
+}
+
+export const AddStaffSidebar: React.FC<AddStaffSidebarProps> = ({ onStaffAdded }) => {
+  const [services, setServices] = useState<Service[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    role: '',
+    salary: '',
+    email: '',
+    phoneNumber: '',
+    address: '',
+    servicesRendered: [] as string[]
+  });
+
+  // Fetch services on component mount
+  useEffect(() => {
+    fetchServices();
+  }, []);
+
+  const fetchServices = async () => {
+    try {
+      const response = await fetch('/api/services');
+      if (response.ok) {
+        const data = await response.json();
+        setServices(data.services || []);
+      }
+    } catch (error) {
+      console.error('Error fetching services:', error);
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleServiceToggle = (serviceName: string) => {
+    setFormData(prev => ({
+      ...prev,
+      servicesRendered: prev.servicesRendered.includes(serviceName)
+        ? prev.servicesRendered.filter(s => s !== serviceName)
+        : [...prev.servicesRendered, serviceName]
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('/api/staff', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        const newStaff = await response.json();
+        console.log('Staff added successfully:', newStaff);
+        alert('Staff added successfully!');
+        
+        // Reset form
+        setFormData({
+          firstName: '',
+          lastName: '',
+          role: '',
+          salary: '',
+          email: '',
+          phoneNumber: '',
+          address: '',
+          servicesRendered: [],
+        });
+        
+        // Notify parent component to refresh staff list
+        if (onStaffAdded) {
+          onStaffAdded();
+        }
+      } else {
+        const errorData = await response.json();
+        alert(`Error: ${errorData.error}`);
+      }
+    } catch (error) {
+      console.error('Error adding staff:', error);
+      alert('Failed to add staff. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
   return (
     <>
         <div className="w-72 bg-white shadow-lg overflow-y-auto font-majer">
@@ -29,7 +133,7 @@ const AddStaffSidebar = () => {
             </div>
 
             {/* Form Fields */}
-            <div className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs text-[#538FDF] mb-1">
@@ -37,7 +141,11 @@ const AddStaffSidebar = () => {
                   </label>
                   <input
                     type="text"
+                    name="firstName"
+                    value={formData.firstName}
+                    onChange={handleInputChange}
                     className="w-full p-2 bg-[#E8F2FF] rounded text-sm"
+                    required
                   />
                 </div>
                 <div>
@@ -46,7 +154,11 @@ const AddStaffSidebar = () => {
                   </label>
                   <input
                     type="text"
+                    name="lastName"
+                    value={formData.lastName}
+                    onChange={handleInputChange}
                     className="w-full p-2 bg-[#E8F2FF] rounded text-sm"
+                    required
                   />
                 </div>
               </div>
@@ -58,7 +170,11 @@ const AddStaffSidebar = () => {
                   </label>
                   <input
                     type="text"
+                    name="role"
+                    value={formData.role}
+                    onChange={handleInputChange}
                     className="w-full p-2 bg-[#E8F2FF] rounded text-sm"
+                    required
                   />
                 </div>
                 <div>
@@ -67,7 +183,11 @@ const AddStaffSidebar = () => {
                   </label>
                   <input
                     type="text"
+                    name="salary"
+                    value={formData.salary}
+                    onChange={handleInputChange}
                     className="w-full p-2 bg-[#E8F2FF] rounded text-sm"
+                    required
                   />
                 </div>
               </div>
@@ -79,7 +199,11 @@ const AddStaffSidebar = () => {
                   </label>
                   <input
                     type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
                     className="w-full p-2 bg-[#E8F2FF] rounded text-sm"
+                    required
                   />
                 </div>
                 <div>
@@ -88,7 +212,11 @@ const AddStaffSidebar = () => {
                   </label>
                   <input
                     type="tel"
+                    name="phoneNumber"
+                    value={formData.phoneNumber}
+                    onChange={handleInputChange}
                     className="w-full p-2 bg-[#E8F2FF] rounded text-sm"
+                    required
                   />
                 </div>
               </div>
@@ -100,48 +228,43 @@ const AddStaffSidebar = () => {
                   </label>
                   <input
                     type="text"
+                    name="address"
+                    value={formData.address}
+                    onChange={handleInputChange}
                     className="w-full p-2 bg-[#E8F2FF] rounded text-sm"
+                    required
                   />
                 </div>
               </div>
 
               {/* Services Section */}
               <div>
+                <label className="block text-xs text-[#538FDF] mb-2">
+                  Services Rendered
+                </label>
                 <div className="grid grid-cols-2 gap-2 text-xs text-[#538FDF]">
-                  <div className="flex items-center">
-                    <input type="checkbox" className="mr-2" />
-                    <span>CarWashing</span>
-                  </div>
-                  <div className="flex items-center">
-                    <input type="checkbox" className="mr-2" />
-                    <span>Landscaping</span>
-                  </div>
-                  <div className="flex items-center">
-                    <input type="checkbox" className="mr-2" />
-                    <span>Residential Cleaning</span>
-                  </div>
-                  <div className="flex items-center">
-                    <input type="checkbox" className="mr-2" />
-                    <span>Industrial Cleaning</span>
-                  </div>
-                  <div className="flex items-center">
-                    <input type="checkbox" className="mr-2" />
-                    <span>Fumigation</span>
-                  </div>
-                  <div className="flex items-center">
-                    <input type="checkbox" className="mr-2" />
-                    <span>Refuse Disposal</span>
-                  </div>
+                  {services.map((service) => (
+                    <div key={service.id} className="flex items-center">
+                      <input 
+                        type="checkbox" 
+                        className="mr-2"
+                        checked={formData.servicesRendered.includes(service.name)}
+                        onChange={() => handleServiceToggle(service.name)}
+                      />
+                      <span>{service.name}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
 
               {/* Add Staff Button */}
               <button 
-              
-              className="w-full bg-[#12B368] text-white py-3 rounded-lg font-medium mt-6">
-                + Add Staff
+                type="submit"
+                disabled={isLoading}
+                className="w-full bg-[#12B368] text-white py-3 rounded-lg font-medium mt-6 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                {isLoading ? 'Adding Staff...' : '+ Add Staff'}
               </button>
-            </div>
+            </form>
           </div>
         </div>
     </>
