@@ -74,14 +74,7 @@ export async function POST(request: NextRequest) {
         }
       });
 
-      // Create variables for the service
-      const serviceVariables = await tx.serviceVariable.createMany({
-        data: variables.map((variable: { name: string; unitPrice: number }) => ({
-          serviceId: newService.id,
-          name: variable.name,
-          unitPrice: variable.unitPrice
-        }))
-      });
+      
 
       return newService;
     });

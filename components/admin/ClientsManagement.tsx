@@ -20,10 +20,17 @@ const ClientsManagement: React.FC = () => {
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isClientEditMode, setIsClientEditMode] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const handleAddClient = () => {
     setSelectedClient(null);
     setIsEditMode(true);
+  };
+
+  const handleSaveClient = () => {
+    setIsEditMode(false);
+    setSelectedClient(null);
+    setRefreshTrigger(prev => prev + 1); // Trigger refresh
   };
 
   return (
@@ -72,6 +79,7 @@ const ClientsManagement: React.FC = () => {
             onEditModeChange={setIsClientEditMode} 
             onSelectClient={setSelectedClient}
             searchTerm={searchTerm}
+            refreshTrigger={refreshTrigger}
           />
         </div>
 
@@ -80,10 +88,7 @@ const ClientsManagement: React.FC = () => {
           <EditClientSidebar 
             client={selectedClient} 
             isEditMode={isEditMode}
-            onSave={() => {
-              setIsEditMode(false);
-              setSelectedClient(null);
-            }}
+            onSave={handleSaveClient}
           />
         )}
       </div>

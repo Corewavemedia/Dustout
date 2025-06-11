@@ -34,11 +34,8 @@ interface ServiceData {
 const ServicesManagement: React.FC = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedService, setSelectedService] = useState<string>("");
-  const [serviceVariables, setServiceVariables] = useState<ServiceVariable[]>([
-    { id: "1", name: "1 bedroom", unitPrice: 30 },
-    { id: "2", name: "2 bedroom", unitPrice: 60 },
-  ]);
+  const [error, setError] = useState<string | null>(null);
+  const [serviceVariables, setServiceVariables] = useState<ServiceVariable[]>([]);
   const [serviceName, setServiceName] = useState<string>("");
   const [serviceDescription, setServiceDescription] = useState<string>("");
   const [serviceIcon, setServiceIcon] = useState<string>("");
@@ -54,25 +51,27 @@ const ServicesManagement: React.FC = () => {
 
   const fetchServices = async () => {
     try {
+      setLoading(true);
+      setError(null);
       const response = await fetch('/api/services');
       if (response.ok) {
         const data = await response.json();
         
         // Update the services state with properly mapped variables
-        const servicesWithMappedVariables = data.services.map((service: any) => ({
+        const servicesWithMappedVariables = data.services.map((service: Service) => ({
           ...service,
-          variables: service.variables.map((variable: any) => ({
+          variables: service.variables.map((variable: ServiceVariable) => ({
             name: variable.name,
             unitPrice: variable.unitPrice
           }))
         }));
         setServices(servicesWithMappedVariables);
       } else {
-        setMessage('Failed to fetch services');
+        setError('Failed to fetch services');
       }
     } catch (error) {
       console.error('Error fetching services:', error);
-      setMessage('Error fetching services');
+      setError('Failed to fetch services');
     } finally {
       setLoading(false);
     }
@@ -88,17 +87,6 @@ const ServicesManagement: React.FC = () => {
     actions: "",
   }));
 
-  // const handleAddVariable = () => {
-  //   if (newVariable && newAmount) {
-  //     const newId = (serviceVariables.length + 1).toString();
-  //     setServiceVariables([
-  //       ...serviceVariables,
-  //       { id: newId, variable: newVariable, amount: parseFloat(newAmount) },
-  //     ]);
-  //     setNewVariable("");
-  //     setNewAmount("");
-  //   }
-  // };
 
 
   const addVariable = () => {
@@ -207,6 +195,8 @@ const ServicesManagement: React.FC = () => {
     }
   };
 
+  
+
   return (
     <div className="flex flex-col min-h-screen bg-bg-light">
       <div className="flex flex-1 overflow-hidden">
@@ -314,6 +304,31 @@ const ServicesManagement: React.FC = () => {
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-majer text-[#12B368]">Services</h2>
             </div>
+            
+            {/* Error Message */}
+            {error && (
+              <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                {error}
+                <button 
+                  onClick={() => setError(null)}
+                  className="ml-2 text-red-500 hover:text-red-700"
+                >
+                  ×
+                </button>
+              </div>
+            )}
+
+            {/* Loading State */}
+            {loading ? (
+              <div className="flex justify-center items-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#538FDF]"></div>
+                <span className="ml-2 text-gray-600">Loading services...</span>
+              </div>
+            ) : serviceData.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                No services found
+              </div>
+            ) : (
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-[#538FDF]">
@@ -354,7 +369,6 @@ const ServicesManagement: React.FC = () => {
                         <div className="flex space-x-2">
                           <button
                             className="text-blue-500 hover:text-blue-700"
-                            onClick={() => setSelectedService(service.title)}
                           >
                             <svg
                               width="16"
@@ -403,6 +417,7 @@ const ServicesManagement: React.FC = () => {
                 </tbody>
               </table>
             </div>
+            )}
           </div>
         </div>
 

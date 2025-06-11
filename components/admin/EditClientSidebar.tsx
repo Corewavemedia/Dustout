@@ -31,6 +31,10 @@ const EditClientSidebar: React.FC<EditClientSidebarProps> = ({ client, isEditMod
     specialInstructions: ''
   });
 
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
   // Update form data when client changes
   useEffect(() => {
     if (client) {
@@ -59,9 +63,42 @@ const EditClientSidebar: React.FC<EditClientSidebarProps> = ({ client, isEditMod
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData);
+    setSubmitting(true);
+    setError(null);
+    setSuccessMessage(null);
+    
+    try {
+      const response = await fetch('/api/admin/clients', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: formData.id,
+          clientName: formData.clientName,
+          email: formData.email,
+          phoneNumber: formData.phoneNumber,
+          address: formData.address,
+          specialInstructions: formData.specialInstructions,
+          revenue: formData.revenue
+        }),
+      });
+      
+      if (response.ok) {
+        setSuccessMessage('Client updated successfully!');
+        setTimeout(() => setSuccessMessage(null), 3000); // Clear success message after 3 seconds
+        onSave(formData); // Call the parent callback to update UI
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || 'Failed to update client');
+      }
+    } catch (error) {
+      setError('An error occurred while updating the client');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   // Split the client name into first and last name for the form
@@ -194,24 +231,39 @@ const EditClientSidebar: React.FC<EditClientSidebarProps> = ({ client, isEditMod
             />
           </div>
 
+          {/* Error Message */}
+          {error && (
+            <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-600 text-sm">{error}</p>
+            </div>
+          )}
+
+          {/* Success Message */}
+          {successMessage && (
+            <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+              <p className="text-green-600 text-sm">{successMessage}</p>
+            </div>
+          )}
+
           {/* Action Buttons */}
-          <div className="grid grid-cols-2 gap-3 mt-6">
+          <div className="grid grid-cols-1 gap-3 mt-6">
             <button 
+              disabled={submitting}
               type="submit"
-              className="w-full bg-[#12B368] text-white py-2 rounded-lg font-medium"
+              className={`w-full py-2 rounded-lg font-medium transition-colors ${
+                submitting 
+                  ? 'bg-gray-400 text-white cursor-not-allowed' 
+                  : 'bg-[#12B368] text-white hover:bg-green-600'
+              }`}
             >
-              Save Changes
-            </button>
-            <button 
-              type="button"
-              className="w-full bg-[#538FDF] text-white py-2 rounded-lg font-medium"
-              onClick={() => {
-                if (confirm("Are you sure you want to delete this client?")) {
-                  // Handle delete logic here
-                }
-              }}
-            >
-              Delete
+              {submitting ? (
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  <span>Saving Changes...</span>
+                </div>
+              ) : (
+                'Save Changes'
+              )}
             </button>
           </div>
         </form>

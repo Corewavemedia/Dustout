@@ -53,13 +53,24 @@ const UpcomingBookingSidebar = () => {
               </h3>
             </div>
 
-            {isLoading ? (
-              <div className="text-center py-8">
-                <div className="text-gray-500 font-majer">Loading upcoming booking...</div>
+            {/* Error Message */}
+            {error && (
+              <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                {error}
+                <button 
+                  onClick={() => setError(null)}
+                  className="ml-2 text-red-500 hover:text-red-700"
+                >
+                  ×
+                </button>
               </div>
-            ) : error ? (
-              <div className="text-center py-8">
-                <div className="text-red-500 font-majer">{error}</div>
+            )}
+
+            {/* Loading State */}
+            {isLoading ? (
+              <div className="flex justify-center items-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#538FDF]"></div>
+                <span className="ml-2 text-gray-600">Loading upcoming booking...</span>
               </div>
             ) : upcomingBooking ? (
               <div className="mb-4 font-majer">

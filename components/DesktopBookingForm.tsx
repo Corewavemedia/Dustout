@@ -23,7 +23,6 @@ export const DesktopBookingForm = () => {
     nextStep,
     prevStep,
     handleSubmit,
-    setFormData,
   } = useBookingForm(user);
 
   // Show loading state

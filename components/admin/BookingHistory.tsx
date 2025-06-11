@@ -53,41 +53,7 @@ const BookingHistory: React.FC<BookingHistoryProps> = ({ onBookingSelect }) => {
     fetchBookings();
   }, []);
 
-  if (isLoading) {
-    return (
-      <div className="bg-white rounded-lg shadow-sm mb-6">
-        <div className="p-4 border-b border-gray-200">
-          <div className="flex items-center gap-3">
-            <h2 className="text-lg font-majer font-normal text-[#12B368]">
-              Booking History
-            </h2>
-            <div className="flex-1 h-px bg-gray-300"></div>
-          </div>
-        </div>
-        <div className="p-8 text-center">
-          <div className="text-gray-500 font-majer">Loading booking history...</div>
-        </div>
-      </div>
-    );
-  }
 
-  if (error) {
-    return (
-      <div className="bg-white rounded-lg shadow-sm mb-6">
-        <div className="p-4 border-b border-gray-200">
-          <div className="flex items-center gap-3">
-            <h2 className="text-lg font-majer font-normal text-[#12B368]">
-              Booking History
-            </h2>
-            <div className="flex-1 h-px bg-gray-300"></div>
-          </div>
-        </div>
-        <div className="p-8 text-center">
-          <div className="text-red-500 font-majer">{error}</div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <>
@@ -101,6 +67,30 @@ const BookingHistory: React.FC<BookingHistoryProps> = ({ onBookingSelect }) => {
               </div>
             </div>
 
+            {/* Error Message */}
+            {error && (
+              <div className="p-4 bg-red-100 border border-red-400 text-red-700 rounded mx-4 mt-4">
+                {error}
+                <button 
+                  onClick={() => setError(null)}
+                  className="ml-2 text-red-500 hover:text-red-700"
+                >
+                  ×
+                </button>
+              </div>
+            )}
+
+            {/* Loading State */}
+            {isLoading ? (
+              <div className="flex justify-center items-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#538FDF]"></div>
+                <span className="ml-2 text-gray-600">Loading booking history...</span>
+              </div>
+            ) : bookingHistory.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                No booking history found
+              </div>
+            ) : (
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 {/* Header */}
@@ -118,14 +108,7 @@ const BookingHistory: React.FC<BookingHistoryProps> = ({ onBookingSelect }) => {
                 
                 {/* Data Rows */}
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {bookingHistory.length === 0 ? (
-                    <tr>
-                      <td colSpan={7} className="px-6 py-8 text-center text-gray-500 font-majer">
-                        No booking history found
-                      </td>
-                    </tr>
-                  ) : (
-                    bookingHistory.map((booking, index) => (
+                  {bookingHistory.map((booking, index) => (
                       <tr 
                         key={booking.id} 
                         className="hover:bg-gray-50 transition-colors cursor-pointer"
@@ -152,10 +135,11 @@ const BookingHistory: React.FC<BookingHistoryProps> = ({ onBookingSelect }) => {
                        
                       </tr>
                     ))
-                  )}
+                  }
                 </tbody>
               </table>
             </div>
+            )}
           </div>
     </>
   )

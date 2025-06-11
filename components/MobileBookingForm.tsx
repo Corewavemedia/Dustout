@@ -276,13 +276,7 @@ export const MobileBookingForm = () => {
                             const quantity = parseInt(e.target.value) || 1;
                             updateServiceQuantity(selectedService.serviceId, variable.id, quantity);
                           }}
-                          onFocus={(e) => {
-                            // Ensure the variable is added to the service when focused
-                            const currentQuantity = selectedService.variables.find(v => v.variableId === variable.id)?.quantity;
-                            if (currentQuantity === undefined) {
-                              updateServiceQuantity(selectedService.serviceId, variable.id, 1);
-                            }
-                          }}
+                          
                           placeholder="Enter quantity"
                           className="w-full p-2 rounded-md bg-blue-500 text-white placeholder-blue-200 focus:outline-none text-sm"
                         />

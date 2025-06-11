@@ -15,6 +15,8 @@ interface AddStaffSidebarProps {
 export const AddStaffSidebar: React.FC<AddStaffSidebarProps> = ({ onStaffAdded }) => {
   const [services, setServices] = useState<Service[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [servicesLoading, setServicesLoading] = useState(false);
+  const [servicesError, setServicesError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -33,13 +35,20 @@ export const AddStaffSidebar: React.FC<AddStaffSidebarProps> = ({ onStaffAdded }
 
   const fetchServices = async () => {
     try {
+      setServicesLoading(true);
+      setServicesError(null);
       const response = await fetch('/api/services');
       if (response.ok) {
         const data = await response.json();
         setServices(data.services || []);
+      } else {
+        setServicesError('Failed to fetch services');
       }
     } catch (error) {
       console.error('Error fetching services:', error);
+      setServicesError('Failed to fetch services');
+    } finally {
+      setServicesLoading(false);
     }
   };
 
@@ -242,19 +251,45 @@ export const AddStaffSidebar: React.FC<AddStaffSidebarProps> = ({ onStaffAdded }
                 <label className="block text-xs text-[#538FDF] mb-2">
                   Services Rendered
                 </label>
-                <div className="grid grid-cols-2 gap-2 text-xs text-[#538FDF]">
-                  {services.map((service) => (
-                    <div key={service.id} className="flex items-center">
-                      <input 
-                        type="checkbox" 
-                        className="mr-2"
-                        checked={formData.servicesRendered.includes(service.name)}
-                        onChange={() => handleServiceToggle(service.name)}
-                      />
-                      <span>{service.name}</span>
-                    </div>
-                  ))}
-                </div>
+                
+                {/* Services Error Message */}
+                {servicesError && (
+                  <div className="mb-2 p-2 bg-red-100 border border-red-400 text-red-700 rounded text-xs">
+                    {servicesError}
+                    <button 
+                      onClick={() => setServicesError(null)}
+                      className="ml-2 text-red-500 hover:text-red-700"
+                    >
+                      ×
+                    </button>
+                  </div>
+                )}
+
+                {/* Services Loading/Content */}
+                {servicesLoading ? (
+                  <div className="flex justify-center items-center py-4">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#538FDF]"></div>
+                    <span className="ml-2 text-xs text-gray-600">Loading services...</span>
+                  </div>
+                ) : services.length === 0 ? (
+                  <div className="text-center py-4 text-xs text-gray-500">
+                    No services available
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2 text-xs text-[#538FDF]">
+                    {services.map((service) => (
+                      <div key={service.id} className="flex items-center">
+                        <input 
+                          type="checkbox" 
+                          className="mr-2"
+                          checked={formData.servicesRendered.includes(service.name)}
+                          onChange={() => handleServiceToggle(service.name)}
+                        />
+                        <span>{service.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Add Staff Button */}
