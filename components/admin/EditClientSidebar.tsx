@@ -94,7 +94,7 @@ const EditClientSidebar: React.FC<EditClientSidebarProps> = ({ client, isEditMod
         const errorData = await response.json();
         setError(errorData.error || 'Failed to update client');
       }
-    } catch (error) {
+    } catch {
       setError('An error occurred while updating the client');
     } finally {
       setSubmitting(false);
