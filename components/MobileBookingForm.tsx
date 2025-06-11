@@ -170,6 +170,12 @@ export const MobileBookingForm = () => {
                 />
               </div>
 
+              {submitMessage && submitMessage.includes("successfully") && (
+                <div className="p-3 rounded-md text-center font-medium bg-green-100 text-green-800 border border-green-300">
+                  {submitMessage}
+                </div>
+              )}
+
               <div className="pt-4">
                 <button
                   type="button"
@@ -182,6 +188,8 @@ export const MobileBookingForm = () => {
                   </svg>
                 </button>
               </div>
+
+              
             </motion.div>
           )}
 
@@ -212,7 +220,10 @@ export const MobileBookingForm = () => {
                               if (e.target.checked) {
                                 addService(service.id, service.name);
                               } else {
-                                removeService(Number(service.id));
+                                const serviceIndex = formData.selectedServices.findIndex(s => s.serviceId === service.id);
+                                if (serviceIndex !== -1) {
+                                  removeService(serviceIndex);
+                                }
                               }
                             }}
                             className="mr-2 accent-blue-500"
@@ -260,11 +271,19 @@ export const MobileBookingForm = () => {
                         <input
                           type="number"
                           min="1"
-                          value={selectedService.variables.find(v => v.variableId === variable.id)?.quantity || 1}
+                          value={selectedService.variables.find(v => v.variableId === variable.id)?.quantity || ''}
                           onChange={(e) => {
                             const quantity = parseInt(e.target.value) || 1;
                             updateServiceQuantity(selectedService.serviceId, variable.id, quantity);
                           }}
+                          onFocus={(e) => {
+                            // Ensure the variable is added to the service when focused
+                            const currentQuantity = selectedService.variables.find(v => v.variableId === variable.id)?.quantity;
+                            if (currentQuantity === undefined) {
+                              updateServiceQuantity(selectedService.serviceId, variable.id, 1);
+                            }
+                          }}
+                          placeholder="Enter quantity"
                           className="w-full p-2 rounded-md bg-blue-500 text-white placeholder-blue-200 focus:outline-none text-sm"
                         />
                         <div className="text-blue-400 text-xs">
@@ -375,15 +394,7 @@ export const MobileBookingForm = () => {
                 ></textarea>
               </div>
 
-              {submitMessage && (
-                <div className={`p-3 rounded-md text-center font-medium ${
-                  submitMessage.includes('successfully') 
-                    ? 'bg-green-100 text-green-800 border border-green-300' 
-                    : 'bg-red-100 text-red-800 border border-red-300'
-                }`}>
-                  {submitMessage}
-                </div>
-              )}
+              
 
               <div className="pt-4 space-y-3">
                 <button
@@ -531,8 +542,8 @@ export const MobileBookingForm = () => {
                 )}
               </div>
 
-              {submitMessage && (
-                <div className={`p-3 rounded-md text-center font-medium ${submitMessage.includes('successfully') ? 'bg-green-100 text-green-800 border border-green-300' : 'bg-red-100 text-red-800 border border-red-300'}`}>
+              {submitMessage && !submitMessage.includes("successfully") && (
+                <div className="p-3 rounded-md text-center font-medium bg-red-100 text-red-800 border border-red-300">
                   {submitMessage}
                 </div>
               )}

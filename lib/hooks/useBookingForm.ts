@@ -133,7 +133,8 @@ export const useBookingForm = (user?: User | null) => {
 
       // Apply frequency multiplier
       let frequencyMultiplier = 1;
-      switch (formData.serviceFrequency) {
+      const frequency = formData.serviceFrequency.toLowerCase();
+      switch (frequency) {
         case 'weekly':
           frequencyMultiplier = 4; // 4 weeks in a month
           break;
