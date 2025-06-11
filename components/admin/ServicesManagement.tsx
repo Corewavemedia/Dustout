@@ -19,7 +19,10 @@ interface Service {
   description?: string;
   icon?: string;
   variables: ServiceVariable[];
-  createdAt: string;
+  createdAt?: string;
+  revenueGenerated?: number;
+  numberOfBookings?: number;
+  staff?: string;
 }
 
 interface ServiceData {
@@ -53,19 +56,12 @@ const ServicesManagement: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch('/api/services');
+      const response = await fetch('/api/services/analytics');
       if (response.ok) {
         const data = await response.json();
         
-        // Update the services state with properly mapped variables
-        const servicesWithMappedVariables = data.services.map((service: Service) => ({
-          ...service,
-          variables: service.variables.map((variable: ServiceVariable) => ({
-            name: variable.name,
-            unitPrice: variable.unitPrice
-          }))
-        }));
-        setServices(servicesWithMappedVariables);
+        // The analytics API returns the data directly as an array
+        setServices(data);
       } else {
         setError('Failed to fetch services');
       }
@@ -77,13 +73,13 @@ const ServicesManagement: React.FC = () => {
     }
   };
 
-  // Convert services to table data format
+  // Convert services to table data format with real analytics data
   const serviceData: ServiceData[] = services.map(service => ({
     id: service.id,
     title: service.name,
-    numberOfBookings: 0, // This would come from actual booking data
-    staff: "Admin", // This would come from actual staff assignment
-    revenueGenerated: "$0.00", // This would be calculated from bookings
+    numberOfBookings: service.numberOfBookings || 0,
+    staff: service.staff || "No staff assigned",
+    revenueGenerated: `$${(service.revenueGenerated || 0).toFixed(2)}`,
     actions: "",
   }));
 
@@ -178,10 +174,7 @@ const ServicesManagement: React.FC = () => {
         setServiceName("");
         setServiceDescription("");
         setServiceIcon("");
-        setServiceVariables([
-          { id: "1", name: "1 bedroom", unitPrice: 30 },
-          { id: "2", name: "2 bedroom", unitPrice: 60 },
-        ]);
+        setServiceVariables([]);
         // Refresh services list
         fetchServices();
       } else {
