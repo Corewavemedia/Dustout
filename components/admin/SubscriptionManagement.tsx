@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import SubscriptionsList from "./SubscriptionsList";
 import EditSubscriptionSidebar from "./EditSubscriptionSidebar";
+import SubscriptionPlansList from "./SubscriptionPlansList";
+import AddSubscriptionPlanSidebar from "./AddSubscriptionPlanSidebar";
 
 interface Subscription {
   id: string;
@@ -15,21 +17,42 @@ interface Subscription {
   status: string;
 }
 
+interface SubscriptionPlan {
+  id: string;
+  name: string;
+  type: string;
+  price: number;
+  features: string[];
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+type ViewMode = 'manage' | 'add';
+
 const SubscriptionManagement: React.FC = () => {
+  const [viewMode, setViewMode] = useState<ViewMode>('manage');
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedSubscription, setSelectedSubscription] = useState<Subscription | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isSubscriptionEditMode, setIsSubscriptionEditMode] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const handleAddSubscription = () => {
-    setSelectedSubscription(null);
-    setIsEditMode(true);
+    if (viewMode === 'manage') {
+      setSelectedSubscription(null);
+      setIsEditMode(true);
+    } else {
+      setSelectedPlan(null);
+      setIsEditMode(true);
+    }
   };
 
   const handleSaveSubscription = () => {
     setIsEditMode(false);
     setSelectedSubscription(null);
+    setSelectedPlan(null);
     setRefreshTrigger(prev => prev + 1); // Trigger refresh
   };
 
@@ -49,25 +72,79 @@ const SubscriptionManagement: React.FC = () => {
                       type="text"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      placeholder="Search subscriptions..."
-                      className="w-full px-4 py-2 pl-10 text-gray-700 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder={viewMode === 'manage' ? "Search subscriptions..." : "Search subscription plans..."}
+                      className="w-full px-4 py-2 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-300"
                     />
-                    <div className="absolute inset-y-0 left-0 flex items-center pl-3">
-                      <svg
-                        className="w-5 h-5 text-gray-400"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                        />
-                      </svg>
-                    </div>
+                    <button className="absolute font-majer right-2 top-1/2 transform -translate-y-1/2 bg-[#171AD4] text-white px-4 py-1 rounded-md text-sm hover:bg-blue-700 transition-colors">
+                      Search
+                    </button>
                   </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-center font-majer flex-col sm:flex-row gap-3 mt-4">
+                <button
+                  onClick={() => {
+                    setViewMode('add');
+                    setIsEditMode(false);
+                    setIsSubscriptionEditMode(false);
+                    setSelectedSubscription(null);
+                    setSelectedPlan(null);
+                  }}
+                  className={`px-6 py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${
+                    viewMode === 'add'
+                      ? 'bg-[#12B368] text-white hover:bg-green-600'
+                      : 'bg-white text-[#538FDF] hover:bg-gray-50'
+                  }`}
+                >
+                  Add Subscription
+                </button>
+                <button
+                  onClick={() => {
+                    setViewMode('manage');
+                    setIsEditMode(false);
+                    setIsSubscriptionEditMode(false);
+                    setSelectedSubscription(null);
+                    setSelectedPlan(null);
+                  }}
+                  className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+                    viewMode === 'manage'
+                      ? 'bg-[#12B368] text-white hover:bg-green-600'
+                      : 'bg-white border border-white text-[#538FDF] hover:bg-white hover:text-[#171AD4]'
+                  }`}
+                >
+                  Manage Subscriptions
+                </button>
+              </div>
+
+              {/* Add Button for current view */}
+              {viewMode === 'add' && (
+                <div className="flex justify-center mt-4">
+                  <button
+                    onClick={handleAddSubscription}
+                    className="bg-white text-[#538FDF] px-6 py-2 rounded-lg font-medium hover:bg-gray-50 transition-colors flex items-center gap-2"
+                  >
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                      />
+                    </svg>
+                    Add New Plan
+                  </button>
+                </div>
+              )}
+
+              {viewMode === 'manage' && (
+                <div className="flex justify-center mt-4">
                   <button
                     onClick={handleAddSubscription}
                     className="bg-white text-[#538FDF] px-6 py-2 rounded-lg font-medium hover:bg-gray-50 transition-colors flex items-center gap-2"
@@ -88,23 +165,34 @@ const SubscriptionManagement: React.FC = () => {
                     Add Subscription
                   </button>
                 </div>
-              </div>
+              )}
             </div>
           )}
 
-          {/* Subscriptions List */}
-          <SubscriptionsList
-            onSelectSubscription={(subscription) => {
-              setSelectedSubscription(subscription);
-              setIsSubscriptionEditMode(true);
-            }}
-            searchTerm={searchTerm}
-            refreshTrigger={refreshTrigger}
-          />
+          {/* Content based on view mode */}
+          {viewMode === 'manage' ? (
+            <SubscriptionsList
+              onSelectSubscription={(subscription) => {
+                setSelectedSubscription(subscription);
+                setIsSubscriptionEditMode(true);
+              }}
+              searchTerm={searchTerm}
+              refreshTrigger={refreshTrigger}
+            />
+          ) : (
+            <SubscriptionPlansList
+              onSelectPlan={(plan) => {
+                setSelectedPlan(plan);
+                setIsEditMode(true);
+              }}
+              searchTerm={searchTerm}
+              refreshTrigger={refreshTrigger}
+            />
+          )}
         </div>
 
-        {/* Edit Subscription Sidebar */}
-        {(isEditMode || isSubscriptionEditMode) && (
+        {/* Sidebar based on view mode and edit state */}
+        {viewMode === 'manage' && (isEditMode || isSubscriptionEditMode) && (
           <EditSubscriptionSidebar
             subscription={selectedSubscription}
             isEditMode={isEditMode || isSubscriptionEditMode}
@@ -113,6 +201,18 @@ const SubscriptionManagement: React.FC = () => {
               setIsEditMode(false);
               setIsSubscriptionEditMode(false);
               setSelectedSubscription(null);
+            }}
+          />
+        )}
+
+        {viewMode === 'add' && isEditMode && (
+          <AddSubscriptionPlanSidebar
+            plan={selectedPlan}
+            isEditMode={isEditMode}
+            onSave={handleSaveSubscription}
+            onClose={() => {
+              setIsEditMode(false);
+              setSelectedPlan(null);
             }}
           />
         )}

@@ -3,7 +3,6 @@ import BookingHistory from "./BookingHistory";
 import UpcomingBookingSidebar from "./UpcomingBookingSidebar";
 import ServicesManagement from "./ServicesManagement";
 import BookingManagement from "./BookingManagement";
-import GenerateInvoice from "./GenerateInvoice";
 import SubscriptionManagement from "./SubscriptionManagement";
 import UserManagement from './UserManagement';
 

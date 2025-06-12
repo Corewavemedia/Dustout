@@ -103,9 +103,26 @@ model BookingService {
   @@map("booking_services")
 }
 
+model SubscriptionPlan {
+  id          String   @id @default(uuid())
+  name        String   // e.g., "Basic Plan", "Premium Plan", "Enterprise Plan"
+  type        String   // "residential" or "industrial"
+  price       Float    // Monthly price
+  features    String[] // Array of features
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relationships
+  subscriptions Subscription[]
+  
+  @@map("subscription_plans")
+}
+
 model Subscription {
   id          String   @id @default(uuid())
   userId      String
+  planId      String   // Reference to SubscriptionPlan
   planName    String   // e.g., "Basic Plan", "Premium Plan", "Enterprise Plan"
   startDate   DateTime @default(now())
   expiryDate  DateTime
@@ -116,8 +133,9 @@ model Subscription {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   
-  // Relationship
+  // Relationships
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan        SubscriptionPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
   
   @@map("subscriptions")
 }

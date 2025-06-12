@@ -6,9 +6,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/lib/supabase';
 
 interface Plan {
+  id: string;
   name: string;
-  price: string;
+  type: string;
+  price: number;
   features: string[];
+  isActive: boolean;
 }
 
 interface SubscriptionModalProps {
@@ -268,8 +271,10 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
                   </h3>
                   <div className="flex items-baseline justify-center mb-2">
                     <span className="text-2xl">£</span>
-                    <span className="text-5xl font-bold font-majer mx-1">{selectedPlan.price}</span>
-                    <span className="text-xl font-majer">.99</span>
+                    <span className="text-5xl font-bold font-majer mx-1">{Math.floor(selectedPlan.price)}</span>
+                    <span className="text-xl font-majer">{(selectedPlan.price % 1 > 0) ? 
+                      `.${Math.round((selectedPlan.price % 1) * 100)}` : 
+                      '.00'}</span>
                   </div>
                   <p className="text-sm opacity-80 font-majer">Monthly</p>
                 </div>
@@ -503,12 +508,16 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
                   <h3 className="font-semibold text-gray-900 mb-3">Order Summary</h3>
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-gray-600">{selectedPlan.name} ({planType})</span>
-                    <span className="font-semibold">£{selectedPlan.price}.99/month</span>
+                    <span className="font-semibold">£{Math.floor(selectedPlan.price)}{(selectedPlan.price % 1 > 0) ? 
+                      `.${Math.round((selectedPlan.price % 1) * 100)}` : 
+                      '.00'}/month</span>
                   </div>
                   <div className="border-t pt-2 mt-2">
                     <div className="flex justify-between items-center font-semibold text-lg">
                       <span>Total</span>
-                      <span>£{selectedPlan.price}.99/month</span>
+                      <span>£{Math.floor(selectedPlan.price)}{(selectedPlan.price % 1 > 0) ? 
+                        `.${Math.round((selectedPlan.price % 1) * 100)}` : 
+                        '.00'}/month</span>
                     </div>
                   </div>
                 </div>
@@ -526,7 +535,9 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
                     disabled={isProcessing}
                     className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isProcessing ? 'Processing...' : `Subscribe for £${selectedPlan.price}.99/month`}
+                    {isProcessing ? 'Processing...' : `Subscribe for £${Math.floor(selectedPlan.price)}${(selectedPlan.price % 1 > 0) ? 
+                      `.${Math.round((selectedPlan.price % 1) * 100)}` : 
+                      '.00'}/month`}
                   </button>
                 </div>
               </form>

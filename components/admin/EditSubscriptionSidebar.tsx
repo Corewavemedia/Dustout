@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
 
+interface SubscriptionPlan {
+  id: string;
+  name: string;
+  type: string;
+  price: number;
+  features: string[];
+}
+
 interface Subscription {
   id: string;
   clientName: string;
@@ -42,6 +50,13 @@ const EditSubscriptionSidebar: React.FC<EditSubscriptionSidebarProps> = ({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [subscriptionPlans, setSubscriptionPlans] = useState<SubscriptionPlan[]>([]);
+  const [plansLoading, setPlansLoading] = useState(true);
+
+  // Fetch subscription plans on component mount
+  useEffect(() => {
+    fetchSubscriptionPlans();
+  }, []);
 
   // Update form data when subscription changes
   useEffect(() => {
@@ -63,6 +78,23 @@ const EditSubscriptionSidebar: React.FC<EditSubscriptionSidebarProps> = ({
       });
     }
   }, [subscription, isEditMode]);
+
+  const fetchSubscriptionPlans = async () => {
+    try {
+      setPlansLoading(true);
+      const response = await fetch('/api/subscription-plans');
+      if (response.ok) {
+        const plans = await response.json();
+        setSubscriptionPlans(plans);
+      } else {
+        console.error('Failed to fetch subscription plans');
+      }
+    } catch (error) {
+      console.error('Error fetching subscription plans:', error);
+    } finally {
+      setPlansLoading(false);
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -115,12 +147,11 @@ const EditSubscriptionSidebar: React.FC<EditSubscriptionSidebarProps> = ({
     }
   };
 
-  const planOptions = [
-    { value: 'Basic Plan', label: 'Basic Plan - $29/month' },
-    { value: 'Standard Plan', label: 'Standard Plan - $59/month' },
-    { value: 'Premium Plan', label: 'Premium Plan - $99/month' },
-    { value: 'Enterprise Plan', label: 'Enterprise Plan - $199/month' }
-  ];
+  // Convert subscription plans to options format
+  const planOptions = subscriptionPlans.map(plan => ({
+    value: plan.name,
+    label: `${plan.name} - $${plan.price}/month (${plan.type})`
+  }));
 
   const statusOptions = [
     { value: 'active', label: 'Active' },
@@ -183,20 +214,26 @@ const EditSubscriptionSidebar: React.FC<EditSubscriptionSidebarProps> = ({
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Subscription Plan *
             </label>
-            <select
-              name="planName"
-              value={formData.planName}
-              onChange={handleChange}
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="">Select a plan</option>
-              {planOptions.map((plan) => (
-                <option key={plan.value} value={plan.value}>
-                  {plan.label}
-                </option>
-              ))}
-            </select>
+            {plansLoading ? (
+              <div className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500">
+                Loading plans...
+              </div>
+            ) : (
+              <select
+                name="planName"
+                value={formData.planName}
+                onChange={handleChange}
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="">Select a plan</option>
+                {planOptions.map((plan) => (
+                  <option key={plan.value} value={plan.value}>
+                    {plan.label}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
 
           {/* Start Date */}
@@ -278,20 +315,7 @@ const EditSubscriptionSidebar: React.FC<EditSubscriptionSidebarProps> = ({
             />
           </div>
 
-          {/* Phone */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Phone Number
-            </label>
-            <input
-              type="tel"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Enter phone number"
-            />
-          </div>
+
 
           {/* Status */}
           <div>

@@ -10,7 +10,7 @@ interface AdminAvailabilityCalendarProps {
 const AdminAvailabilityCalendar: React.FC<AdminAvailabilityCalendarProps> = ({ className = '' }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [blockedDates, setBlockedDates] = useState<string[]>([]);
-  const [bookingDates, setBookingDates] = useState<{ [key: string]: number }>({});
+
   const [selectedDates, setSelectedDates] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -33,14 +33,7 @@ const AdminAvailabilityCalendar: React.FC<AdminAvailabilityCalendarProps> = ({ c
         console.error('Failed to fetch blocked dates');
       }
       
-      // Fetch booking dates (for informational display)
-      const bookingResponse = await fetch('/api/booking-dates');
-      if (bookingResponse.ok) {
-        const bookings = await bookingResponse.json();
-        setBookingDates(bookings);
-      } else {
-        console.error('Failed to fetch booking dates');
-      }
+      
     } catch (error) {
       console.error('Error fetching calendar data:', error);
     } finally {
