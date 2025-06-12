@@ -49,15 +49,7 @@ const AdminAvailabilityCalendar: React.FC<AdminAvailabilityCalendarProps> = ({ c
   };
 
   const handleDateClick = (dateStr: string) => {
-    // Only allow clicking on dates that are not just booking dates
-    // Booking dates are read-only for admin information
-    const isBookingOnly = bookingDates[dateStr] && !blockedDates.includes(dateStr);
-    
-    if (isBookingOnly) {
-      // Don't allow selection of booking-only dates
-      return;
-    }
-    
+    // Allow clicking on all dates to blacklist or unblacklist
     if (selectedDates.includes(dateStr)) {
       setSelectedDates(selectedDates.filter(d => d !== dateStr));
     } else {
@@ -235,9 +227,6 @@ const AdminAvailabilityCalendar: React.FC<AdminAvailabilityCalendarProps> = ({ c
 
           const dateStr = formatDateString(day);
           const isBlocked = blockedDates.includes(dateStr);
-          const hasBookings = bookingDates[dateStr] > 0;
-          const bookingCount = bookingDates[dateStr] || 0;
-          const isBookingOnly = hasBookings && !isBlocked;
           const isSelected = selectedDates.includes(dateStr);
           const isTodayDate = isToday(day);
 
@@ -254,8 +243,7 @@ const AdminAvailabilityCalendar: React.FC<AdminAvailabilityCalendarProps> = ({ c
                 }
                 ${isBlocked 
                   ? 'bg-blue-500 text-white hover:bg-blue-600' 
-                  : isBookingOnly
-                  ? 'bg-yellow-100 text-yellow-800 cursor-not-allowed'
+                
                   : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
                 }
                 ${isTodayDate 
@@ -265,11 +253,7 @@ const AdminAvailabilityCalendar: React.FC<AdminAvailabilityCalendarProps> = ({ c
               `}
             >
               {day.getDate()}
-              {hasBookings && (
-                <div className="absolute top-1 right-1 w-4 h-4 bg-orange-500 text-white text-xs rounded-full flex items-center justify-center">
-                  {bookingCount}
-                </div>
-              )}
+              
               {isTodayDate && (
                 <div className="w-1 h-1 bg-red-500 rounded-full mx-auto mt-1"></div>
               )}

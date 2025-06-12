@@ -5,6 +5,7 @@ import ServicesManagement from "./ServicesManagement";
 import BookingManagement from "./BookingManagement";
 import GenerateInvoice from "./GenerateInvoice";
 import SubscriptionManagement from "./SubscriptionManagement";
+import UserManagement from './UserManagement';
 
 interface DashboardStats {
   revenue: number;
@@ -45,8 +46,8 @@ const DashboardOverview: React.FC = () => {
   switch (activeTab) {
     case "services":
       return <ServicesManagement />;
-    case "invoice":
-      return <GenerateInvoice />;
+    case "user_management":
+      return <UserManagement />
       case "schedule":
       return <BookingManagement />;
       case "subscription":
@@ -211,7 +212,7 @@ const DashboardOverview: React.FC = () => {
 
             <div className="bg-white p-2 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer">
               <button 
-              onClick={() => setActiveTab("invoice")}
+              onClick={() => setActiveTab("user_management")}
               className="flex items-center text-center">
                 <div className="bg-green-100 p-3 rounded-lg mb-3 mr-4">
                   <svg
@@ -236,7 +237,7 @@ const DashboardOverview: React.FC = () => {
                   </svg>
                 </div>
                 <p className="text-[#538FDF] font-normal font-majer">
-                  Generate Invoice
+                  User Management
                 </p>
               </button>
             </div>

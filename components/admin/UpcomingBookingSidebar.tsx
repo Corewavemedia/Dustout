@@ -11,7 +11,11 @@ interface UpcomingBooking {
   address: string;
 }
 
-const UpcomingBookingSidebar = () => {
+interface UpcomingBookingSidebarProps {
+  refreshTrigger?: number;
+}
+
+const UpcomingBookingSidebar = ({ refreshTrigger = 0 }: UpcomingBookingSidebarProps) => {
   const [upcomingBooking, setUpcomingBooking] = useState<UpcomingBooking | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -41,7 +45,7 @@ const UpcomingBookingSidebar = () => {
     };
 
     fetchUpcomingBooking();
-  }, []);
+  }, [refreshTrigger]); // Refetch when refreshTrigger changes
   return (
     <>
         <div className="w-80 bg-white py-4 overflow-y-auto border-l">

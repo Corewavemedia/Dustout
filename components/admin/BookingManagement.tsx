@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import BookingHistory from "./BookingHistory";
 import UpcomingBookingSidebar from "./UpcomingBookingSidebar";
 import { services } from "../data/ServicesData";
+import { toast } from "react-hot-toast";
 
 interface BookingFormData {
   firstName: string;
@@ -65,6 +66,8 @@ const BookingManagement: React.FC = () => {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [selectedBooking, setSelectedBooking] = useState<BookingHistoryItem | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
+  // Add a refresh trigger state
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   // Fetch staff and services on component mount
   useEffect(() => {
@@ -90,6 +93,7 @@ const BookingManagement: React.FC = () => {
 
     fetchData();
   }, []);
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -160,6 +164,7 @@ const BookingManagement: React.FC = () => {
         const result = await response.json();
 
         if (response.ok) {
+          toast.success(`Staff assigned successfully! ${result.staffAssigned} has been assigned to this booking.`);
           setMessage({ type: 'success', text: `Staff assigned successfully! ${result.staffAssigned} has been assigned to this booking.` });
           // Reset form and state
           setFormData({
@@ -176,8 +181,8 @@ const BookingManagement: React.FC = () => {
           });
           setSelectedBooking(null);
           setIsUpdating(false);
-          // Refresh booking history
-          window.location.reload();
+          // Trigger a refresh instead of reloading the page
+          setRefreshTrigger(prev => prev + 1);
         } else {
           setMessage({ type: 'error', text: result.error || 'Failed to assign staff' });
         }
@@ -194,6 +199,7 @@ const BookingManagement: React.FC = () => {
         const result = await response.json();
 
         if (response.ok) {
+          toast.success(`Booking created successfully! Estimated price: $${result.estimatedPrice?.toFixed(2) || '0.00'}`);          
           setMessage({ type: 'success', text: `Booking created successfully! Estimated price: $${result.estimatedPrice?.toFixed(2) || '0.00'}` });
           // Reset form
           setFormData({
@@ -208,8 +214,8 @@ const BookingManagement: React.FC = () => {
             services: "",
             specialNote: "",
           });
-          // Refresh booking history by triggering a re-render
-          window.location.reload();
+          // Trigger a refresh instead of reloading the page
+          setRefreshTrigger(prev => prev + 1);
         } else {
           setMessage({ type: 'error', text: result.error || 'Failed to create booking' });
         }
@@ -436,11 +442,13 @@ const BookingManagement: React.FC = () => {
           </div>
 
           {/* Booking History */}
-          <BookingHistory onBookingSelect={handleBookingSelect} />
+          <div className="mt-8">
+            <BookingHistory onBookingSelect={handleBookingSelect} refreshTrigger={refreshTrigger} />
+          </div>
         </div>
 
         {/* Right Sidebar */}
-        <UpcomingBookingSidebar />
+        <UpcomingBookingSidebar refreshTrigger={refreshTrigger} />
       </div>
     </div>
   );

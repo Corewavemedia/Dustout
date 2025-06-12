@@ -17,9 +17,10 @@ interface BookingHistoryItem {
 
 interface BookingHistoryProps {
   onBookingSelect?: (booking: BookingHistoryItem) => void;
+  refreshTrigger?: number;
 }
 
-const BookingHistory: React.FC<BookingHistoryProps> = ({ onBookingSelect }) => {
+const BookingHistory: React.FC<BookingHistoryProps> = ({ onBookingSelect, refreshTrigger = 0 }) => {
   const [bookingHistory, setBookingHistory] = useState<BookingHistoryItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -29,7 +30,7 @@ const BookingHistory: React.FC<BookingHistoryProps> = ({ onBookingSelect }) => {
     return String(index + 1).padStart(3, '0');
   };
 
-  // Fetch booking data on component mount
+  // Fetch booking data on component mount and when refreshTrigger changes
   useEffect(() => {
     const fetchBookings = async () => {
       try {
@@ -51,7 +52,7 @@ const BookingHistory: React.FC<BookingHistoryProps> = ({ onBookingSelect }) => {
     };
 
     fetchBookings();
-  }, []);
+  }, [refreshTrigger]); // Add refreshTrigger as a dependency
 
 
 

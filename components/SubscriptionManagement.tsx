@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Calendar, CreditCard, CheckCircle, XCircle, AlertCircle, Settings } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 interface Subscription {
   id: number;
@@ -19,13 +20,32 @@ const SubscriptionManagement = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadSubscription = () => {
+    const loadSubscription = async () => {
       try {
-        // Load from localStorage for demo purposes
-        // In production, this would be an API call
+        // Try to load from localStorage first for immediate display
         const storedSubscription = localStorage.getItem('activeSubscription');
         if (storedSubscription) {
           setSubscription(JSON.parse(storedSubscription));
+        }
+        
+        // Then fetch from API for production environment
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session?.access_token) {
+          const response = await fetch('/api/subscriptions/user', {
+            headers: {
+              'Authorization': `Bearer ${session.access_token}`
+            }
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            if (data.subscription) {
+              setSubscription(data.subscription);
+              // Update localStorage with latest data
+              localStorage.setItem('activeSubscription', JSON.stringify(data.subscription));
+            }
+          }
         }
       } catch (error) {
         console.error('Error loading subscription:', error);
@@ -80,12 +100,34 @@ const SubscriptionManagement = () => {
 
     if (confirmed) {
       try {
-        // In production, this would be an API call
+        // Get the authentication token from Supabase
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!session?.access_token) {
+          throw new Error('Authentication required');
+        }
+        
+        // Make API call to cancel subscription
+        const response = await fetch(`/api/subscriptions/cancel?id=${subscription.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`
+          }
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to cancel subscription');
+        }
+        
+        // Update local state
         const updatedSubscription = {
           ...subscription,
           status: 'cancelled' as const
         };
         
+        // Update localStorage for immediate UI update
         localStorage.setItem('activeSubscription', JSON.stringify(updatedSubscription));
         setSubscription(updatedSubscription);
         
