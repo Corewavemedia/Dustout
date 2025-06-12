@@ -78,10 +78,10 @@ const Dashboard = () => {
                 date: booking.preferredDate || 'Date TBD',
                 time: booking.startTime && booking.endTime 
                   ? `${booking.startTime} - ${booking.endTime}` 
-                  : 'Time TBD',
+                  : 'Time Not Set',
                 price: booking.estimatedPrice 
                   ? `£${booking.estimatedPrice.toFixed(2)}` 
-                  : 'Price TBD',
+                  : 'Price Not Set',
                 status: booking.status
               }));
               
