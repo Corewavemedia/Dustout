@@ -6,10 +6,10 @@ const prisma = new PrismaClient();
 // DELETE - Remove a blocked date
 export async function DELETE(
   _request: Request,
-  context: { params: { date: string } }
+  context: { params: Promise<{ date: string }> }
 ) {
   try {
-    const { date } = context.params;
+    const { date } = await context.params;
 
     if (!date) {
       return NextResponse.json(

@@ -280,30 +280,7 @@ const AdminAvailabilityCalendar: React.FC<AdminAvailabilityCalendarProps> = ({ c
 
       
 
-      {/* Legend */}
-      <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-        <h4 className="text-sm font-medium text-gray-700 mb-2">Legend:</h4>
-        <div className="flex flex-wrap gap-4 text-xs">
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-blue-500 rounded"></div>
-            <span>Admin Blocked (Clickable)</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-yellow-100 border border-yellow-300 rounded relative">
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-orange-500 text-white text-xs rounded-full flex items-center justify-center">1</div>
-            </div>
-            <span>Has Bookings (Read-only)</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-gray-50 border border-gray-200 rounded"></div>
-            <span>Available</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-gray-50 border-2 border-red-500 rounded"></div>
-            <span>Today</span>
-          </div>
-        </div>
-      </div>
+      
 
       {/* Action buttons */}
       <div className="flex items-center justify-between">
