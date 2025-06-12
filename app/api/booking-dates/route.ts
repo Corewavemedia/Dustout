@@ -28,7 +28,7 @@ export async function GET() {
             const dateStr = date.toISOString().split('T')[0];
             bookingCounts[dateStr] = (bookingCounts[dateStr] || 0) + 1;
           }
-        } catch (error) {
+        } catch {
           console.warn('Invalid date format in booking:', booking.preferredDate);
         }
       }

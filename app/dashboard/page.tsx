@@ -58,10 +58,22 @@ const Dashboard = () => {
             if (response.ok) {
               const data = await response.json();
               
+              // Define booking interface
+              interface BookingData {
+                id: string;
+                services?: Array<{service: {name: string}}> | null;
+                serviceAddress: string;
+                preferredDate?: string;
+                startTime?: string;
+                endTime?: string;
+                estimatedPrice?: number;
+                status?: string;
+              }
+              
               // Transform booking data to match OrderData interface
-              const transformedOrders: OrderData[] = data.bookings.map((booking: any) => ({
-                id: booking.id,
-                service: booking.services?.length > 0 ? booking.services[0].service.name : 'Service',
+              const transformedOrders: OrderData[] = data.bookings.map((booking: BookingData) => ({
+                id: parseInt(booking.id, 10) || 0,
+                service: booking.services && booking.services.length > 0 ? booking.services[0].service.name : 'Service',
                 location: booking.serviceAddress,
                 date: booking.preferredDate || 'Date TBD',
                 time: booking.startTime && booking.endTime 

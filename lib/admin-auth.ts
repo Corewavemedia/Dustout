@@ -94,7 +94,7 @@ export function useAdminAuth() {
       
       const data = await response.json()
       return { isAdmin: true, user: data.user }
-    } catch (error) {
+    } catch {
       return { isAdmin: false, error: 'Failed to verify admin access' }
     }
   }

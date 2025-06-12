@@ -516,7 +516,7 @@ export const DesktopBookingForm = () => {
                             </label>
                             <CustomDatePicker
                               value={formData.preferredDate}
-                              onChange={(date) => handleChange({ target: { name: 'preferredDate', value: date } } as any)}
+                              onChange={(date) => handleChange({ target: { name: 'preferredDate', value: date } } as React.ChangeEvent<HTMLInputElement>)}
                               unavailableDates={unavailableDates}
                               disabled={loadingDates}
                               className="w-full"

@@ -306,7 +306,7 @@ export const MobileBookingForm = () => {
                 <label htmlFor="mobilePreferredDate" className="block text-blue-500 font-majer text-sm mb-1 font-medium">Preferred Date</label>
                 <CustomDatePicker
                   value={formData.preferredDate}
-                  onChange={(date) => handleChange({ target: { name: 'preferredDate', value: date } } as any)}
+                  onChange={(date) => handleChange({ target: { name: 'preferredDate', value: date } } as React.ChangeEvent<HTMLInputElement>)}
                   unavailableDates={unavailableDates}
                   disabled={loadingDates}
                   className="w-full"
