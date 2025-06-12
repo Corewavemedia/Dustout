@@ -208,7 +208,6 @@ const SubscriptionManagement: React.FC = () => {
         {viewMode === 'add' && isEditMode && (
           <AddSubscriptionPlanSidebar
             plan={selectedPlan}
-            isEditMode={isEditMode}
             onSave={handleSaveSubscription}
             onClose={() => {
               setIsEditMode(false);

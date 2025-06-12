@@ -15,14 +15,12 @@ interface SubscriptionPlan {
 
 interface AddSubscriptionPlanSidebarProps {
   plan: SubscriptionPlan | null;
-  isEditMode: boolean;
   onSave: () => void;
   onClose: () => void;
 }
 
 const AddSubscriptionPlanSidebar: React.FC<AddSubscriptionPlanSidebarProps> = ({
   plan,
-  isEditMode,
   onSave,
   onClose
 }) => {

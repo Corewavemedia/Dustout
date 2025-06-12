@@ -261,7 +261,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Soft delete by setting isActive to false
-    const subscriptionPlan = await prisma.subscriptionPlan.update({
+    await prisma.subscriptionPlan.update({
       where: { id },
       data: {
         isActive: false
