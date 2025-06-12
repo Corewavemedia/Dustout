@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import AdminAvailabilityCalendar from "./AdminAvailabilityCalendar";
 
 interface UpcomingBooking {
   id: string;
@@ -262,107 +263,7 @@ const UpcomingBookingSidebar = () => {
 
           {/* Calendar */}
           <div>
-            {/* <div className="flex justify-between items-center mb-4">
-              <button className="text-gray-500 hover:text-gray-700">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 19l-7-7 7-7"
-                  />
-                </svg>
-              </button>
-              <h3 className="text-sm font-medium">{currentMonth}</h3>
-              <button className="text-gray-500 hover:text-gray-700">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </button>
-            </div> */}
-
-            {/* <div className="grid grid-cols-7 gap-1 text-center text-xs mb-2">
-              <div className="text-gray-500">S</div>
-              <div className="text-gray-500">M</div>
-              <div className="text-gray-500">T</div>
-              <div className="text-gray-500">W</div>
-              <div className="text-gray-500">T</div>
-              <div className="text-gray-500">F</div>
-              <div className="text-gray-500">S</div>
-            </div> */}
-
-            {/* <div className="grid grid-cols-7 gap-1 text-center"> */}
-              {/* First row */}
-              {/* <div className="text-gray-400 text-xs py-1">28</div>
-              <div className="text-gray-400 text-xs py-1">29</div>
-              <div className="text-gray-400 text-xs py-1">30</div>
-              <div className="text-gray-400 text-xs py-1">31</div>
-              <div className="text-xs py-1">1</div>
-              <div className="text-xs py-1">2</div>
-              <div className="text-xs py-1">3</div> */}
-
-              {/* Second row */}
-              {/* <div className="text-xs py-1">4</div>
-              <div className="text-xs py-1">5</div>
-              <div className="text-xs py-1">6</div>
-              <div className="text-xs py-1">7</div>
-              <div className="text-xs py-1">8</div>
-              <div className="text-xs py-1">9</div>
-              <div className="text-xs py-1">10</div> */}
-
-              {/* Third row */}
-              {/* <div className="text-xs py-1">11</div>
-              <div className="text-xs py-1">12</div>
-              <div className="text-xs py-1">13</div>
-              <div className="text-xs py-1">14</div>
-              <div className="text-xs py-1">15</div>
-              <div className="text-xs py-1">16</div>
-              <div className="text-xs py-1">17</div> */}
-
-              {/* Fourth row */}
-              {/* <div className="text-xs py-1">18</div>
-              <div className="text-xs py-1">19</div>
-              <div className="text-xs py-1">20</div>
-              <div className="text-xs py-1">21</div>
-              <div className="text-xs py-1">22</div>
-              <div className="text-xs py-1">23</div>
-              <div className="text-xs py-1">24</div> */}
-
-              {/* Fifth row */}
-              {/* <div className="text-xs py-1">25</div>
-              <div className="text-xs py-1">26</div>
-              <div className="text-xs py-1">27</div>
-              <div className="text-xs py-1">28</div>
-              <div className="text-xs py-1">29</div>
-              <div className="text-xs py-1">30</div>
-              <div className="text-gray-400 text-xs py-1">1</div>
-            </div> */}
-
-            {/* <div className="mt-4 flex justify-between">
-              <button className="text-xs border border-gray-300 rounded-md px-3 py-1 hover:bg-gray-50 transition-colors">
-                Cancel
-              </button>
-              <button className="text-xs bg-primary-blue text-white rounded-md px-3 py-1 hover:bg-primary-blue/90 transition-colors">
-                Done
-              </button> */}
-            {/* </div> */}
+            <AdminAvailabilityCalendar />
           </div>
         </div>
     </>

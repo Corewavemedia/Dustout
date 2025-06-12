@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../lib/auth-context";
 import { useBookingForm } from "../lib/hooks/useBookingForm";
 import Link from "next/link";
+import CustomDatePicker from "./CustomDatePicker";
 
 // This is the desktop version of the form that will be positioned after the About section
 export const DesktopBookingForm = () => {
@@ -16,6 +17,8 @@ export const DesktopBookingForm = () => {
     submitMessage,
     services,
     loadingServices,
+    unavailableDates,
+    loadingDates,
     handleChange,
     addService,
     removeService,
@@ -457,20 +460,28 @@ export const DesktopBookingForm = () => {
                                           <input
                                             type="number"
                                             min="1"
-                                            value={
-                                              selectedService.variables.find(
-                                                (v) =>
-                                                  v.variableId === variable.id
-                                              )?.quantity || ""
-                                            }
+                                            value={(() => {
+                                              const quantity = selectedService.variables.find(v => v.variableId === variable.id)?.quantity;
+                                              return quantity ? quantity.toString() : '';
+                                            })()}
                                             onChange={(e) => {
-                                              const quantity =
-                                                parseInt(e.target.value) || 1;
-                                              updateServiceQuantity(
-                                                selectedService.serviceId,
-                                                variable.id,
-                                                quantity
-                                              );
+                                              const value = e.target.value;
+                                              if (value === '') {
+                                                updateServiceQuantity(
+                                                  selectedService.serviceId,
+                                                  variable.id,
+                                                  0
+                                                );
+                                              } else {
+                                                const quantity = parseInt(value, 10);
+                                                if (!isNaN(quantity) && quantity >= 0) {
+                                                  updateServiceQuantity(
+                                                    selectedService.serviceId,
+                                                    variable.id,
+                                                    quantity
+                                                  );
+                                                }
+                                              }
                                             }}
                                             placeholder="Enter quantity"
                                             className="w-full p-2 rounded-md focus:outline-none text-sm"
@@ -503,13 +514,12 @@ export const DesktopBookingForm = () => {
                             >
                               Preferred Date
                             </label>
-                            <input
-                              type="date"
-                              id="preferredDate"
-                              name="preferredDate"
+                            <CustomDatePicker
                               value={formData.preferredDate}
-                              onChange={handleChange}
-                              className="w-full p-3 rounded-md focus:outline-none"
+                              onChange={(date) => handleChange({ target: { name: 'preferredDate', value: date } } as any)}
+                              unavailableDates={unavailableDates}
+                              disabled={loadingDates}
+                              className="w-full"
                             />
                           </div>
                           <div>

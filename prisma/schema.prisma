@@ -15,14 +15,16 @@ model User {
   created_at        DateTime @default(now())
   is_verified       Boolean  @default(true)
   verification_token String?
+  role              String   @default("user") // "user" or "admin"
   
   // Additional fields for user profile
   fullname          String?
   address           String?
   phone             String?
   
-  // Relationship to bookings
+  // Relationship to bookings and subscriptions
   bookings          Booking[]
+  subscriptions     Subscription[]
   
   @@map("users")
 }
@@ -101,6 +103,25 @@ model BookingService {
   @@map("booking_services")
 }
 
+model Subscription {
+  id          String   @id @default(uuid())
+  userId      String
+  planName    String   // e.g., "Basic Plan", "Premium Plan", "Enterprise Plan"
+  startDate   DateTime @default(now())
+  expiryDate  DateTime
+  status      String   @default("active") // "active", "expired", "cancelled"
+  revenue     Float    // Amount paid for the subscription
+  email       String?
+  phone       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relationship
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("subscriptions")
+}
+
 model Staff {
   id            String   @id @default(uuid())
   staffImage    String?  // URL or path to staff image
@@ -119,4 +140,13 @@ model Staff {
   bookings      Booking[]
   
   @@map("staff")
+}
+
+model BlockedDate {
+  id          String   @id @default(uuid())
+  blockedDate DateTime @unique @db.Date // The specific date that is blocked
+  reason      String?  // Optional admin's note like "Public Holiday" or "Maintenance"
+  createdAt   DateTime @default(now())
+  
+  @@map("blocked_dates")
 }

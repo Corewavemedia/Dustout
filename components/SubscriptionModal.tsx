@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { X, Check, CreditCard, Calendar, Shield } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { supabase } from '@/lib/supabase';
 
 interface Plan {
   name: string;
@@ -146,8 +147,12 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
     setStep('processing');
 
     try {
-      // Simulate API call - replace with actual backend integration
-      const token = localStorage.getItem('token');
+      // Get the authentication token from Supabase
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.access_token) {
+        throw new Error('Authentication required');
+      }
       
       const subscriptionData = {
         planName: selectedPlan?.name,
@@ -162,40 +167,40 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
         billingAddress: paymentData.billingAddress
       };
 
-      // Replace this with actual API endpoint
       const response = await fetch('/api/subscriptions/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${session.access_token}`
         },
         body: JSON.stringify(subscriptionData)
       });
 
-      // Simulate processing time
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const result = await response.json();
 
       if (response.ok) {
         setStep('success');
-        // Store subscription data locally for demo purposes
+        // Store subscription data locally for quick access
         const subscriptionInfo = {
-          id: Date.now(),
+          id: result.subscription.id,
           planName: selectedPlan?.name,
           planType: planType,
           price: selectedPlan?.price,
-          startDate: new Date().toISOString(),
-          endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
-          status: 'active',
+          startDate: result.subscription.startDate,
+          endDate: result.subscription.expiryDate,
+          status: result.subscription.status,
           features: selectedPlan?.features
         };
         localStorage.setItem('activeSubscription', JSON.stringify(subscriptionInfo));
       } else {
-        throw new Error('Subscription failed');
+        throw new Error(result.error || 'Subscription failed');
       }
     } catch (error) {
       console.error('Subscription error:', error);
       setStep('payment');
-      setErrors({ general: 'Payment failed. Please try again.' });
+      setErrors({ 
+        general: error instanceof Error ? error.message : 'Payment failed. Please try again.' 
+      });
     } finally {
       setIsProcessing(false);
     }

@@ -74,7 +74,16 @@ export async function POST(request: NextRequest) {
         }
       });
 
-      
+      // Create service variables
+      for (const variable of variables) {
+        await tx.serviceVariable.create({
+          data: {
+            name: variable.name,
+            unitPrice: variable.unitPrice,
+            serviceId: newService.id
+          }
+        });
+      }
 
       return newService;
     });

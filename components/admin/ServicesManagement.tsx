@@ -1,5 +1,6 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../lib/auth-context';
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
@@ -34,7 +35,14 @@ interface ServiceData {
   actions: string;
 }
 
+interface DashboardStats {
+  revenue: number;
+  clients: number;
+  bookings: number;
+}
+
 const ServicesManagement: React.FC = () => {
+  const { session } = useAuth();
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -46,11 +54,37 @@ const ServicesManagement: React.FC = () => {
   const [message, setMessage] = useState("");
   const [newVariableName, setNewVariableName] = useState<string>("");
   const [newVariablePrice, setNewVariablePrice] = useState<string>("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingServiceId, setEditingServiceId] = useState<string | null>(null);
+  const [dashboardStats, setDashboardStats] = useState<DashboardStats>({
+    revenue: 0,
+    clients: 0,
+    bookings: 0
+  });
+  const [statsLoading, setStatsLoading] = useState(true);
 
-  // Fetch services on component mount
+  // Fetch services and dashboard stats on component mount
   useEffect(() => {
     fetchServices();
+    fetchDashboardStats();
   }, []);
+  
+  const fetchDashboardStats = async () => {
+    try {
+      setStatsLoading(true);
+      const response = await fetch('/api/admin/dashboard-stats');
+      if (response.ok) {
+        const data = await response.json();
+        setDashboardStats(data);
+      } else {
+        console.error('Failed to fetch dashboard stats');
+      }
+    } catch (error) {
+      console.error('Error fetching dashboard stats:', error);
+    } finally {
+      setStatsLoading(false);
+    }
+  };
 
   const fetchServices = async () => {
     try {
@@ -188,7 +222,119 @@ const ServicesManagement: React.FC = () => {
     }
   };
 
-  
+  const handleEditService = (serviceData: ServiceData) => {
+    // Find the original service object from the services array
+    const service = services.find(s => s.id === serviceData.id);
+    if (!service) return;
+    
+    setIsEditing(true);
+    setEditingServiceId(service.id);
+    setServiceName(service.name);
+    setServiceDescription(service.description || '');
+    setServiceIcon(service.icon || '');
+    setServiceVariables(service.variables || []);
+  };
+
+  const handleUpdateService = async () => {
+    if (!editingServiceId) return;
+
+    setIsSubmitting(true);
+    setMessage('');
+
+    try {
+      const token = session?.access_token;
+      if (!token) {
+        setMessage('Authentication required');
+        return;
+      }
+
+      const serviceData = {
+        id: editingServiceId,
+        name: serviceName,
+        description: serviceDescription,
+        icon: serviceIcon,
+        variables: serviceVariables.map(variable => ({
+          name: variable.name,
+          unitPrice: variable.unitPrice
+        }))
+      };
+
+      const response = await fetch('/api/services', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(serviceData)
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setMessage('Service updated successfully!');
+        // Reset form
+        setServiceName('');
+        setServiceDescription('');
+        setServiceIcon('');
+        setServiceVariables([]);
+        setIsEditing(false);
+        setEditingServiceId(null);
+        // Refresh services list
+        fetchServices();
+      } else {
+        setMessage(result.error || 'Failed to update service');
+      }
+    } catch (error) {
+      console.error('Error updating service:', error);
+      setMessage('Error updating service');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteService = async (serviceId: string) => {
+    if (!confirm('Are you sure you want to delete this service?')) {
+      return;
+    }
+
+    try {
+      const token = session?.access_token;
+      if (!token) {
+        setMessage('Authentication required');
+        return;
+      }
+
+      const response = await fetch(`/api/services?id=${serviceId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setMessage('Service deleted successfully!');
+        // Refresh services list
+        fetchServices();
+      } else {
+        setMessage(result.error || 'Failed to delete service');
+      }
+    } catch (error) {
+      console.error('Error deleting service:', error);
+      setMessage('Error deleting service');
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditingServiceId(null);
+    setServiceName('');
+    setServiceDescription('');
+    setServiceIcon('');
+    setServiceVariables([]);
+    setMessage('');
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-bg-light">
@@ -235,7 +381,7 @@ const ServicesManagement: React.FC = () => {
                     Revenue
                   </p>
                   <p className="text-xl font-normal font-majer text-[#12B368]">
-                    230,548.00
+                    {statsLoading ? 'Loading...' : `$${dashboardStats.revenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
                   </p>
                 </div>
               </div>
@@ -260,7 +406,7 @@ const ServicesManagement: React.FC = () => {
                     Clients
                   </p>
                   <p className="text-xl font-normal font-majer text-[#12B368]">
-                    230,548.00
+                    {statsLoading ? 'Loading...' : dashboardStats.clients.toLocaleString()}
                   </p>
                 </div>
               </div>
@@ -285,7 +431,7 @@ const ServicesManagement: React.FC = () => {
                     Bookings
                   </p>
                   <p className="text-xl font-normal text-[#12B368] font-majer">
-                    230,548.00
+                    {statsLoading ? 'Loading...' : dashboardStats.bookings.toLocaleString()}
                   </p>
                 </div>
               </div>
@@ -362,6 +508,7 @@ const ServicesManagement: React.FC = () => {
                         <div className="flex space-x-2">
                           <button
                             className="text-blue-500 hover:text-blue-700"
+                            onClick={() => handleEditService(service)}
                           >
                             <svg
                               width="16"
@@ -379,7 +526,10 @@ const ServicesManagement: React.FC = () => {
                               />
                             </svg>
                           </button>
-                          <button className="text-red-500 hover:text-red-700">
+                          <button 
+                            className="text-red-500 hover:text-red-700"
+                            onClick={() => handleDeleteService(service.id)}
+                          >
                             <svg
                               width="16"
                               height="16"
@@ -420,7 +570,7 @@ const ServicesManagement: React.FC = () => {
             <div className="flex items-center mb-4">
               <div className="w-2 h-2 bg-red-500 rounded-full mr-2"></div>
               <h3 className="text-lg font-normal font-majer text-[#12B368]">
-                Add Services
+                {isEditing ? 'Edit Service' : 'Add Services'}
               </h3>
             </div>
 
@@ -519,13 +669,25 @@ const ServicesManagement: React.FC = () => {
               ))}
             </div>
 
-            <button
-              onClick={handleAddService}
-              disabled={isSubmitting}
-              className="w-full bg-green-500 text-white font-majer px-3 py-2 rounded-md text-sm hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isSubmitting ? 'Adding Service...' : 'Add Service'}
-            </button>
+            <div className="space-y-2">
+              <button
+                onClick={isEditing ? handleUpdateService : handleAddService}
+                disabled={isSubmitting}
+                className="w-full bg-green-500 text-white font-majer px-3 py-2 rounded-md text-sm hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? (isEditing ? 'Updating Service...' : 'Adding Service...') : (isEditing ? 'Update Service' : 'Add Service')}
+              </button>
+              
+              {isEditing && (
+                <button
+                  onClick={handleCancelEdit}
+                  disabled={isSubmitting}
+                  className="w-full bg-gray-500 text-white font-majer px-3 py-2 rounded-md text-sm hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Cancel
+                </button>
+              )}
+            </div>
             
             {message && (
               <div className={`mt-2 p-2 rounded-md text-sm ${

@@ -6,8 +6,11 @@ const prisma = new PrismaClient();
 // GET - Fetch service analytics (revenue, booking counts, staff)
 export async function GET() {
   try {
-    // Fetch all services
+    // Fetch all active services
     const services = await prisma.service.findMany({
+      where: {
+        isActive: true
+      },
       include: {
         variables: true
       }

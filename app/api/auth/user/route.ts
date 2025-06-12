@@ -48,6 +48,7 @@ export async function GET(request: NextRequest) {
           id: userData.id,
           username: userData.username,
           email: userData.email,
+          role: userData.role,
           createdAt: userData.created_at,
         }
       },

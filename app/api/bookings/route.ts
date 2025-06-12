@@ -157,10 +157,17 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
-    // Get user's bookings
+    // Get user's bookings with services
     const bookings = await prisma.booking.findMany({
       where: {
         userId: user.id
+      },
+      include: {
+        services: {
+          include: {
+            service: true
+          }
+        }
       },
       orderBy: {
         createdAt: 'desc'

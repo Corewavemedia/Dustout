@@ -1,12 +1,46 @@
-import { useState } from "react";
+import React, { useState, useEffect } from 'react';
 import BookingHistory from "./BookingHistory";
 import UpcomingBookingSidebar from "./UpcomingBookingSidebar";
 import ServicesManagement from "./ServicesManagement";
 import BookingManagement from "./BookingManagement";
 import GenerateInvoice from "./GenerateInvoice";
+import SubscriptionManagement from "./SubscriptionManagement";
+
+interface DashboardStats {
+  revenue: number;
+  clients: number;
+  bookings: number;
+}
 
 const DashboardOverview: React.FC = () => {
   const [activeTab, setActiveTab] = useState("");
+  const [stats, setStats] = useState<DashboardStats>({
+    revenue: 0,
+    clients: 0,
+    bookings: 0
+  });
+  const [loading, setLoading] = useState(true);
+
+  // Fetch dashboard stats on component mount
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await fetch('/api/admin/dashboard-stats');
+        if (response.ok) {
+          const data = await response.json();
+          setStats(data);
+        } else {
+          console.error('Failed to fetch dashboard stats');
+        }
+      } catch (error) {
+        console.error('Error fetching dashboard stats:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
 
   switch (activeTab) {
     case "services":
@@ -16,7 +50,7 @@ const DashboardOverview: React.FC = () => {
       case "schedule":
       return <BookingManagement />;
       case "subscription":
-      return <UpcomingBookingSidebar />;
+      return <SubscriptionManagement />;
     default:
       return (
     <div className="flex flex-col min-h-screen bg-bg-light">
@@ -61,7 +95,7 @@ const DashboardOverview: React.FC = () => {
                     Revenue
                   </p>
                   <p className="text-xl font-normal font-majer text-[#12B368]">
-                    230,548.00
+                    {loading ? 'Loading...' : `$${stats.revenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
                   </p>
                 </div>
               </div>
@@ -86,7 +120,7 @@ const DashboardOverview: React.FC = () => {
                     Clients
                   </p>
                   <p className="text-xl font-normal font-majer text-[#12B368]">
-                    230,548.00
+                    {loading ? 'Loading...' : stats.clients.toLocaleString()}
                   </p>
                 </div>
               </div>
@@ -111,7 +145,7 @@ const DashboardOverview: React.FC = () => {
                     Bookings
                   </p>
                   <p className="text-xl font-normal text-[#12B368] font-majer">
-                    230,548.00
+                    {loading ? 'Loading...' : stats.bookings.toLocaleString()}
                   </p>
                 </div>
               </div>

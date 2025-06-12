@@ -20,6 +20,7 @@ export interface AuthUser {
   email: string
   created_at: Date
   is_verified: boolean
+  role: string
   fullname?: string | null
   address?: string | null
   phone?: string | null
@@ -78,6 +79,7 @@ export class AuthService {
             email: user.email,
             created_at: user.created_at,
             is_verified: user.is_verified,
+            role: user.role,
             fullname: user.fullname,
             address: user.address,
             phone: user.phone
@@ -136,6 +138,7 @@ export class AuthService {
           email: user.email,
           created_at: user.created_at,
           is_verified: user.is_verified,
+          role: user.role,
           fullname: user.fullname,
           address: user.address,
           phone: user.phone
@@ -185,6 +188,7 @@ export class AuthService {
           email: userData.email,
           created_at: userData.created_at,
           is_verified: userData.is_verified,
+          role: userData.role,
           fullname: userData.fullname,
           address: userData.address,
           phone: userData.phone
@@ -215,6 +219,7 @@ export class AuthService {
           email: user.email,
           created_at: user.created_at,
           is_verified: user.is_verified,
+          role: user.role,
           fullname: user.fullname,
           address: user.address,
           phone: user.phone

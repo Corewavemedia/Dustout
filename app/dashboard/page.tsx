@@ -15,6 +15,7 @@ import TimeRange from "@/components/icons/TimeRange";
 import SubscriptionManagement from "@/components/SubscriptionManagement";
 import Image from "next/image";
 import { useAuth } from '@/lib/auth-context';
+import { supabase } from '@/lib/supabase';
 
 interface OrderData {
   id: number;
@@ -39,12 +40,51 @@ const Dashboard = () => {
     }
   }, [user, authLoading, router]);
 
-  // Load order history (placeholder for now)
+  // Load order history
   useEffect(() => {
-    if (user) {
-      // TODO: Implement order history fetching
-      setOrderHistory([]);
-    }
+    const fetchOrderHistory = async () => {
+      if (user) {
+        try {
+          // Get the session to access the token
+          const { data: { session } } = await supabase.auth.getSession();
+          
+          if (session?.access_token) {
+            const response = await fetch('/api/bookings', {
+              headers: {
+                'Authorization': `Bearer ${session.access_token}`
+              }
+            });
+            
+            if (response.ok) {
+              const data = await response.json();
+              
+              // Transform booking data to match OrderData interface
+              const transformedOrders: OrderData[] = data.bookings.map((booking: any) => ({
+                id: booking.id,
+                service: booking.services?.length > 0 ? booking.services[0].service.name : 'Service',
+                location: booking.serviceAddress,
+                date: booking.preferredDate || 'Date TBD',
+                time: booking.startTime && booking.endTime 
+                  ? `${booking.startTime} - ${booking.endTime}` 
+                  : 'Time TBD',
+                price: booking.estimatedPrice 
+                  ? `£${booking.estimatedPrice.toFixed(2)}` 
+                  : 'Price TBD',
+                status: booking.status
+              }));
+              
+              setOrderHistory(transformedOrders);
+            } else {
+              console.error('Failed to fetch bookings');
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching order history:', error);
+        }
+      }
+    };
+    
+    fetchOrderHistory();
   }, [user]);
 
   if (authLoading) {
@@ -248,16 +288,7 @@ const Dashboard = () => {
                         <div className="font-semibold font-majer text-[#538FDF]">
                           {order.price}
                         </div>
-                        {order.status && (
-                          <div className={`text-xs mt-1 px-2 py-1 rounded-full inline-block ${
-                            order.status === 'completed' ? 'bg-green-100 text-green-800' :
-                            order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                            order.status === 'cancelled' ? 'bg-red-100 text-red-800' :
-                            'bg-gray-100 text-gray-800'
-                          }`}>
-                            {order.status}
-                          </div>
-                        )}
+                        
                       </div>
                     </div>
                   </div>
