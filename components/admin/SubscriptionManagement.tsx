@@ -98,7 +98,7 @@ const SubscriptionManagement: React.FC = () => {
                       : 'bg-white text-[#538FDF] hover:bg-gray-50'
                   }`}
                 >
-                  Add Subscription
+                  Subscription Plans
                 </button>
                 <button
                   onClick={() => {

@@ -101,10 +101,27 @@ export async function POST(request: NextRequest) {
     // For demo purposes, we'll simulate successful payment processing
     // and create the subscription record
 
+    // Find a matching subscription plan
+    const subscriptionPlan = await prisma.subscriptionPlan.findFirst({
+      where: {
+        name: planName,
+        type: planType,
+        isActive: true
+      }
+    });
+
+    if (!subscriptionPlan) {
+      return NextResponse.json(
+        { error: 'Subscription plan not found' },
+        { status: 404 }
+      );
+    }
+
     // Create the subscription in the database
     const subscription = await prisma.subscription.create({
       data: {
         userId: dbUser.id,
+        planId: subscriptionPlan.id,
         planName: `${planName} (${planType})`,
         startDate,
         expiryDate,
