@@ -173,6 +173,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const {
       userId,
+      planId,
       planName,
       startDate,
       expiryDate,
@@ -183,7 +184,7 @@ export async function POST(request: NextRequest) {
     } = body;
 
     // Validate required fields
-    if (!userId || !planName || !startDate || !expiryDate || !revenue) {
+    if (!userId || !planId || !planName || !startDate || !expiryDate || !revenue) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -206,6 +207,7 @@ export async function POST(request: NextRequest) {
     const newSubscription = await prisma.subscription.create({
       data: {
         userId,
+        planId,
         planName,
         startDate: new Date(startDate),
         expiryDate: new Date(expiryDate),
