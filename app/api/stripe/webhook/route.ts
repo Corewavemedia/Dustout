@@ -133,6 +133,11 @@ export async function POST(request: NextRequest) {
         // Transform services data for email functions
         const transformedServices = await Promise.all(
           (bookingData.selectedServices || []).map(async (selectedService: any) => {
+            // Get the service details
+            const service = await prisma.service.findUnique({
+              where: { id: selectedService.serviceId },
+            });
+            
             const selectedVariables = await Promise.all(
               (selectedService.variables || []).map(async (variable: any) => {
                 // Get the service variable details
@@ -148,7 +153,7 @@ export async function POST(request: NextRequest) {
             );
             
             return {
-              serviceName: selectedService.serviceName,
+              serviceName: service?.name || 'Unknown Service',
               selectedVariables,
             };
           })
