@@ -37,11 +37,9 @@ export async function GET() {
         ? upcomingBooking.services.map(s => s.service.name).join(', ')
         : 'No services',
       date: upcomingBooking.preferredDate || 'Date not specified',
-      time: upcomingBooking.startTime && upcomingBooking.endTime 
-        ? `${upcomingBooking.startTime}-${upcomingBooking.endTime}`
-        : 'Time not specified',
+      time: upcomingBooking.preferredTime || 'Time not specified',
       staff: upcomingBooking.staff ? `${upcomingBooking.staff.firstName} ${upcomingBooking.staff.lastName}` : 'Not Assigned',
-      address: upcomingBooking.serviceAddress || 'Address not provided',
+      address: upcomingBooking.address || 'Address not provided',
     };
 
     return NextResponse.json(formattedBooking);

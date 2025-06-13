@@ -60,26 +60,29 @@ model ServiceVariable {
 }
 
 model Booking {
-  id              String   @id @default(uuid())
-  userId          String
-  fullName        String
-  phone           String
-  email           String
-  serviceAddress  String
-  cityState       String?
-  postCode        String?
-  landmark        String?
-  serviceFrequency String
-  preferredDate   String?
-  startTime       String?
-  endTime         String?
-  isUrgent        String   @default("No")
-  notes           String?
-  status          String   @default("pending")
-  estimatedPrice  Float?   // Calculated estimated price
-  staffId         String?  // Optional staff assignment
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id                String   @id @default(uuid())
+  userId            String
+  fullName          String
+  phone             String
+  email             String
+  address           String   // Renamed from serviceAddress for consistency
+  city              String?  // Renamed from cityState
+  postcode          String?  // Renamed from postCode
+  landmark          String?
+  frequency         String   // Renamed from serviceFrequency
+  preferredDate     DateTime? // Changed to DateTime for better handling
+  preferredTime     String?  // Combined startTime and endTime
+  specialInstructions String? // Renamed from notes
+  status            String   @default("pending")
+  paymentStatus     String   @default("pending") // New field for payment tracking
+  estimatedPrice    Float?   // Calculated estimated price
+  stripeSessionId   String?  // Stripe checkout session ID
+  paymentIntentId   String?  // Stripe payment intent ID
+  staffId           String?  // Optional staff assignment
+  scheduledDate     DateTime? // When the service is actually scheduled
+  scheduledTime     String?  // Time slot for the scheduled service
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
   
   // Relationships
   user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -90,15 +93,18 @@ model Booking {
 }
 
 model BookingService {
-  id        String @id @default(uuid())
-  bookingId String
-  serviceId String
-  quantity  Int    @default(1) // e.g., number of bedrooms, bathrooms, etc.
-  unitPrice Float  // Price at time of booking
+  id           String @id @default(uuid())
+  bookingId    String
+  serviceId    String
+  serviceName  String // Store service name at time of booking
+  variableId   String // Service variable ID
+  variableName String // Variable name (e.g., "1 bedroom", "2 bathrooms")
+  variableValue String // Variable value/description
+  price        Float  // Price for this specific variable
   
   // Relationships
-  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  service   Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  booking      Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  service      Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
   
   @@map("booking_services")
 }
@@ -167,4 +173,15 @@ model BlockedDate {
   createdAt   DateTime @default(now())
   
   @@map("blocked_dates")
+}
+
+model TempBookingData {
+  id            String   @id @default(uuid())
+  referenceId   String   @unique
+  bookingData   String   // JSON string of booking data
+  userId        String   // Reference to the user who created this booking
+  createdAt     DateTime @default(now())
+  expiresAt     DateTime // Auto-cleanup after 24 hours
+  
+  @@map("temp_booking_data")
 }

@@ -45,8 +45,8 @@ export async function GET() {
       clientName: booking.fullName,
       email: booking.email,
       phone: booking.phone,
-      dateAndTime: booking.preferredDate && booking.startTime && booking.endTime 
-        ? `${booking.preferredDate}, ${booking.startTime} - ${booking.endTime}`
+      dateAndTime: booking.preferredDate && booking.preferredTime 
+        ? `${new Date(booking.preferredDate).toLocaleDateString()}, ${booking.preferredTime}`
         : 'Not specified',
       service: booking.services.map(bs => bs.service.name).join(', ') || 'No services',
       staff: booking.staff 
@@ -54,7 +54,7 @@ export async function GET() {
         : 'Not assigned',
       amount: booking.estimatedPrice ? `$${booking.estimatedPrice.toFixed(2)}` : 'Not calculated',
       status: booking.status,
-      address: booking.serviceAddress,
+      address: booking.address,
       createdAt: booking.createdAt
     }));
     
@@ -163,12 +163,11 @@ export async function POST(request: NextRequest) {
           fullName: `${firstName} ${lastName}`,
           phone,
           email,
-          serviceAddress: 'To be specified', // Default value since not in form
-          serviceFrequency: 'One-time', // Default value
+          address: 'To be specified', // Default value since not in form
+          frequency: 'One-time', // Default value
           preferredDate: date,
-          startTime: startingTime,
-          endTime: endingTime,
-          notes: specialNote || null,
+          preferredTime: `${startingTime} - ${endingTime}`,
+          specialInstructions: specialNote || null,
           estimatedPrice,
           staffId,
           status: 'scheduled'
@@ -177,12 +176,16 @@ export async function POST(request: NextRequest) {
 
       // Create booking service
       if (service.variables.length > 0) {
+        const variable = service.variables[0];
         await tx.bookingService.create({
           data: {
             bookingId: newBooking.id,
             serviceId: service.id,
-            quantity: 1,
-            unitPrice: service.variables[0].unitPrice
+            serviceName: service.name,
+            variableId: variable.id,
+            variableName: variable.name,
+            variableValue: `1 x ${variable.name}`,
+            price: variable.unitPrice
           }
         });
       }

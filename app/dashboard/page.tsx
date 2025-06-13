@@ -62,10 +62,9 @@ const Dashboard = () => {
               interface BookingData {
                 id: string;
                 services?: Array<{service: {name: string}}> | null;
-                serviceAddress: string;
+                address: string;
                 preferredDate?: string;
-                startTime?: string;
-                endTime?: string;
+                preferredTime?: string;
                 estimatedPrice?: number;
                 status?: string;
               }
@@ -74,11 +73,9 @@ const Dashboard = () => {
               const transformedOrders: OrderData[] = data.bookings.map((booking: BookingData) => ({
                 id: parseInt(booking.id, 10) || 0,
                 service: booking.services && booking.services.length > 0 ? booking.services[0].service.name : 'Service',
-                location: booking.serviceAddress,
+                location: booking.address,
                 date: booking.preferredDate || 'Date TBD',
-                time: booking.startTime && booking.endTime 
-                  ? `${booking.startTime} - ${booking.endTime}` 
-                  : 'Time Not Set',
+                time: booking.preferredTime || 'Time not specified',
                 price: booking.estimatedPrice 
                   ? `£${booking.estimatedPrice.toFixed(2)}` 
                   : 'Price Not Set',

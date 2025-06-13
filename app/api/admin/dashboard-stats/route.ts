@@ -7,15 +7,14 @@ const prisma = new PrismaClient();
 export async function GET() {
   try {
     // Calculate total revenue from bookings
-    const bookingServices = await prisma.bookingService.findMany({
+    const bookingServices = await prisma.booking.findMany({
       select: {
-        quantity: true,
-        unitPrice: true
+        estimatedPrice: true
       }
     });
     
     const bookingRevenue = bookingServices.reduce((total, service) => {
-      return total + (service.quantity * service.unitPrice);
+      return total + (service.estimatedPrice || 0);
     }, 0);
 
     // Calculate total revenue from subscriptions

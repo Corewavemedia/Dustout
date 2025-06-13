@@ -304,63 +304,42 @@ export const useBookingForm = (user?: User | null) => {
         return;
       }
 
-      // Prepare booking data
+      // Prepare booking data for Stripe
       const bookingData = {
         fullName: requiredFields.fullName,
         phone: requiredFields.phone,
         email: requiredFields.email,
-        serviceAddress: requiredFields.serviceAddress,
-        cityState: formData.cityState.trim() || "",
-        postCode: formData.postCode.trim() || "",
+        address: requiredFields.serviceAddress,
+        city: formData.cityState.trim() || "",
+        postcode: formData.postCode.trim() || "",
         landmark: formData.landmark.trim() || "",
-        services: requiredFields.services,
-        serviceFrequency: requiredFields.serviceFrequency,
+        selectedServices: requiredFields.services,
+        frequency: requiredFields.serviceFrequency,
         preferredDate: formData.preferredDate || "",
-        startTime: formData.startTime,
-        endTime: formData.endTime,
+        preferredTime: `${formData.startTime} - ${formData.endTime}`,
         urgent: formData.urgent || "No",
-        specialNotes: formData.specialNotes.trim() || "",
+        specialInstructions: formData.specialNotes.trim() || "",
         estimatedPrice: formData.estimatedPrice,
       };
 
-      // Submit to the bookings API
-      const response = await fetch("/api/bookings", {
+      // Create Stripe checkout session
+      const response = await fetch("/api/stripe/create-checkout-session", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify(bookingData),
+        body: JSON.stringify({ bookingData }),
       });
 
       const result = await response.json();
 
-      if (response.ok) {
-        setSubmitMessage(
-          "Booking submitted successfully! We will contact you soon."
-        );
-        // Reset form
-        setFormData({
-          fullName: user?.user_metadata?.full_name || "",
-          phone: user?.user_metadata?.phone || "",
-          email: user?.email || "",
-          serviceAddress: "",
-          cityState: "",
-          postCode: "",
-          landmark: "",
-          selectedServices: [],
-          serviceFrequency: "",
-          preferredDate: "",
-          startTime: "",
-          endTime: "",
-          urgent: "",
-          specialNotes: "",
-          estimatedPrice: 0,
-        });
-        setCurrentStep(1);
+      if (response.ok && result.url) {
+        // Redirect to Stripe checkout
+        window.location.href = result.url;
       } else {
         setSubmitMessage(
-          result.error || "Failed to submit booking. Please try again."
+          result.error || "Failed to create checkout session. Please try again."
         );
       }
     } catch (error) {

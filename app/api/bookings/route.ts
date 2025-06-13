@@ -72,16 +72,14 @@ export async function POST(request: NextRequest) {
           fullName,
           phone,
           email,
-          serviceAddress,
-          cityState: cityState || null,
-          postCode: postCode || null,
+          address: serviceAddress,
+          city: cityState || null,
+          postcode: postCode || null,
           landmark: landmark || null,
-          serviceFrequency,
+          frequency: serviceFrequency,
           preferredDate: preferredDate || null,
-          startTime: startTime || null,
-          endTime: endTime || null,
-          isUrgent: urgent || 'No',
-          notes: specialNotes || null,
+          preferredTime: startTime && endTime ? `${startTime} - ${endTime}` : null,
+          specialInstructions: specialNotes || null,
           estimatedPrice: estimatedPrice || null,
         },
       });
@@ -110,8 +108,11 @@ export async function POST(request: NextRequest) {
             data: {
               bookingId: newBooking.id,
               serviceId: service.serviceId,
-              quantity: serviceVariable.quantity,
-              unitPrice: variable.unitPrice
+              serviceName: serviceData.name,
+              variableId: serviceVariable.variableId,
+              variableName: variable.name,
+              variableValue: `${serviceVariable.quantity} x ${variable.name}`,
+              price: variable.unitPrice * serviceVariable.quantity
             }
           });
         }

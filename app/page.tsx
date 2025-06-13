@@ -1,5 +1,7 @@
-"use client";
+'use client';
 
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Navbar from "@/components/Navbar";
 import ServicesSection from "@/components/Services";
 import AboutSection from "@/components/About";
@@ -11,8 +13,25 @@ import { MobileBookingForm } from "@/components/MobileBookingForm";
 import PricingSection from "@/components/PricingSection";
 import WhyChooseUs from "@/components/WhyChooseUs";
 import HowToBookUs from "@/components/HowToBookUs";
+import PaymentStatus from "@/components/PaymentStatus";
 
 export default function Home() {
+  const searchParams = useSearchParams();
+  const [showPaymentStatus, setShowPaymentStatus] = useState(false);
+
+  useEffect(() => {
+    const paymentStatus = searchParams.get('payment');
+    if (paymentStatus === 'success' || paymentStatus === 'cancelled') {
+      setShowPaymentStatus(true);
+    }
+  }, [searchParams]);
+
+  const handleClosePaymentStatus = () => {
+    setShowPaymentStatus(false);
+    // Clear URL parameters
+    window.history.replaceState({}, '', window.location.pathname);
+  };
+
   return (
     <>
       <Navbar />
@@ -30,6 +49,11 @@ export default function Home() {
         <ContactSection />
       </main>
       <Footer />
+      
+      {/* Payment Status Modal */}
+      {showPaymentStatus && (
+        <PaymentStatus onClose={handleClosePaymentStatus} />
+      )}
     </>
   );
 }

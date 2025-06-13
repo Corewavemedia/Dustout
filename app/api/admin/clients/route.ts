@@ -29,8 +29,8 @@ export async function GET() {
         .join(', ');
 
       // Format date and time
-      const dateTime = booking.preferredDate && booking.startTime && booking.endTime
-        ? `${booking.preferredDate} ${booking.startTime}-${booking.endTime}`
+      const dateTime = booking.preferredDate && booking.preferredTime
+          ? `${new Date(booking.preferredDate).toLocaleDateString()} ${booking.preferredTime}`
         : booking.createdAt.toLocaleDateString();
 
       // Format revenue from estimated price
@@ -43,11 +43,11 @@ export async function GET() {
         clientName: booking.fullName,
         dateAndTime: dateTime,
         servicesOrdered: servicesOrdered,
-        address: booking.serviceAddress,
+        address: booking.address,
         revenue: revenue,
         email: booking.email,
         phoneNumber: booking.phone,
-        specialInstructions: booking.notes || ''
+        specialInstructions: booking.specialInstructions || ''
       };
     });
 
@@ -99,8 +99,8 @@ export async function PUT(request: NextRequest) {
         fullName: clientName,
         email,
         phone: phoneNumber,
-        serviceAddress: address,
-        notes: specialInstructions || null,
+        address: address,
+        specialInstructions: specialInstructions || null,
         estimatedPrice: estimatedPrice,
         updatedAt: new Date()
       }
