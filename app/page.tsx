@@ -1,6 +1,6 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Navbar from "@/components/Navbar";
 import ServicesSection from "@/components/Services";
@@ -15,7 +15,7 @@ import WhyChooseUs from "@/components/WhyChooseUs";
 import HowToBookUs from "@/components/HowToBookUs";
 import PaymentStatus from "@/components/PaymentStatus";
 
-export default function Home() {
+function HomeContent() {
   const searchParams = useSearchParams();
   const [showPaymentStatus, setShowPaymentStatus] = useState(false);
 
@@ -55,5 +55,13 @@ export default function Home() {
         <PaymentStatus onClose={handleClosePaymentStatus} />
       )}
     </>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <HomeContent />
+    </Suspense>
   );
 }
