@@ -32,7 +32,7 @@ export async function GET() {
       // Calculate revenue for this service
       const serviceBookings = bookingServices.filter(bs => bs.serviceId === service.id);
       const revenue = serviceBookings.reduce((total, booking) => {
-        return total + (booking.quantity * booking.unitPrice);
+        return total + booking.price;
       }, 0);
 
       // Count number of bookings for this service
