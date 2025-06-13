@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/lib/auth-context'
 
 interface User {
@@ -30,7 +30,7 @@ export default function UserManagement() {
   })
 
   // Fetch all users
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     if (!session?.access_token) return
 
     try {
@@ -60,7 +60,7 @@ export default function UserManagement() {
         loading: false
       }))
     }
-  }
+  }, [session?.access_token])
 
   // Promote or demote user
   const handleRoleChange = async (userId: string, action: 'promote' | 'demote') => {
@@ -98,7 +98,7 @@ export default function UserManagement() {
 
   useEffect(() => {
     fetchUsers()
-  }, [session])
+  }, [fetchUsers])
 
   if (state.loading) {
     return (
