@@ -130,13 +130,37 @@ export async function POST(request: NextRequest) {
           throw transactionError;
         }
 
+        // Transform services data for email functions
+        const transformedServices = await Promise.all(
+          (bookingData.selectedServices || []).map(async (selectedService: any) => {
+            const selectedVariables = await Promise.all(
+              (selectedService.variables || []).map(async (variable: any) => {
+                // Get the service variable details
+                const serviceVariable = await prisma.serviceVariable.findUnique({
+                  where: { id: variable.variableId },
+                });
+                
+                return {
+                  variableName: serviceVariable?.name || 'Unknown Variable',
+                  variableValue: `${variable.quantity} x ${serviceVariable?.name || 'Unknown'}`,
+                };
+              })
+            );
+            
+            return {
+              serviceName: selectedService.serviceName,
+              selectedVariables,
+            };
+          })
+        );
+
         // Send confirmation emails
         try {
           await sendBookingConfirmationEmail({
             to: bookingData.email,
             customerName: bookingData.fullName,
             bookingId: booking.id,
-            services: bookingData.selectedServices,
+            services: transformedServices,
             preferredDate: bookingData.preferredDate,
             preferredTime: bookingData.preferredTime,
             totalAmount: bookingData.estimatedPrice,
@@ -148,7 +172,7 @@ export async function POST(request: NextRequest) {
             customerEmail: bookingData.email,
             customerPhone: bookingData.phone,
             bookingId: booking.id,
-            services: bookingData.selectedServices,
+            services: transformedServices,
             preferredDate: bookingData.preferredDate,
             preferredTime: bookingData.preferredTime,
             totalAmount: bookingData.estimatedPrice,
