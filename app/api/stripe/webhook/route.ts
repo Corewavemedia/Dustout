@@ -11,6 +11,20 @@ const prisma = new PrismaClient();
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
+// Type definitions for booking data
+interface BookingVariable {
+  variableId: string;
+  quantity: number;
+}
+
+interface BookingSelectedService {
+  serviceId: string;
+  serviceName?: string;
+  variables: BookingVariable[];
+}
+
+
+
 export async function POST(request: NextRequest) {
   const body = await request.text();
   const sig = request.headers.get('stripe-signature')!;
@@ -132,14 +146,14 @@ export async function POST(request: NextRequest) {
 
         // Transform services data for email functions
         const transformedServices = await Promise.all(
-          (bookingData.selectedServices || []).map(async (selectedService: any) => {
+          (bookingData.selectedServices || []).map(async (selectedService: BookingSelectedService) => {
             // Get the service details
             const service = await prisma.service.findUnique({
               where: { id: selectedService.serviceId },
             });
             
             const selectedVariables = await Promise.all(
-              (selectedService.variables || []).map(async (variable: any) => {
+              (selectedService.variables || []).map(async (variable: BookingVariable) => {
                 // Get the service variable details
                 const serviceVariable = await prisma.serviceVariable.findUnique({
                   where: { id: variable.variableId },
