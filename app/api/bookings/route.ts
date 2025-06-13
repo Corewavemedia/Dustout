@@ -43,7 +43,6 @@ export async function POST(request: NextRequest) {
       preferredDate,
       startTime,
       endTime,
-      urgent,
       specialNotes,
       estimatedPrice
     } = bookingData;

@@ -1,21 +1,23 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
-// Create transporter using cPanel email settings
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST!, // Your cPanel email host
-  port: parseInt(process.env.EMAIL_PORT || '587'),
-  secure: process.env.EMAIL_SECURE === 'true', // true for 465, false for other ports
-  auth: {
-    user: process.env.EMAIL_USER!, // Your email address
-    pass: process.env.EMAIL_PASS!, // Your email password
-  },
-});
+// Initialize Resend with API key
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+interface ServiceVariable {
+  variableName: string;
+  variableValue: string;
+}
+
+interface Service {
+  serviceName: string;
+  selectedVariables: ServiceVariable[];
+}
 
 interface BookingConfirmationData {
   to: string;
   customerName: string;
   bookingId: string;
-  services: any[];
+  services: Service[];
   preferredDate: string;
   preferredTime: string;
   totalAmount: number;
@@ -27,7 +29,7 @@ interface AdminNotificationData {
   customerEmail: string;
   customerPhone: string;
   bookingId: string;
-  services: any[];
+  services: Service[];
   preferredDate: string;
   preferredTime: string;
   totalAmount: number;
@@ -35,11 +37,22 @@ interface AdminNotificationData {
   specialInstructions?: string;
 }
 
+interface SchedulingConfirmationData {
+  to: string;
+  customerName: string;
+  bookingId: string;
+  scheduledDate: string;
+  scheduledTime: string;
+  assignedStaff: string;
+  services: Service[];
+  address: string;
+}
+
 export async function sendBookingConfirmationEmail(data: BookingConfirmationData) {
   const servicesList = data.services
     .map(service => {
       const variables = service.selectedVariables
-        .map((v: any) => `${v.variableName}: ${v.variableValue}`)
+        .map((v: ServiceVariable) => `${v.variableName}: ${v.variableValue}`)
         .join(', ');
       return `${service.serviceName} (${variables})`;
     })
@@ -94,16 +107,14 @@ export async function sendBookingConfirmationEmail(data: BookingConfirmationData
     </html>
   `;
 
-  const mailOptions = {
-    from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
-    to: data.to,
-    subject: `Booking Confirmation - ${data.bookingId}`,
-    html: htmlContent,
-  };
-
   try {
-    const result = await transporter.sendMail(mailOptions);
-    console.log('Booking confirmation email sent successfully:', result.messageId);
+    const result = await resend.emails.send({
+      from: process.env.EMAIL_FROM || 'onboarding@resend.dev',
+      to: data.to,
+      subject: `Booking Confirmation - ${data.bookingId}`,
+      html: htmlContent,
+    });
+    console.log('Booking confirmation email sent successfully:', result.data?.id || 'Email sent');
     return result;
   } catch (error) {
     console.error('Error sending booking confirmation email:', error);
@@ -115,7 +126,7 @@ export async function sendAdminNotificationEmail(data: AdminNotificationData) {
   const servicesList = data.services
     .map(service => {
       const variables = service.selectedVariables
-        .map((v: any) => `${v.variableName}: ${v.variableValue}`)
+        .map((v: ServiceVariable) => `${v.variableName}: ${v.variableValue}`)
         .join(', ');
       return `${service.serviceName} (${variables})`;
     })
@@ -176,16 +187,14 @@ export async function sendAdminNotificationEmail(data: AdminNotificationData) {
     </html>
   `;
 
-  const mailOptions = {
-    from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
-    to: process.env.ADMIN_EMAIL || process.env.EMAIL_USER,
-    subject: `🚨 New Booking Alert - ${data.bookingId}`,
-    html: htmlContent,
-  };
-
   try {
-    const result = await transporter.sendMail(mailOptions);
-    console.log('Admin notification email sent successfully:', result.messageId);
+    const result = await resend.emails.send({
+      from: process.env.EMAIL_FROM || 'onboarding@resend.dev',
+      to: process.env.ADMIN_EMAIL || 'admin@dustout.co.uk',
+      subject: `🚨 New Booking Alert - ${data.bookingId}`,
+      html: htmlContent,
+    });
+    console.log('Admin notification email sent successfully:', result.data?.id || 'Email sent');
     return result;
   } catch (error) {
     console.error('Error sending admin notification email:', error);
@@ -193,20 +202,11 @@ export async function sendAdminNotificationEmail(data: AdminNotificationData) {
   }
 }
 
-export async function sendSchedulingConfirmationEmail(data: {
-  to: string;
-  customerName: string;
-  bookingId: string;
-  scheduledDate: string;
-  scheduledTime: string;
-  assignedStaff: string;
-  services: any[];
-  address: string;
-}) {
+export async function sendSchedulingConfirmationEmail(data: SchedulingConfirmationData) {
   const servicesList = data.services
     .map(service => {
       const variables = service.selectedVariables
-        .map((v: any) => `${v.variableName}: ${v.variableValue}`)
+        .map((v: ServiceVariable) => `${v.variableName}: ${v.variableValue}`)
         .join(', ');
       return `${service.serviceName} (${variables})`;
     })
@@ -260,16 +260,14 @@ export async function sendSchedulingConfirmationEmail(data: {
     </html>
   `;
 
-  const mailOptions = {
-    from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
-    to: data.to,
-    subject: `Booking Scheduled - ${data.bookingId}`,
-    html: htmlContent,
-  };
-
   try {
-    const result = await transporter.sendMail(mailOptions);
-    console.log('Scheduling confirmation email sent successfully:', result.messageId);
+    const result = await resend.emails.send({
+      from: process.env.EMAIL_FROM || 'onboarding@resend.dev',
+      to: data.to,
+      subject: `Booking Scheduled - ${data.bookingId}`,
+      html: htmlContent,
+    });
+    console.log('Scheduling confirmation email sent successfully:', result.data?.id || 'Email sent');
     return result;
   } catch (error) {
     console.error('Error sending scheduling confirmation email:', error);
