@@ -145,8 +145,8 @@ export async function POST(request: NextRequest) {
         planId: newPlanId,
         planName: `${newPlanName} (${newPlanType})`,
         revenue: newPrice,
-        expiryDate: updatedStripeSubscription.ended_at ? new Date(updatedStripeSubscription.ended_at * 1000) : new Date(updatedStripeSubscription.start_date * 1000),
-        currentPeriodEnd: updatedStripeSubscription.ended_at ? new Date(updatedStripeSubscription.ended_at * 1000) : new Date(updatedStripeSubscription.start_date * 1000),
+        expiryDate: updatedStripeSubscription.ended_at ? new Date(updatedStripeSubscription.ended_at * 1000) : "",
+        currentPeriodEnd: updatedStripeSubscription.ended_at ? new Date(updatedStripeSubscription.ended_at * 1000) : ""
       }
     });
 

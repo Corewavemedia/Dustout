@@ -3,8 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { 
-  CreditCard, 
-  Calendar, 
   Package, 
   AlertCircle, 
   CheckCircle, 
@@ -47,7 +45,7 @@ interface SubscriptionPlan {
 
 export function SubscriptionDashboard() {
   const [subscription, setSubscription] = useState<Subscription | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null);
+  // const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null);
   const [subscriptionPlans, setSubscriptionPlans] = useState<SubscriptionPlan[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -82,16 +80,16 @@ export function SubscriptionDashboard() {
       }
 
       // Fetch payment method
-      const paymentResponse = await fetch('/api/subscriptions/update-payment-method', {
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`
-        }
-      });
+      // const paymentResponse = await fetch('/api/subscriptions/update-payment-method', {
+      //   headers: {
+      //     'Authorization': `Bearer ${session.access_token}`
+      //   }
+      // });
 
-      if (paymentResponse.ok) {
-        const paymentData = await paymentResponse.json();
-        setPaymentMethod(paymentData.paymentMethod);
-      }
+      // if (paymentResponse.ok) {
+      //   const paymentData = await paymentResponse.json();
+      //   setPaymentMethod(paymentData.paymentMethod);
+      // }
 
     } catch (error) {
       console.error('Error fetching subscription data:', error);
@@ -152,38 +150,38 @@ export function SubscriptionDashboard() {
     }
   };
 
-  const handleUpdatePaymentMethod = async () => {
-    setActionLoading('payment');
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
+  // const handleUpdatePaymentMethod = async () => {
+  //   setActionLoading('payment');
+  //   try {
+  //     const { data: { session } } = await supabase.auth.getSession();
       
-      if (!session) {
-        setError('Please log in to update your payment method');
-        return;
-      }
+  //     if (!session) {
+  //       setError('Please log in to update your payment method');
+  //       return;
+  //     }
 
-      const response = await fetch('/api/subscriptions/update-payment-method', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+  //     const response = await fetch('/api/subscriptions/update-payment-method', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Authorization': `Bearer ${session.access_token}`,
+  //         'Content-Type': 'application/json'
+  //       }
+  //     });
 
-      if (response.ok) {
-        const data = await response.json();
-        window.location.href = data.url;
-      } else {
-        const errorData = await response.json();
-        setError(errorData.error || 'Failed to update payment method');
-      }
-    } catch (error) {
-      console.error('Error updating payment method:', error);
-      setError('Failed to update payment method');
-    } finally {
-      setActionLoading(null);
-    }
-  };
+  //     if (response.ok) {
+  //       const data = await response.json();
+  //       window.location.href = data.url;
+  //     } else {
+  //       const errorData = await response.json();
+  //       setError(errorData.error || 'Failed to update payment method');
+  //     }
+  //   } catch (error) {
+  //     console.error('Error updating payment method:', error);
+  //     setError('Failed to update payment method');
+  //   } finally {
+  //     setActionLoading(null);
+  //   }
+  // };
 
   const handlePlanChange = async (newPlan: SubscriptionPlan) => {
     if (!subscription || !confirm(`Are you sure you want to change to the ${newPlan.name} plan?`)) {

@@ -32,7 +32,7 @@ export async function PUT(request: NextRequest) {
 
     // Get the subscription ID from the query parameters
     const { searchParams } = new URL(request.url);
-    const subscriptionId = searchParams.get('id');
+    const subscriptionId = searchParams.get('subscriptionId');
 
     if (!subscriptionId) {
       return NextResponse.json(

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X, Check, CreditCard, Calendar, Shield } from 'lucide-react';
+import { X, Check, Calendar, Shield } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/lib/supabase';
 
@@ -41,66 +41,15 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
   planType
 }) => {
   const [step, setStep] = useState<'plan' | 'processing' | 'success'>('plan');
-  const [paymentData, setPaymentData] = useState<PaymentFormData>({
-    cardNumber: '',
-    expiryDate: '',
-    cvv: '',
-    cardholderName: '',
-    billingAddress: {
-      street: '',
-      city: '',
-      postalCode: '',
-      country: 'United Kingdom'
-    }
-  });
+
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleInputChange = (field: string, value: string) => {
-    if (field.includes('.')) {
-      const [parent, child] = field.split('.');
-      setPaymentData(prev => ({
-        ...prev,
-        [parent]: {
-          ...(prev[parent as keyof PaymentFormData] as Record<string, string>),
-          [child]: value
-        }
-      }));
-    } else {
-      setPaymentData(prev => ({
-        ...prev,
-        [field]: value
-      }));
-    }
-    
-    // Clear error when user starts typing
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
-    }
-  };
+  
 
-  const formatCardNumber = (value: string) => {
-    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
-    const matches = v.match(/\d{4,16}/g);
-    const match = matches && matches[0] || '';
-    const parts = [];
-    for (let i = 0, len = match.length; i < len; i += 4) {
-      parts.push(match.substring(i, i + 4));
-    }
-    if (parts.length) {
-      return parts.join(' ');
-    } else {
-      return v;
-    }
-  };
+  
 
-  const formatExpiryDate = (value: string) => {
-    const v = value.replace(/\D/g, '');
-    if (v.length >= 2) {
-      return v.substring(0, 2) + '/' + v.substring(2, 4);
-    }
-    return v;
-  };
+
 
 
 
@@ -153,18 +102,6 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
 
   const handleClose = () => {
     setStep('plan');
-    setPaymentData({
-      cardNumber: '',
-      expiryDate: '',
-      cvv: '',
-      cardholderName: '',
-      billingAddress: {
-        street: '',
-        city: '',
-        postalCode: '',
-        country: 'United Kingdom'
-      }
-    });
     setErrors({});
     onClose();
   };

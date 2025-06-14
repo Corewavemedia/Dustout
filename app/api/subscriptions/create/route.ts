@@ -90,16 +90,10 @@ export async function POST(request: NextRequest) {
 
     // Calculate dates
     const startDate = new Date();
-    const expiryDate = new Date();
+    const expiryDate = new Date(startDate);
     expiryDate.setMonth(expiryDate.getMonth() + 1); // Add 1 month
 
-    // In a real application, you would:
-    // 1. Process payment with Stripe/PayPal
-    // 2. Validate payment details
-    // 3. Handle payment failures
-    
-    // For demo purposes, we'll simulate successful payment processing
-    // and create the subscription record
+
 
     // Find a matching subscription plan
     const subscriptionPlan = await prisma.subscriptionPlan.findFirst({
@@ -123,8 +117,11 @@ export async function POST(request: NextRequest) {
         userId: dbUser.id,
         planId: subscriptionPlan.id,
         planName: `${planName} (${planType})`,
+        planType: planType,
         startDate,
         expiryDate,
+        currentPeriodStart: startDate,
+        currentPeriodEnd: expiryDate,
         status: 'active',
         revenue: parseFloat(price),
         email: user.email!,
