@@ -84,13 +84,15 @@ const EditSubscriptionSidebar: React.FC<EditSubscriptionSidebarProps> = ({
       setPlansLoading(true);
       const response = await fetch('/api/subscription-plans');
       if (response.ok) {
-        const plans = await response.json();
-        setSubscriptionPlans(plans);
+        const data = await response.json();
+        setSubscriptionPlans(data.plans || []);
       } else {
         console.error('Failed to fetch subscription plans');
+        setSubscriptionPlans([]);
       }
     } catch (error) {
       console.error('Error fetching subscription plans:', error);
+      setSubscriptionPlans([]);
     } finally {
       setPlansLoading(false);
     }
@@ -148,10 +150,10 @@ const EditSubscriptionSidebar: React.FC<EditSubscriptionSidebarProps> = ({
   };
 
   // Convert subscription plans to options format
-  const planOptions = subscriptionPlans.map(plan => ({
+  const planOptions = Array.isArray(subscriptionPlans) ? subscriptionPlans.map(plan => ({
     value: plan.name,
     label: `${plan.name} - $${plan.price}/month (${plan.type})`
-  }));
+  })) : [];
 
   const statusOptions = [
     { value: 'active', label: 'Active' },
