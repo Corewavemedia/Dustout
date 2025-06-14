@@ -361,7 +361,12 @@ async function handleSubscriptionActivated(subscription: Stripe.Subscription) {
 
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   try {
-    const updateData: any = {
+    const updateData: {
+      status: 'active' | 'inactive';
+      expiryDate: Date;
+      currentPeriodStart: Date;
+      currentPeriodEnd: Date;
+    } = {
       status: subscription.status === 'active' ? 'active' : 'inactive',
       expiryDate: subscription.ended_at ? new Date(subscription.ended_at * 1000) : new Date(subscription.start_date * 1000),
       currentPeriodStart: new Date(subscription.start_date * 1000),
@@ -369,9 +374,9 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     };
 
     if (subscription.status === 'canceled') {
-      updateData.status = 'cancelled';
-      updateData.cancelledAt = new Date();
-      updateData.cancelAtPeriodEnd = true;
+      updateData.status = 'inactive';
+      Object.assign(updateData, { cancelledAt: new Date() });
+      Object.assign(updateData, { cancelAtPeriodEnd: true });
     }
 
     const dbSubscription = await prisma.subscription.findFirst({

@@ -102,46 +102,8 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
     return v;
   };
 
-  const validatePaymentForm = () => {
-    const newErrors: Record<string, string> = {};
 
-    if (!paymentData.cardholderName.trim()) {
-      newErrors.cardholderName = 'Cardholder name is required';
-    }
 
-    if (!paymentData.cardNumber.replace(/\s/g, '')) {
-      newErrors.cardNumber = 'Card number is required';
-    } else if (paymentData.cardNumber.replace(/\s/g, '').length < 16) {
-      newErrors.cardNumber = 'Card number must be 16 digits';
-    }
-
-    if (!paymentData.expiryDate) {
-      newErrors.expiryDate = 'Expiry date is required';
-    } else if (!/^\d{2}\/\d{2}$/.test(paymentData.expiryDate)) {
-      newErrors.expiryDate = 'Invalid expiry date format';
-    }
-
-    if (!paymentData.cvv) {
-      newErrors.cvv = 'CVV is required';
-    } else if (paymentData.cvv.length < 3) {
-      newErrors.cvv = 'CVV must be 3-4 digits';
-    }
-
-    if (!paymentData.billingAddress.street.trim()) {
-      newErrors['billingAddress.street'] = 'Street address is required';
-    }
-
-    if (!paymentData.billingAddress.city.trim()) {
-      newErrors['billingAddress.city'] = 'City is required';
-    }
-
-    if (!paymentData.billingAddress.postalCode.trim()) {
-      newErrors['billingAddress.postalCode'] = 'Postal code is required';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
 
   const handleSubscribe = async () => {
     setIsProcessing(true);

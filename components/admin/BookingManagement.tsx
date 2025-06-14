@@ -137,7 +137,8 @@ const BookingManagement: React.FC = () => {
       if (!time12h) return '';
       
       const [time, modifier] = time12h.trim().split(' ');
-      let [hours, minutes] = time.split(':');
+      let [hours] = time.split(':');
+      const minutes = time.split(':')[1];
       
       if (hours === '12') {
         hours = '00';
