@@ -126,22 +126,29 @@ model SubscriptionPlan {
 }
 
 model Subscription {
-  id          String   @id @default(uuid())
-  userId      String
-  planId      String   // Reference to SubscriptionPlan
-  planName    String   // e.g., "Basic Plan", "Premium Plan", "Enterprise Plan"
-  startDate   DateTime @default(now())
-  expiryDate  DateTime
-  status      String   @default("active") // "active", "expired", "cancelled"
-  revenue     Float    // Amount paid for the subscription
-  email       String?
-  phone       String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                    String   @id @default(uuid())
+  userId                String
+  planId                String   // Reference to SubscriptionPlan
+  planName              String   // e.g., "Basic Plan", "Premium Plan", "Enterprise Plan"
+  planType              String   // "residential" or "industrial"
+  stripeSubscriptionId  String?  @unique // Stripe subscription ID
+  stripeCustomerId      String?  // Stripe customer ID
+  startDate             DateTime @default(now())
+  expiryDate            DateTime
+  currentPeriodStart    DateTime?
+  currentPeriodEnd      DateTime?
+  cancelAtPeriodEnd     Boolean  @default(false)
+  cancelledAt           DateTime?
+  status                String   @default("active") // "active", "expired", "cancelled", "past_due", "inactive"
+  revenue               Float    // Amount paid for the subscription
+  email                 String?
+  phone                 String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
   
   // Relationships
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  plan        SubscriptionPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan                  SubscriptionPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
   
   @@map("subscriptions")
 }

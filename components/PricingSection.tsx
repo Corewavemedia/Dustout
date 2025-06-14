@@ -56,15 +56,12 @@ const PricingSection = () => {
     plan.isActive && plan.type.toLowerCase() === activeTab
   );
 
+  // Add to the handleChoosePlan function
   const handleChoosePlan = (plan: Plan) => {
-    // Check if user is signed in
     if (!user) {
-      // Redirect to signin if not authenticated with redirect back to pricing section
       router.push('/signin?redirect=/#pricing');
       return;
     }
-
-    // Open subscription modal with selected plan
     setSelectedPlan(plan);
     setIsModalOpen(true);
   };

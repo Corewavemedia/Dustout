@@ -144,66 +144,46 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
   };
 
   const handleSubscribe = async () => {
-    if (!validatePaymentForm()) return;
-
     setIsProcessing(true);
     setStep('processing');
+    setErrors({});
 
     try {
-      // Get the authentication token from Supabase
-      const { data: { session } } = await supabase.auth.getSession();
+      // Get the current session
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
-      if (!session?.access_token) {
-        throw new Error('Authentication required');
+      if (sessionError || !session) {
+        throw new Error('Please log in to subscribe');
       }
-      
-      const subscriptionData = {
-        planName: selectedPlan?.name,
-        planType: planType,
-        price: selectedPlan?.price,
-        paymentMethod: {
-          cardNumber: paymentData.cardNumber.replace(/\s/g, ''),
-          expiryDate: paymentData.expiryDate,
-          cvv: paymentData.cvv,
-          cardholderName: paymentData.cardholderName
-        },
-        billingAddress: paymentData.billingAddress
-      };
 
-      const response = await fetch('/api/subscriptions/create', {
+      // Create Stripe checkout session
+      const response = await fetch('/api/subscriptions/create-checkout-session', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session.access_token}`
         },
-        body: JSON.stringify(subscriptionData)
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        setStep('success');
-        // Store subscription data locally for quick access
-        const subscriptionInfo = {
-          id: result.subscription.id,
+        body: JSON.stringify({
+          planId: selectedPlan?.id,
           planName: selectedPlan?.name,
           planType: planType,
-          price: selectedPlan?.price,
-          startDate: result.subscription.startDate,
-          endDate: result.subscription.expiryDate,
-          status: result.subscription.status,
-          features: selectedPlan?.features
-        };
-        localStorage.setItem('activeSubscription', JSON.stringify(subscriptionInfo));
-      } else {
-        throw new Error(result.error || 'Subscription failed');
+          price: selectedPlan?.price
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create checkout session');
       }
+
+      // Redirect to Stripe Checkout
+      window.location.href = data.url;
+
     } catch (error) {
       console.error('Subscription error:', error);
-      setStep('payment');
-      setErrors({ 
-        general: error instanceof Error ? error.message : 'Payment failed. Please try again.' 
-      });
+      setErrors({ general: error instanceof Error ? error.message : 'An unexpected error occurred' });
+      setStep('plan');
     } finally {
       setIsProcessing(false);
     }

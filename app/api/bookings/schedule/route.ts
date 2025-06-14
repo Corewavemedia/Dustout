@@ -70,13 +70,24 @@ export async function PUT(request: NextRequest) {
       selectedVariables: [{
         variableName: bs.variableName,
         variableValue: bs.variableValue,
-        price: bs.price,
       }],
     }));
 
     // Send scheduling confirmation email to customer
+    console.log('Attempting to send scheduling confirmation email to:', updatedBooking.email);
+    console.log('Email data:', {
+      to: updatedBooking.email,
+      customerName: updatedBooking.fullName,
+      bookingId: updatedBooking.id,
+      scheduledDate: scheduledDate,
+      scheduledTime: scheduledTime,
+      assignedStaff: `${staff.firstName} ${staff.lastName}`,
+      services: servicesForEmail,
+      address: `${updatedBooking.address}, ${updatedBooking.city}, ${updatedBooking.postcode}`,
+    });
+    
     try {
-      await sendSchedulingConfirmationEmail({
+      const emailResult = await sendSchedulingConfirmationEmail({
         to: updatedBooking.email,
         customerName: updatedBooking.fullName,
         bookingId: updatedBooking.id,
@@ -86,8 +97,10 @@ export async function PUT(request: NextRequest) {
         services: servicesForEmail,
         address: `${updatedBooking.address}, ${updatedBooking.city}, ${updatedBooking.postcode}`,
       });
+      console.log('Scheduling confirmation email sent successfully:', emailResult);
     } catch (emailError) {
       console.error('Error sending scheduling confirmation email:', emailError);
+      console.error('Email error details:', JSON.stringify(emailError, null, 2));
       // Don't fail the API call if email fails
     }
 

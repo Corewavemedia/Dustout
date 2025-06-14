@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { PrismaClient } from '@prisma/client';
-import { sendBookingConfirmationEmail, sendAdminNotificationEmail } from '@/lib/email';
+import { sendBookingConfirmationEmail, sendAdminNotificationEmail, sendSubscriptionConfirmationEmail, sendSubscriptionCancellationEmail, sendSubscriptionAdminNotificationEmail } from '@/lib/email';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-05-28.basil',
@@ -44,15 +44,61 @@ export async function POST(request: NextRequest) {
     case 'checkout.session.completed':
       const session = event.data.object as Stripe.Checkout.Session;
       
-      try {
-        // Extract booking data from client_reference_id and metadata
-        const userId = session.metadata?.userId;
-        const clientReferenceId = session.client_reference_id;
-        
-        if (!userId || !clientReferenceId) {
-          console.error('Missing userId or client_reference_id in session');
-          return NextResponse.json({ error: 'Missing required session data' }, { status: 400 });
-        }
+      if (session.mode === 'subscription') {
+        // Handle subscription creation
+        await handleSubscriptionCreated(session);
+      } else {
+        // Handle booking payment
+        await handleBookingPayment(session);
+      }
+      break;
+
+    case 'customer.subscription.created':
+      const createdSubscription = event.data.object as Stripe.Subscription;
+      await handleSubscriptionActivated(createdSubscription);
+      break;
+
+    case 'customer.subscription.updated':
+      const updatedSubscription = event.data.object as Stripe.Subscription;
+      await handleSubscriptionUpdated(updatedSubscription);
+      break;
+
+    case 'customer.subscription.deleted':
+      const deletedSubscription = event.data.object as Stripe.Subscription;
+      await handleSubscriptionCancelled(deletedSubscription);
+      break;
+
+    case 'invoice.payment_succeeded':
+      const succeededInvoice = event.data.object as Stripe.Invoice;
+      if ('subscription' in succeededInvoice) {
+        await handlePaymentSucceeded(succeededInvoice);
+      }
+      break;
+
+    case 'invoice.payment_failed':
+      const failedInvoice = event.data.object as Stripe.Invoice;
+      if ('subscription' in failedInvoice) {
+        await handlePaymentFailed(failedInvoice);
+      }
+      break;
+
+    default:
+      console.log(`Unhandled event type ${event.type}`);
+  }
+
+  return NextResponse.json({ received: true });
+}
+
+async function handleBookingPayment(session: Stripe.Checkout.Session) {
+  try {
+    // Extract booking data from client_reference_id and metadata
+    const userId = session.metadata?.userId;
+    const clientReferenceId = session.client_reference_id;
+    
+    if (!userId || !clientReferenceId) {
+      console.error('Missing userId or client_reference_id in session');
+      return;
+    }
 
         // Extract booking reference ID from client_reference_id
         const bookingReferenceId = session.client_reference_id!;
@@ -209,15 +255,261 @@ export async function POST(request: NextRequest) {
         }
 
         console.log('Booking created successfully:', booking.id);
-      } catch (error) {
-        console.error('Error processing successful payment:', error);
-        return NextResponse.json({ error: 'Error processing payment' }, { status: 500 });
-      }
-      break;
-
-    default:
-      console.log(`Unhandled event type ${event.type}`);
+  } catch (error) {
+    console.error('Error processing booking payment:', error);
   }
+}
 
-  return NextResponse.json({ received: true });
+async function handleSubscriptionCreated(session: Stripe.Checkout.Session) {
+  try {
+    const userId = session.metadata?.userId;
+    const planId = session.metadata?.planId;
+    const planName = session.metadata?.planName;
+    const planType = session.metadata?.planType;
+    const userEmail = session.metadata?.userEmail;
+
+    if (!userId || !planId || !planName || !planType || !userEmail) {
+      console.error('Missing metadata in checkout session');
+      return;
+    }
+
+    // Get the subscription from Stripe
+    const stripeSubscription = await stripe.subscriptions.retrieve(session.subscription as string);
+    
+    // Find the subscription plan
+    const subscriptionPlan = await prisma.subscriptionPlan.findUnique({
+      where: { id: planId }
+    });
+
+    if (!subscriptionPlan) {
+      console.error('Subscription plan not found:', planId);
+      return;
+    }
+
+    // Create subscription in database
+    const subscription = await prisma.subscription.create({
+      data: {
+        userId: userId,
+        planId: planId,
+        planName: `${planName} (${planType})`,
+        startDate: new Date(stripeSubscription.start_date * 1000),
+        expiryDate: stripeSubscription.ended_at ? new Date(stripeSubscription.ended_at * 1000) : new Date(stripeSubscription.start_date * 1000),
+        status: 'active',
+        revenue: subscriptionPlan.price,
+        email: userEmail,
+        stripeSubscriptionId: stripeSubscription.id,
+        stripeCustomerId: stripeSubscription.customer as string,
+        planType: planType as 'residential' | 'industrial',
+        currentPeriodStart: new Date(stripeSubscription.start_date * 1000),
+        currentPeriodEnd: stripeSubscription.ended_at ? new Date(stripeSubscription.ended_at * 1000) : new Date(stripeSubscription.start_date * 1000),
+        cancelAtPeriodEnd: false
+      }
+    });
+
+    console.log('Subscription created in database:', subscription.id);
+
+    // Send confirmation email to customer
+    await sendSubscriptionConfirmationEmail({
+      to: userEmail,
+      customerName: session.customer_details?.name || 'Valued Customer',
+      subscriptionId: subscription.id,
+      planName: planName,
+      planType: planType as 'residential' | 'industrial',
+      price: subscriptionPlan.price,
+      billingCycle: 'monthly', // Default billing cycle
+      startDate: subscription.startDate.toISOString(),
+      nextBillingDate: subscription.expiryDate.toISOString(),
+      features: subscriptionPlan.features
+    });
+
+    // Send admin notification
+    await sendSubscriptionAdminNotificationEmail({
+      customerName: session.customer_details?.name || 'Unknown',
+      customerEmail: userEmail,
+      subscriptionId: subscription.id,
+      planName: planName,
+      price: subscriptionPlan.price,
+      action: 'created',
+      actionDate: subscription.startDate.toISOString()
+    });
+
+  } catch (error) {
+    console.error('Error handling subscription created:', error);
+  }
+}
+
+async function handleSubscriptionActivated(subscription: Stripe.Subscription) {
+  try {
+    await prisma.subscription.updateMany({
+      where: {
+        stripeSubscriptionId: subscription.id
+      },
+      data: {
+        status: 'active',
+        startDate: new Date(subscription.start_date * 1000),
+        expiryDate: subscription.ended_at ? new Date(subscription.ended_at * 1000) : new Date(subscription.start_date * 1000),
+        currentPeriodStart: new Date(subscription.start_date * 1000),
+        currentPeriodEnd: subscription.ended_at ? new Date(subscription.ended_at * 1000) : new Date(subscription.start_date * 1000)
+      }
+    });
+
+    console.log('Subscription activated:', subscription.id);
+  } catch (error) {
+    console.error('Error handling subscription activated:', error);
+  }
+}
+
+async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
+  try {
+    const updateData: any = {
+      status: subscription.status === 'active' ? 'active' : 'inactive',
+      expiryDate: subscription.ended_at ? new Date(subscription.ended_at * 1000) : new Date(subscription.start_date * 1000),
+      currentPeriodStart: new Date(subscription.start_date * 1000),
+      currentPeriodEnd: subscription.ended_at ? new Date(subscription.ended_at * 1000) : new Date(subscription.start_date * 1000)
+    };
+
+    if (subscription.status === 'canceled') {
+      updateData.status = 'cancelled';
+      updateData.cancelledAt = new Date();
+      updateData.cancelAtPeriodEnd = true;
+    }
+
+    const dbSubscription = await prisma.subscription.findFirst({
+      where: {
+        stripeSubscriptionId: subscription.id
+      },
+      include: {
+        user: true,
+        plan: true
+      }
+    });
+
+    await prisma.subscription.updateMany({
+      where: {
+        stripeSubscriptionId: subscription.id
+      },
+      data: updateData
+    });
+
+    // Send admin notification for subscription update
+    if (dbSubscription) {
+      await sendSubscriptionAdminNotificationEmail({
+        customerName: dbSubscription.user.fullname || dbSubscription.email || 'Unknown',
+        customerEmail: dbSubscription.email || "Unknown",
+        subscriptionId: dbSubscription.id,
+        planName: dbSubscription.planName,
+        price: dbSubscription.plan?.price || 0,
+        action: 'updated',
+        actionDate: new Date().toISOString()
+      });
+    }
+
+    console.log('Subscription updated:', subscription.id);
+  } catch (error) {
+    console.error('Error handling subscription updated:', error);
+  }
+}
+
+async function handleSubscriptionCancelled(subscription: Stripe.Subscription) {
+  try {
+    const dbSubscription = await prisma.subscription.findFirst({
+      where: {
+        stripeSubscriptionId: subscription.id
+      },
+      include: {
+        user: true,
+        plan: true
+      }
+    });
+
+    if (dbSubscription) {
+      await prisma.subscription.update({
+        where: {
+          id: dbSubscription.id
+        },
+        data: {
+          status: 'cancelled',
+          cancelledAt: new Date(),
+          cancelAtPeriodEnd: true
+        }
+      });
+
+      // Send cancellation email to customer
+      await sendSubscriptionCancellationEmail({
+        to: dbSubscription.email || "unknown",
+        customerName: dbSubscription.user.fullname || dbSubscription.email || 'Customer',
+        subscriptionId: dbSubscription.id,
+        planName: dbSubscription.planName,
+        cancellationDate: new Date().toISOString(),
+        endDate: subscription.ended_at ? new Date(subscription.ended_at * 1000).toISOString() : new Date(subscription.start_date * 1000).toISOString()
+      });
+
+      // Send admin notification for cancellation
+      await sendSubscriptionAdminNotificationEmail({
+        customerName: dbSubscription.user.fullname || dbSubscription.email || 'Unknown',
+        customerEmail: dbSubscription.email || "",
+        subscriptionId: dbSubscription.id,
+        planName: dbSubscription.planName,
+        price: dbSubscription.plan?.price || 0,
+        action: 'cancelled',
+        actionDate: new Date().toISOString()
+      });
+    }
+
+    console.log('Subscription cancelled:', subscription.id);
+  } catch (error) {
+    console.error('Error handling subscription cancelled:', error);
+  }
+}
+
+async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
+  try {
+    // Ensure subscription ID is retrieved correctly
+    const subscriptionId = invoice.metadata?.subscription_id;
+    if (!subscriptionId) {
+      console.error('Subscription ID not found in invoice.');
+      return;
+    }
+
+    // Update subscription with successful payment
+    await prisma.subscription.updateMany({
+      where: {
+        stripeSubscriptionId: subscriptionId
+      },
+      data: {
+        status: 'active',
+        expiryDate: new Date((invoice.period_end || 0) * 1000),
+        currentPeriodEnd: new Date((invoice.period_end || 0) * 1000)
+      }
+    });
+
+    console.log('Payment succeeded for subscription:', subscriptionId);
+  } catch (error) {
+    console.error('Error handling payment succeeded:', error);
+  }
+}
+
+async function handlePaymentFailed(invoice: Stripe.Invoice) {
+  try {
+    // Ensure subscription ID is retrieved correctly
+    const subscriptionId = invoice.metadata?.subscription_id;
+    if (!subscriptionId) {
+      console.error('Subscription ID not found in invoice.');
+      return;
+    }
+
+    // Mark subscription as past due
+    await prisma.subscription.updateMany({
+      where: {
+        stripeSubscriptionId: subscriptionId
+      },
+      data: {
+        status: 'past_due'
+      }
+    });
+
+    console.log('Payment failed for subscription:', subscriptionId);
+  } catch (error) {
+    console.error('Error handling payment failed:', error);
+  }
 }

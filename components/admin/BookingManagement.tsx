@@ -119,6 +119,37 @@ const BookingManagement: React.FC = () => {
     const timePart = dateTimeParts[1] || '';
     const [startTime, endTime] = timePart.split(' - ');
     
+    // Convert date from MM/dd/yyyy to yyyy-MM-dd format for HTML date input
+    let formattedDate = '';
+    if (datePart) {
+      try {
+        const dateObj = new Date(datePart);
+        if (!isNaN(dateObj.getTime())) {
+          formattedDate = dateObj.toISOString().split('T')[0];
+        }
+      } catch (error) {
+        console.error('Error parsing date:', error);
+      }
+    }
+    
+    // Convert time from 12-hour format (e.g., "8:00 AM") to 24-hour format (e.g., "08:00")
+    const convertTo24Hour = (time12h: string): string => {
+      if (!time12h) return '';
+      
+      const [time, modifier] = time12h.trim().split(' ');
+      let [hours, minutes] = time.split(':');
+      
+      if (hours === '12') {
+        hours = '00';
+      }
+      
+      if (modifier === 'PM') {
+        hours = (parseInt(hours, 10) + 12).toString();
+      }
+      
+      return `${hours.padStart(2, '0')}:${minutes}`;
+    };
+    
     // Populate form with booking data (excluding staff and special notes)
     setFormData({
       firstName,
@@ -126,9 +157,9 @@ const BookingManagement: React.FC = () => {
       email: booking.email,
       phone: booking.phone,
       staffAssigned: '', // Don't populate staff - admin will assign new staff
-      date: datePart,
-      startingTime: startTime || '',
-      endingTime: endTime || '',
+      date: formattedDate,
+      startingTime: convertTo24Hour(startTime || ''),
+      endingTime: convertTo24Hour(endTime || ''),
       services: booking.service,
       specialNote: '', // Don't populate special notes
     });

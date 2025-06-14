@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { MapPinIcon } from "@heroicons/react/24/outline";
 import { services } from "@/components/data/ServicesData";
 import Footer from "@/components/Footer";
@@ -29,9 +29,25 @@ interface OrderData {
 
 const Dashboard = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, loading: authLoading } = useAuth();
   const [orderHistory, setOrderHistory] = useState<OrderData[]>([]);
   const [showSubscription, setShowSubscription] = useState(false);
+  const [subscriptionSuccess, setSubscriptionSuccess] = useState(false);
+
+  // Check for subscription success
+  useEffect(() => {
+    const subscription = searchParams.get('subscription');
+    if (subscription === 'success') {
+      setSubscriptionSuccess(true);
+      setShowSubscription(true);
+      // Clear the URL parameter
+      const url = new URL(window.location.href);
+      url.searchParams.delete('subscription');
+      url.searchParams.delete('session_id');
+      window.history.replaceState({}, '', url.toString());
+    }
+  }, [searchParams]);
 
   // Redirect to signin if not authenticated
   useEffect(() => {
@@ -228,9 +244,41 @@ const Dashboard = () => {
           </div>
         </div>
 
+        {/* Subscription Success Message */}
+        {subscriptionSuccess && (
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-green-800">
+                  Subscription Created Successfully!
+                </h3>
+                <div className="mt-2 text-sm text-green-700">
+                  <p>Your subscription has been activated. You can now manage it below.</p>
+                </div>
+              </div>
+              <div className="ml-auto pl-3">
+                <button
+                  onClick={() => setSubscriptionSuccess(false)}
+                  className="inline-flex text-green-400 hover:text-green-600"
+                >
+                  <span className="sr-only">Dismiss</span>
+                  <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Subscription Management */}
         {showSubscription && (
-          <div className="mb-8">
+          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100 mb-8">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-[#538FDF] md:text-xl">
                 Subscription Management

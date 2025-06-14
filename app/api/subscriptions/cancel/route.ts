@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import Stripe from 'stripe';
 import { prisma } from '@/lib/prisma';
 import { supabase } from '@/lib/supabase';
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2025-05-28.basil',
+});
 
 export async function PUT(request: NextRequest) {
   try {
@@ -48,46 +53,90 @@ export async function PUT(request: NextRequest) {
       );
     }
 
+    // Get cancellation preference from request body
+    const body = await request.json();
+    const { cancelAtPeriodEnd = true } = body;
+
     // Find the subscription
-    const subscription = await prisma.subscription.findUnique({
-      where: { id: subscriptionId }
+    const subscription = await prisma.subscription.findFirst({
+      where: {
+        id: subscriptionId,
+        userId: dbUser.id,
+        status: 'active'
+      }
     });
 
     if (!subscription) {
       return NextResponse.json(
-        { error: 'Subscription not found' },
+        { error: 'Active subscription not found' },
         { status: 404 }
       );
     }
 
-    // Verify that the subscription belongs to the user
-    if (subscription.userId !== dbUser.id) {
+    if (!subscription.stripeSubscriptionId) {
       return NextResponse.json(
-        { error: 'Unauthorized to modify this subscription' },
-        { status: 403 }
+        { error: 'Stripe subscription ID not found' },
+        { status: 400 }
       );
     }
 
-    // Update the subscription status to cancelled
+    // Cancel the subscription in Stripe
+    let stripeSubscription;
+    if (cancelAtPeriodEnd) {
+      // Cancel at the end of the current billing period
+      stripeSubscription = await stripe.subscriptions.update(
+        subscription.stripeSubscriptionId,
+        {
+          cancel_at_period_end: true,
+          metadata: {
+            cancelledBy: 'customer',
+            cancelledAt: new Date().toISOString()
+          }
+        }
+      );
+    } else {
+      // Cancel immediately
+      stripeSubscription = await stripe.subscriptions.cancel(
+        subscription.stripeSubscriptionId,
+        {
+          prorate: true
+        }
+      );
+    }
+
+    // Update subscription in database
     const updatedSubscription = await prisma.subscription.update({
-      where: { id: subscriptionId },
-      data: { status: 'cancelled' }
+      where: {
+        id: subscriptionId
+      },
+      data: {
+        status: cancelAtPeriodEnd ? 'cancelling' : 'cancelled',
+        cancelledAt: cancelAtPeriodEnd ? null : new Date(),
+        cancelAtPeriodEnd: cancelAtPeriodEnd,
+        currentPeriodEnd: cancelAtPeriodEnd ? new Date(stripeSubscription.ended_at! * 1000) : new Date(stripeSubscription.start_date * 1000),
+        expiryDate: cancelAtPeriodEnd ? new Date(stripeSubscription.ended_at! * 1000) : new Date(stripeSubscription.start_date * 1000)
+      }
     });
 
     return NextResponse.json({
       success: true,
-      message: 'Subscription cancelled successfully',
+      message: cancelAtPeriodEnd 
+        ? 'Subscription will be cancelled at the end of the current billing period'
+        : 'Subscription cancelled immediately',
       subscription: {
         id: updatedSubscription.id,
         status: updatedSubscription.status,
+        cancelledAt: updatedSubscription.cancelledAt,
+        cancelAtPeriodEnd: updatedSubscription.cancelAtPeriodEnd,
+        currentPeriodEnd: updatedSubscription.currentPeriodEnd,
         expiryDate: updatedSubscription.expiryDate
       }
     });
 
   } catch (error) {
-    console.error('Error cancelling subscription:', error);
+    console.error('Subscription cancellation error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to cancel subscription' },
       { status: 500 }
     );
   }
