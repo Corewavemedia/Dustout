@@ -130,14 +130,14 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Calculate the price difference for the upgrade
-    const priceDifference = newPrice - currentSubscription.revenue;
-
-    // Create a one-time payment for the price difference
+    // Create a recurring price for the full new plan amount
     const stripePrice = await stripe.prices.create({
       product: product.id,
-      unit_amount: Math.round(priceDifference * 100), // Convert to cents
+      unit_amount: Math.round(newPrice * 100), // Convert to cents - full price
       currency: 'gbp',
+      recurring: {
+        interval: 'month'
+      },
       metadata: {
         planId: newPlanId,
         planType: newPlanType,
@@ -156,7 +156,7 @@ export async function POST(request: NextRequest) {
           quantity: 1,
         },
       ],
-      mode: 'payment', // One-time payment for upgrade
+      mode: 'subscription', // Recurring subscription for upgrade
       success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard?upgrade=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard?upgrade=cancelled`,
       metadata: {
@@ -178,7 +178,7 @@ export async function POST(request: NextRequest) {
       sessionId: session.id,
       url: session.url,
       isUpgrade: true,
-      priceDifference: priceDifference
+      newPrice: newPrice
     });
 
   } catch (error) {
