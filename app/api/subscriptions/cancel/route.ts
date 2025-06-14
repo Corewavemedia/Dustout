@@ -104,6 +104,10 @@ export async function PUT(request: NextRequest) {
       );
     }
 
+    // Calculate correct dates
+    const currentPeriodEnd = new Date(stripeSubscription.items.data[0].current_period_end * 1000);
+    const expiryDate = cancelAtPeriodEnd ? currentPeriodEnd : new Date();
+
     // Update subscription in database
     const updatedSubscription = await prisma.subscription.update({
       where: {
@@ -113,8 +117,8 @@ export async function PUT(request: NextRequest) {
         status: cancelAtPeriodEnd ? 'cancelling' : 'cancelled',
         cancelledAt: cancelAtPeriodEnd ? null : new Date(),
         cancelAtPeriodEnd: cancelAtPeriodEnd,
-        currentPeriodEnd: cancelAtPeriodEnd ? new Date(stripeSubscription.ended_at ? stripeSubscription.ended_at * 1000 : stripeSubscription.start_date * 1000) : new Date(),
-        expiryDate: cancelAtPeriodEnd ? new Date(stripeSubscription.ended_at ? stripeSubscription.ended_at * 1000 : stripeSubscription.start_date * 1000) : new Date()
+        currentPeriodEnd: currentPeriodEnd,
+        expiryDate: expiryDate
       }
     });
 

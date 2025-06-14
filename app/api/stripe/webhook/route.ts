@@ -277,7 +277,7 @@ async function handleSubscriptionCreated(session: Stripe.Checkout.Session) {
     }
 
     // Get the subscription from Stripe
-    const stripeSubscription = await stripe.subscriptions.retrieve(session.subscription as string);
+    const stripeSubscription: Stripe.Subscription = await stripe.subscriptions.retrieve(session.subscription as string);
     
     // Find the subscription plan
     const subscriptionPlan = await prisma.subscriptionPlan.findUnique({
@@ -289,22 +289,27 @@ async function handleSubscriptionCreated(session: Stripe.Checkout.Session) {
       return;
     }
 
+    // Calculate correct dates
+    const startDate = new Date(stripeSubscription.start_date * 1000);
+    const currentPeriodEnd = new Date(stripeSubscription.items.data[0].current_period_end * 1000);
+    const expiryDate = stripeSubscription.ended_at ? new Date(stripeSubscription.ended_at * 1000) : currentPeriodEnd;
+
     // Create subscription in database
     const subscription = await prisma.subscription.create({
       data: {
         userId: userId,
         planId: planId,
         planName: `${planName} (${planType})`,
-        startDate: new Date(stripeSubscription.start_date * 1000),
-        expiryDate: stripeSubscription.ended_at ? new Date(stripeSubscription.ended_at * 1000) : new Date(stripeSubscription.start_date * 1000),
+        startDate: startDate,
+        expiryDate: expiryDate,
         status: 'active',
         revenue: subscriptionPlan.price,
         email: userEmail,
         stripeSubscriptionId: stripeSubscription.id,
         stripeCustomerId: stripeSubscription.customer as string,
         planType: planType as 'residential' | 'industrial',
-        currentPeriodStart: new Date(stripeSubscription.start_date * 1000),
-        currentPeriodEnd: stripeSubscription.ended_at ? new Date(stripeSubscription.ended_at * 1000) : new Date(stripeSubscription.start_date * 1000),
+        currentPeriodStart: new Date(stripeSubscription.items.data[0].current_period_start * 1000),
+        currentPeriodEnd: currentPeriodEnd,
         cancelAtPeriodEnd: false
       }
     });
@@ -377,7 +382,7 @@ async function handleUpgradePayment(session: Stripe.Checkout.Session) {
     }
 
     // Get the current Stripe subscription
-    const stripeSubscription = await stripe.subscriptions.retrieve(
+    const stripeSubscription: Stripe.Subscription = await stripe.subscriptions.retrieve(
       currentSubscription.stripeSubscriptionId
     );
 
@@ -441,8 +446,9 @@ async function handleUpgradePayment(session: Stripe.Checkout.Session) {
         planId: newPlanId,
         planName: `${newPlanName} (${newPlanType})`,
         revenue: parseFloat(newPrice),
-        expiryDate: updatedStripeSubscription.ended_at ? new Date(updatedStripeSubscription.ended_at * 1000) : new Date(updatedStripeSubscription.start_date * 1000),
-        currentPeriodEnd: updatedStripeSubscription.ended_at ? new Date(updatedStripeSubscription.ended_at * 1000) : new Date(updatedStripeSubscription.start_date * 1000),
+        expiryDate: new Date(updatedStripeSubscription.items.data[0].current_period_end * 1000),
+        currentPeriodEnd: new Date(
+          updatedStripeSubscription.items.data[0].current_period_end * 1000,)
       }
     });
 
@@ -469,6 +475,10 @@ async function handleUpgradePayment(session: Stripe.Checkout.Session) {
 
 async function handleSubscriptionActivated(subscription: Stripe.Subscription) {
   try {
+    // Calculate correct dates
+    const currentPeriodEnd = new Date(subscription.items.data[0].current_period_end * 1000);
+    const expiryDate = subscription.ended_at ? new Date(subscription.ended_at * 1000) : currentPeriodEnd;
+
     await prisma.subscription.updateMany({
       where: {
         stripeSubscriptionId: subscription.id
@@ -476,9 +486,9 @@ async function handleSubscriptionActivated(subscription: Stripe.Subscription) {
       data: {
         status: 'active',
         startDate: new Date(subscription.start_date * 1000),
-        expiryDate: subscription.ended_at ? new Date(subscription.ended_at * 1000) : new Date(subscription.start_date * 1000),
-        currentPeriodStart: new Date(subscription.start_date * 1000),
-        currentPeriodEnd: subscription.ended_at ? new Date(subscription.ended_at * 1000) : new Date(subscription.start_date * 1000)
+        expiryDate: expiryDate,
+        currentPeriodStart: new Date(subscription.items.data[0].current_period_start * 1000),
+        currentPeriodEnd: currentPeriodEnd
       }
     });
 
@@ -490,21 +500,28 @@ async function handleSubscriptionActivated(subscription: Stripe.Subscription) {
 
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   try {
+    // Calculate correct dates
+    const currentPeriodEnd = new Date(subscription.items.data[0].current_period_end * 1000);
+    const expiryDate = subscription.ended_at ? new Date(subscription.ended_at * 1000) : currentPeriodEnd;
+    
     const updateData: {
-      status: 'active' | 'inactive';
+      status: 'active' | 'inactive' | 'cancelling' | 'cancelled';
       expiryDate: Date;
       currentPeriodStart: Date;
       currentPeriodEnd: Date;
     } = {
-      status: subscription.status === 'active' ? 'active' : 'inactive',
-      expiryDate: subscription.ended_at ? new Date(subscription.ended_at * 1000) : new Date(subscription.start_date * 1000),
-      currentPeriodStart: new Date(subscription.start_date * 1000),
-      currentPeriodEnd: subscription.ended_at ? new Date(subscription.ended_at * 1000) : new Date(subscription.start_date * 1000)
+      status: subscription.status === 'active' ? (subscription.cancel_at_period_end ? 'cancelling' : 'active') : 'inactive',
+      expiryDate: expiryDate,
+      currentPeriodStart: new Date(subscription.items.data[0].current_period_start * 1000),
+      currentPeriodEnd: currentPeriodEnd
     };
 
     if (subscription.status === 'canceled') {
-      updateData.status = 'inactive';
+      updateData.status = 'cancelled';
       Object.assign(updateData, { cancelledAt: new Date() });
+      Object.assign(updateData, { cancelAtPeriodEnd: subscription.cancel_at_period_end });
+    } else if (subscription.cancel_at_period_end) {
+      updateData.status = 'cancelling';
       Object.assign(updateData, { cancelAtPeriodEnd: true });
     }
 

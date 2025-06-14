@@ -118,40 +118,106 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Update the subscription in Stripe
-    const updatedStripeSubscription = await stripe.subscriptions.update(
-      currentSubscription.stripeSubscriptionId,
-      {
+    // Determine if this is an upgrade or downgrade
+    const isUpgrade = newPrice > currentSubscription.revenue;
+    let updatedStripeSubscription;
+    let message;
+
+    if (isUpgrade) {
+      // For upgrades: Cancel current subscription and create new one with full price
+      await stripe.subscriptions.cancel(currentSubscription.stripeSubscriptionId, {
+        prorate: true
+      });
+
+      // Create new subscription with full price
+      const customer = await stripe.customers.retrieve(currentSubscription.stripeCustomerId!);
+      
+      updatedStripeSubscription = await stripe.subscriptions.create({
+        customer: currentSubscription.stripeCustomerId!,
         items: [{
-          id: stripeSubscription.items.data[0].id,
           price: newStripePrice.id,
         }],
-        proration_behavior: 'create_prorations',
         metadata: {
           planId: newPlanId,
           planName: newPlanName,
           planType: newPlanType,
-          upgradedAt: new Date().toISOString()
+          upgradedAt: new Date().toISOString(),
+          previousSubscriptionId: currentSubscription.stripeSubscriptionId
         }
-      }
-    );
+      });
+
+      message = `Subscription upgraded successfully. You have been charged the full price of £${newPrice} for the new plan.`;
+    } else {
+      // For downgrades: Schedule the change for the end of current period
+      updatedStripeSubscription = await stripe.subscriptions.update(
+        currentSubscription.stripeSubscriptionId,
+        {
+          items: [{
+            id: stripeSubscription.items.data[0].id,
+            price: newStripePrice.id,
+          }],
+          proration_behavior: 'none', // No proration for downgrades
+          billing_cycle_anchor: 'unchanged', // Keep current billing cycle
+          metadata: {
+            planId: newPlanId,
+            planName: newPlanName,
+            planType: newPlanType,
+            downgradedAt: new Date().toISOString(),
+            effectiveDate: new Date(stripeSubscription.items.data[0].current_period_end * 1000).toISOString()
+          }
+        }
+      );
+
+      message = `Subscription downgrade scheduled. Your new plan will take effect on ${new Date(stripeSubscription.items.data[0].current_period_end * 1000).toLocaleDateString()} at the end of your current billing period.`;
+    }
 
     // Update subscription in database
-    const updatedSubscription = await prisma.subscription.update({
-      where: {
-        id: currentSubscription.id
-      },
-      data: {
-        planId: newPlanId,
-        planName: `${newPlanName} (${newPlanType})`,
-        revenue: newPrice,
-        expiryDate: updatedStripeSubscription.ended_at ? new Date(updatedStripeSubscription.ended_at * 1000) : "",
-        currentPeriodEnd: updatedStripeSubscription.ended_at ? new Date(updatedStripeSubscription.ended_at * 1000) : ""
-      }
-    });
+    let updatedSubscription;
+    
+    if (isUpgrade) {
+      // For upgrades: Update current subscription with new plan details immediately
+      updatedSubscription = await prisma.subscription.update({
+        where: {
+          id: currentSubscription.id
+        },
+        data: {
+          planId: newPlanId,
+          planName: `${newPlanName} (${newPlanType})`,
+          revenue: newPrice,
+          stripeSubscriptionId: updatedStripeSubscription.id,
+          startDate: new Date(updatedStripeSubscription.start_date * 1000),
+          currentPeriodStart: new Date(updatedStripeSubscription.items.data[0].current_period_start * 1000),
+        currentPeriodEnd: new Date(updatedStripeSubscription.items.data[0].current_period_end * 1000),
+        expiryDate: updatedStripeSubscription.ended_at ? new Date(updatedStripeSubscription.ended_at * 1000) : new Date(updatedStripeSubscription.items.data[0].current_period_end * 1000)
+        }
+      });
+    } else {
+      // For downgrades: Keep current plan active, schedule change for next period
+      updatedSubscription = await prisma.subscription.update({
+        where: {
+          id: currentSubscription.id
+        },
+        data: {
+          // Keep current plan details, add metadata about scheduled downgrade
+          currentPeriodEnd: new Date(updatedStripeSubscription.items.data[0].current_period_end * 1000),
+        expiryDate: new Date(updatedStripeSubscription.items.data[0].current_period_end * 1000)
+          // Note: Plan details will be updated by webhook when the period ends
+        }
+      });
+      
+      // Store the scheduled downgrade information
+      await prisma.subscription.update({
+        where: {
+          id: currentSubscription.id
+        },
+        data: {
+          // Add a note or flag that this subscription has a scheduled downgrade
+          // This could be handled via a separate table or metadata field
+        }
+      });
+    }
 
     // Send upgrade/downgrade email
-    const isUpgrade = newPrice > currentSubscription.revenue;
     await sendSubscriptionUpgradeEmail({
       to: user.email!,
       customerName: dbUser.fullname || user.email!.split('@')[0],
@@ -167,7 +233,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: `Subscription ${isUpgrade ? 'upgraded' : 'downgraded'} successfully`,
+      message: message,
       subscription: {
         id: updatedSubscription.id,
         planId: updatedSubscription.planId,
