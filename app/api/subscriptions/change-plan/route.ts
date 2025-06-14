@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
       });
 
       // Create new subscription with full price
-      const customer = await stripe.customers.retrieve(currentSubscription.stripeCustomerId!);
+      
       
       updatedStripeSubscription = await stripe.subscriptions.create({
         customer: currentSubscription.stripeCustomerId!,
