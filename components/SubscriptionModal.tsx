@@ -40,7 +40,7 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
   selectedPlan,
   planType
 }) => {
-  const [step, setStep] = useState<'plan' | 'payment' | 'processing' | 'success'>('plan');
+  const [step, setStep] = useState<'plan' | 'processing' | 'success'>('plan');
   const [paymentData, setPaymentData] = useState<PaymentFormData>({
     cardNumber: '',
     expiryDate: '',
@@ -190,7 +190,6 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
           <div className="flex items-center justify-between p-6 border-b">
             <h2 className="text-2xl font-bold text-gray-900">
               {step === 'plan' && 'Confirm Your Plan'}
-              {step === 'payment' && 'Payment Details'}
               {step === 'processing' && 'Processing...'}
               {step === 'success' && 'Subscription Successful!'}
             </h2>
@@ -257,234 +256,19 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
                   Cancel
                 </button>
                 <button
-                  onClick={() => setStep('payment')}
-                  className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  onClick={handleSubscribe}
+                  disabled={isProcessing}
+                  className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Continue to Payment
+                  {isProcessing ? 'Processing...' : `Subscribe for £${Math.floor(selectedPlan.price)}${(selectedPlan.price % 1 > 0) ? 
+                    `.${Math.round((selectedPlan.price % 1) * 100)}` : 
+                    '.00'}/month`}
                 </button>
               </div>
             </div>
           )}
 
-          {/* Payment Step */}
-          {step === 'payment' && (
-            <div className="p-6">
-              {errors.general && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
-                  {errors.general}
-                </div>
-              )}
 
-              <form onSubmit={(e) => { e.preventDefault(); handleSubscribe(); }} className="space-y-6">
-                {/* Card Information */}
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                    <CreditCard className="h-5 w-5 mr-2" />
-                    Card Information
-                  </h3>
-                  
-                  <div className="grid grid-cols-1 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Cardholder Name
-                      </label>
-                      <input
-                        type="text"
-                        value={paymentData.cardholderName}
-                        onChange={(e) => handleInputChange('cardholderName', e.target.value)}
-                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                          errors.cardholderName ? 'border-red-300' : 'border-gray-300'
-                        }`}
-                        placeholder="John Doe"
-                      />
-                      {errors.cardholderName && (
-                        <p className="text-red-500 text-sm mt-1">{errors.cardholderName}</p>
-                      )}
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Card Number
-                      </label>
-                      <input
-                        type="text"
-                        value={paymentData.cardNumber}
-                        onChange={(e) => handleInputChange('cardNumber', formatCardNumber(e.target.value))}
-                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                          errors.cardNumber ? 'border-red-300' : 'border-gray-300'
-                        }`}
-                        placeholder="1234 5678 9012 3456"
-                        maxLength={19}
-                      />
-                      {errors.cardNumber && (
-                        <p className="text-red-500 text-sm mt-1">{errors.cardNumber}</p>
-                      )}
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Expiry Date
-                        </label>
-                        <input
-                          type="text"
-                          value={paymentData.expiryDate}
-                          onChange={(e) => handleInputChange('expiryDate', formatExpiryDate(e.target.value))}
-                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                            errors.expiryDate ? 'border-red-300' : 'border-gray-300'
-                          }`}
-                          placeholder="MM/YY"
-                          maxLength={5}
-                        />
-                        {errors.expiryDate && (
-                          <p className="text-red-500 text-sm mt-1">{errors.expiryDate}</p>
-                        )}
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          CVV
-                        </label>
-                        <input
-                          type="text"
-                          value={paymentData.cvv}
-                          onChange={(e) => handleInputChange('cvv', e.target.value.replace(/\D/g, ''))}
-                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                            errors.cvv ? 'border-red-300' : 'border-gray-300'
-                          }`}
-                          placeholder="123"
-                          maxLength={4}
-                        />
-                        {errors.cvv && (
-                          <p className="text-red-500 text-sm mt-1">{errors.cvv}</p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Billing Address */}
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                    Billing Address
-                  </h3>
-                  
-                  <div className="grid grid-cols-1 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Street Address
-                      </label>
-                      <input
-                        type="text"
-                        value={paymentData.billingAddress.street}
-                        onChange={(e) => handleInputChange('billingAddress.street', e.target.value)}
-                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                          errors['billingAddress.street'] ? 'border-red-300' : 'border-gray-300'
-                        }`}
-                        placeholder="123 Main Street"
-                      />
-                      {errors['billingAddress.street'] && (
-                        <p className="text-red-500 text-sm mt-1">{errors['billingAddress.street']}</p>
-                      )}
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          City
-                        </label>
-                        <input
-                          type="text"
-                          value={paymentData.billingAddress.city}
-                          onChange={(e) => handleInputChange('billingAddress.city', e.target.value)}
-                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                            errors['billingAddress.city'] ? 'border-red-300' : 'border-gray-300'
-                          }`}
-                          placeholder="London"
-                        />
-                        {errors['billingAddress.city'] && (
-                          <p className="text-red-500 text-sm mt-1">{errors['billingAddress.city']}</p>
-                        )}
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Postal Code
-                        </label>
-                        <input
-                          type="text"
-                          value={paymentData.billingAddress.postalCode}
-                          onChange={(e) => handleInputChange('billingAddress.postalCode', e.target.value)}
-                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                            errors['billingAddress.postalCode'] ? 'border-red-300' : 'border-gray-300'
-                          }`}
-                          placeholder="SW1A 1AA"
-                        />
-                        {errors['billingAddress.postalCode'] && (
-                          <p className="text-red-500 text-sm mt-1">{errors['billingAddress.postalCode']}</p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Country
-                      </label>
-                      <select
-                        value={paymentData.billingAddress.country}
-                        onChange={(e) => handleInputChange('billingAddress.country', e.target.value)}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      >
-                        <option value="United Kingdom">United Kingdom</option>
-                        <option value="Ireland">Ireland</option>
-                        <option value="United States">United States</option>
-                        <option value="Canada">Canada</option>
-                        <option value="Australia">Australia</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Order Summary */}
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <h3 className="font-semibold text-gray-900 mb-3">Order Summary</h3>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-gray-600">{selectedPlan.name} ({planType})</span>
-                    <span className="font-semibold">£{Math.floor(selectedPlan.price)}{(selectedPlan.price % 1 > 0) ? 
-                      `.${Math.round((selectedPlan.price % 1) * 100)}` : 
-                      '.00'}/month</span>
-                  </div>
-                  <div className="border-t pt-2 mt-2">
-                    <div className="flex justify-between items-center font-semibold text-lg">
-                      <span>Total</span>
-                      <span>£{Math.floor(selectedPlan.price)}{(selectedPlan.price % 1 > 0) ? 
-                        `.${Math.round((selectedPlan.price % 1) * 100)}` : 
-                        '.00'}/month</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex space-x-4">
-                  <button
-                    type="button"
-                    onClick={() => setStep('plan')}
-                    className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                  >
-                    Back
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isProcessing}
-                    className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isProcessing ? 'Processing...' : `Subscribe for £${Math.floor(selectedPlan.price)}${(selectedPlan.price % 1 > 0) ? 
-                      `.${Math.round((selectedPlan.price % 1) * 100)}` : 
-                      '.00'}/month`}
-                  </button>
-                </div>
-              </form>
-            </div>
-          )}
 
           {/* Processing Step */}
           {step === 'processing' && (

@@ -155,7 +155,7 @@ export async function sendBookingConfirmationEmail(data: BookingConfirmationData
 
   try {
     const result = await resend.emails.send({
-      from: process.env.EMAIL_FROM || 'onboarding@resend.dev',
+      from: 'DustOut <noreply@dustout.co.uk>',
       to: data.to,
       subject: `Booking Confirmation - ${data.bookingId}`,
       html: htmlContent,
@@ -235,7 +235,7 @@ export async function sendAdminNotificationEmail(data: AdminNotificationData) {
 
   try {
     const result = await resend.emails.send({
-      from: process.env.EMAIL_FROM || 'onboarding@resend.dev',
+      from: 'DustOut <noreply@dustout.co.uk>',
       to: process.env.ADMIN_EMAIL || 'admin@dustout.co.uk',
       subject: `🚨 New Booking Alert - ${data.bookingId}`,
       html: htmlContent,
@@ -308,7 +308,7 @@ export async function sendSchedulingConfirmationEmail(data: SchedulingConfirmati
 
   try {
     const result = await resend.emails.send({
-      from: process.env.EMAIL_FROM || 'onboarding@resend.dev',
+      from: 'DustOut <noreply@dustout.co.uk>',
       to: data.to,
       subject: `Booking Scheduled - ${data.bookingId}`,
       html: htmlContent,
@@ -328,7 +328,7 @@ export async function sendSubscriptionConfirmationEmail(data: SubscriptionConfir
 
   try {
     const result = await resend.emails.send({
-      from: process.env.EMAIL_FROM || 'onboarding@resend.dev',
+      from: 'DustOut <noreply@dustout.co.uk>',
       to: data.to,
       subject: `Welcome to ${data.planName} - Subscription Confirmed`,
       html: `
@@ -399,7 +399,7 @@ export async function sendSubscriptionConfirmationEmail(data: SubscriptionConfir
 export async function sendSubscriptionCancellationEmail(data: SubscriptionCancellationData) {
   try {
     const result = await resend.emails.send({
-      from: process.env.EMAIL_FROM || 'onboarding@resend.dev',
+      from: 'DustOut <noreply@dustout.co.uk>',
       to: data.to,
       subject: `Subscription Cancelled - ${data.planName}`,
       html: `
@@ -475,7 +475,7 @@ export async function sendSubscriptionAdminNotificationEmail(data: SubscriptionA
 
   try {
     const result = await resend.emails.send({
-      from: process.env.EMAIL_FROM || 'onboarding@resend.dev',
+      from: 'DustOut <noreply@dustout.co.uk>',
       to: process.env.ADMIN_EMAIL || 'admin@dustout.co.uk',
       subject: `${actionEmojis[data.action]} Subscription ${data.action.charAt(0).toUpperCase() + data.action.slice(1)} - ${data.subscriptionId}`,
       html: `

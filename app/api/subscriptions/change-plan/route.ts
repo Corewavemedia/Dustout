@@ -170,10 +170,19 @@ export async function POST(request: NextRequest) {
       message: `Subscription ${isUpgrade ? 'upgraded' : 'downgraded'} successfully`,
       subscription: {
         id: updatedSubscription.id,
+        planId: updatedSubscription.planId,
         planName: updatedSubscription.planName,
-        price: updatedSubscription.revenue,
+        startDate: updatedSubscription.startDate,
         expiryDate: updatedSubscription.expiryDate,
-        status: updatedSubscription.status
+        status: updatedSubscription.status,
+        revenue: updatedSubscription.revenue,
+        email: updatedSubscription.email,
+        stripeSubscriptionId: updatedSubscription.stripeSubscriptionId,
+        stripeCustomerId: updatedSubscription.stripeCustomerId,
+        planType: updatedSubscription.planType,
+        currentPeriodStart: updatedSubscription.currentPeriodStart,
+        currentPeriodEnd: updatedSubscription.currentPeriodEnd,
+        cancelAtPeriodEnd: updatedSubscription.cancelAtPeriodEnd
       }
     });
 

@@ -18,7 +18,7 @@ import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
 
 interface OrderData {
-  id: number;
+  id: string;
   service: string;
   location: string;
   date: string;
@@ -86,8 +86,8 @@ const Dashboard = () => {
               }
               
               // Transform booking data to match OrderData interface
-              const transformedOrders: OrderData[] = data.bookings.map((booking: BookingData) => ({
-                id: parseInt(booking.id, 10) || 0,
+              const transformedOrders: OrderData[] = data.bookings.map((booking: BookingData, index: number) => ({
+                id: booking.id || `booking-${index}`,
                 service: booking.services && booking.services.length > 0 ? booking.services[0].service.name : 'Service',
                 location: booking.address,
                 date: booking.preferredDate || 'Date TBD',

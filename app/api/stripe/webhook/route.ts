@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { PrismaClient } from '@prisma/client';
-import { sendBookingConfirmationEmail, sendAdminNotificationEmail, sendSubscriptionConfirmationEmail, sendSubscriptionCancellationEmail, sendSubscriptionAdminNotificationEmail } from '@/lib/email';
+import { sendBookingConfirmationEmail, sendAdminNotificationEmail, sendSubscriptionConfirmationEmail, sendSubscriptionCancellationEmail, sendSubscriptionAdminNotificationEmail, sendSubscriptionUpgradeEmail } from '@/lib/email';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-05-28.basil',
@@ -47,6 +47,9 @@ export async function POST(request: NextRequest) {
       if (session.mode === 'subscription') {
         // Handle subscription creation
         await handleSubscriptionCreated(session);
+      } else if (session.metadata?.isUpgrade === 'true') {
+        // Handle subscription upgrade payment
+        await handleUpgradePayment(session);
       } else {
         // Handle booking payment
         await handleBookingPayment(session);
@@ -335,6 +338,132 @@ async function handleSubscriptionCreated(session: Stripe.Checkout.Session) {
 
   } catch (error) {
     console.error('Error handling subscription created:', error);
+  }
+}
+
+async function handleUpgradePayment(session: Stripe.Checkout.Session) {
+  try {
+    const userId = session.metadata?.userId;
+    const currentSubscriptionId = session.metadata?.currentSubscriptionId;
+    const newPlanId = session.metadata?.newPlanId;
+    const newPlanName = session.metadata?.newPlanName;
+    const newPlanType = session.metadata?.newPlanType;
+    const newPrice = session.metadata?.newPrice;
+    const userEmail = session.metadata?.userEmail;
+
+    if (!userId || !currentSubscriptionId || !newPlanId || !newPlanName || !newPlanType || !newPrice || !userEmail) {
+      console.error('Missing metadata in upgrade payment session');
+      return;
+    }
+
+    // Find the current subscription
+    const currentSubscription = await prisma.subscription.findUnique({
+      where: { id: currentSubscriptionId }
+    });
+
+    if (!currentSubscription || !currentSubscription.stripeSubscriptionId) {
+      console.error('Current subscription not found or missing Stripe ID');
+      return;
+    }
+
+    // Find the new subscription plan
+    const newSubscriptionPlan = await prisma.subscriptionPlan.findUnique({
+      where: { id: newPlanId }
+    });
+
+    if (!newSubscriptionPlan) {
+      console.error('New subscription plan not found:', newPlanId);
+      return;
+    }
+
+    // Get the current Stripe subscription
+    const stripeSubscription = await stripe.subscriptions.retrieve(
+      currentSubscription.stripeSubscriptionId
+    );
+
+    // Create or get Stripe product for the new plan
+    const products = await stripe.products.list({
+      active: true,
+      limit: 100
+    });
+
+    let product = products.data.find(p => p.metadata.planId === newPlanId);
+    
+    if (!product) {
+      product = await stripe.products.create({
+        name: `${newPlanName} - ${newPlanType.charAt(0).toUpperCase() + newPlanType.slice(1)}`,
+        description: `DustOut ${newPlanType} subscription plan`,
+        metadata: {
+          planId: newPlanId,
+          planType: newPlanType
+        }
+      });
+    }
+
+    // Create new Stripe price for the subscription
+    const newStripePrice = await stripe.prices.create({
+      product: product.id,
+      unit_amount: Math.round(parseFloat(newPrice) * 100), // Convert to cents
+      currency: 'gbp',
+      recurring: {
+        interval: 'month'
+      },
+      metadata: {
+        planId: newPlanId,
+        planType: newPlanType
+      }
+    });
+
+    // Update the subscription in Stripe
+    const updatedStripeSubscription = await stripe.subscriptions.update(
+      currentSubscription.stripeSubscriptionId,
+      {
+        items: [{
+          id: stripeSubscription.items.data[0].id,
+          price: newStripePrice.id,
+        }],
+        proration_behavior: 'none', // No proration since we already charged for the upgrade
+        metadata: {
+          planId: newPlanId,
+          planName: newPlanName,
+          planType: newPlanType,
+          upgradedAt: new Date().toISOString()
+        }
+      }
+    );
+
+    // Update subscription in database
+    const updatedSubscription = await prisma.subscription.update({
+      where: {
+        id: currentSubscription.id
+      },
+      data: {
+        planId: newPlanId,
+        planName: `${newPlanName} (${newPlanType})`,
+        revenue: parseFloat(newPrice),
+        expiryDate: updatedStripeSubscription.ended_at ? new Date(updatedStripeSubscription.ended_at * 1000) : new Date(updatedStripeSubscription.start_date * 1000),
+        currentPeriodEnd: updatedStripeSubscription.ended_at ? new Date(updatedStripeSubscription.ended_at * 1000) : new Date(updatedStripeSubscription.start_date * 1000),
+      }
+    });
+
+    console.log('Subscription upgraded successfully:', updatedSubscription.id);
+
+    // Send upgrade confirmation email
+    await sendSubscriptionUpgradeEmail({
+      to: userEmail,
+      customerName: session.customer_details?.name || 'Valued Customer',
+      subscriptionId: updatedSubscription.id,
+      oldPlanName: currentSubscription.planName,
+      newPlanName: `${newPlanName} (${newPlanType})`,
+      newPrice: parseFloat(newPrice),
+      isUpgrade: true,
+      effectiveDate: new Date().toISOString(),
+      nextBillingDate: updatedSubscription.expiryDate.toISOString(),
+      features: newSubscriptionPlan.features
+    });
+
+  } catch (error) {
+    console.error('Error processing upgrade payment:', error);
   }
 }
 

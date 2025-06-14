@@ -199,7 +199,8 @@ export function SubscriptionDashboard() {
         return;
       }
 
-      const response = await fetch('/api/subscriptions/change-plan', {
+      // Check if this requires payment (upgrade) or can be processed immediately (downgrade)
+      const checkoutResponse = await fetch('/api/subscriptions/change-plan-checkout', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${session.access_token}`,
@@ -213,14 +214,42 @@ export function SubscriptionDashboard() {
         })
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        setSubscription(data.subscription);
-        setShowPlanChange(false);
-        alert(data.message);
+      if (checkoutResponse.ok) {
+        const checkoutData = await checkoutResponse.json();
+        
+        if (checkoutData.requiresPayment) {
+          // Redirect to Stripe checkout for upgrade payment
+          window.location.href = checkoutData.url;
+          return;
+        } else {
+          // Process downgrade immediately
+          const response = await fetch('/api/subscriptions/change-plan', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${session.access_token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              newPlanId: newPlan.id,
+              newPlanName: newPlan.name,
+              newPlanType: newPlan.type,
+              newPrice: newPlan.price
+            })
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            setSubscription(data.subscription);
+            setShowPlanChange(false);
+            alert(data.message);
+          } else {
+            const errorData = await response.json();
+            setError(errorData.error || 'Failed to change plan');
+          }
+        }
       } else {
-        const errorData = await response.json();
-        setError(errorData.error || 'Failed to change plan');
+        const errorData = await checkoutResponse.json();
+        setError(errorData.error || 'Failed to process plan change');
       }
     } catch (error) {
       console.error('Error changing plan:', error);
@@ -303,7 +332,7 @@ export function SubscriptionDashboard() {
         </div>
         
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {subscriptionPlans.map((plan) => {
+          {subscriptionPlans && subscription && subscriptionPlans.map((plan) => {
             const isCurrentPlan = subscription.planName.toLowerCase().includes(plan.name.toLowerCase()) && 
                                  subscription.planName.toLowerCase().includes(plan.type.toLowerCase());
             const isUpgrade = plan.price > subscription.revenue;
@@ -377,7 +406,7 @@ export function SubscriptionDashboard() {
             </div>
             <div>
               <p className="text-sm text-gray-600">Monthly Cost</p>
-              <p className="font-semibold">£{subscription.revenue.toFixed(2)}</p>
+              <p className="font-semibold">£{subscription.revenue ? subscription.revenue.toFixed(2) : '0.00'}</p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Start Date</p>
@@ -409,64 +438,6 @@ export function SubscriptionDashboard() {
               {actionLoading === 'cancel' ? 'Cancelling...' : 'Cancel Subscription'}
             </button>
           </div>
-        </div>
-      </div>
-
-      {/* Payment Method */}
-      <div className="bg-white rounded-lg shadow border">
-        <div className="p-6 border-b">
-          <h2 className="text-xl font-semibold flex items-center">
-            <CreditCard className="w-5 h-5 mr-2" />
-            Payment Method
-          </h2>
-        </div>
-        <div className="p-6">
-          {paymentMethod ? (
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-6 bg-gray-200 rounded flex items-center justify-center text-xs font-semibold">
-                  {paymentMethod.card?.brand.toUpperCase()}
-                </div>
-                <div>
-                  <p className="font-semibold">•••• •••• •••• {paymentMethod.card?.last4}</p>
-                  <p className="text-sm text-gray-600">
-                    Expires {paymentMethod.card?.exp_month}/{paymentMethod.card?.exp_year}
-                  </p>
-                </div>
-              </div>
-              <button 
-                onClick={handleUpdatePaymentMethod}
-                disabled={actionLoading === 'payment'}
-                className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {actionLoading === 'payment' ? 'Updating...' : 'Update'}
-              </button>
-            </div>
-          ) : (
-            <div className="text-center py-4">
-              <p className="text-gray-600 mb-4">No payment method on file</p>
-              <button 
-                onClick={handleUpdatePaymentMethod}
-                disabled={actionLoading === 'payment'}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {actionLoading === 'payment' ? 'Adding...' : 'Add Payment Method'}
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Billing History */}
-      <div className="bg-white rounded-lg shadow border">
-        <div className="p-6 border-b">
-          <h2 className="text-xl font-semibold flex items-center">
-            <Calendar className="w-5 h-5 mr-2" />
-            Billing History
-          </h2>
-        </div>
-        <div className="p-6">
-          <p className="text-gray-600">Billing history will be available in a future update.</p>
         </div>
       </div>
     </div>

@@ -20,7 +20,7 @@ export async function GET() {
       }
     });
 
-    return NextResponse.json(subscriptionPlans);
+    return NextResponse.json({ plans: subscriptionPlans });
   } catch (error) {
     console.error('Error fetching subscription plans:', error);
     return NextResponse.json(
