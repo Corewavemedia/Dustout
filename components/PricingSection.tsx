@@ -39,7 +39,7 @@ const PricingSection = () => {
         }
         
         const data = await response.json();
-        setSubscriptionPlans(data);
+        setSubscriptionPlans(data.plans || []);
       } catch (err) {
         console.error('Error fetching subscription plans:', err);
         setError('Failed to load subscription plans. Please try again later.');
@@ -52,9 +52,9 @@ const PricingSection = () => {
   }, []);
 
   // Filter plans based on active tab
-  const plans = subscriptionPlans.filter(plan => 
+  const plans = Array.isArray(subscriptionPlans) ? subscriptionPlans.filter(plan => 
     plan.isActive && plan.type.toLowerCase() === activeTab
-  );
+  ) : [];
 
   // Add to the handleChoosePlan function
   const handleChoosePlan = (plan: Plan) => {

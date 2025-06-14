@@ -113,8 +113,8 @@ export async function PUT(request: NextRequest) {
         status: cancelAtPeriodEnd ? 'cancelling' : 'cancelled',
         cancelledAt: cancelAtPeriodEnd ? null : new Date(),
         cancelAtPeriodEnd: cancelAtPeriodEnd,
-        currentPeriodEnd: cancelAtPeriodEnd ? new Date(stripeSubscription.ended_at! * 1000) : new Date(stripeSubscription.start_date * 1000),
-        expiryDate: cancelAtPeriodEnd ? new Date(stripeSubscription.ended_at! * 1000) : new Date(stripeSubscription.start_date * 1000)
+        currentPeriodEnd: cancelAtPeriodEnd ? new Date(stripeSubscription.ended_at ? stripeSubscription.ended_at * 1000 : stripeSubscription.start_date * 1000) : new Date(),
+        expiryDate: cancelAtPeriodEnd ? new Date(stripeSubscription.ended_at ? stripeSubscription.ended_at * 1000 : stripeSubscription.start_date * 1000) : new Date()
       }
     });
 

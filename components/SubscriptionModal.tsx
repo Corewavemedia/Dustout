@@ -21,18 +21,6 @@ interface SubscriptionModalProps {
   planType: 'residential' | 'industrial';
 }
 
-interface PaymentFormData {
-  cardNumber: string;
-  expiryDate: string;
-  cvv: string;
-  cardholderName: string;
-  billingAddress: {
-    street: string;
-    city: string;
-    postalCode: string;
-    country: string;
-  };
-}
 
 const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
   isOpen,
@@ -57,7 +45,10 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
   const handleSubscribe = async () => {
     setIsProcessing(true);
     setStep('processing');
-    setErrors({});
+    if(!errors) {
+      setErrors({});
+    }
+    
 
     try {
       // Get the current session
