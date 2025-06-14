@@ -175,6 +175,7 @@ export async function POST(request: NextRequest) {
       userId,
       planId,
       planName,
+      planType,
       startDate,
       expiryDate,
       revenue,
@@ -184,7 +185,7 @@ export async function POST(request: NextRequest) {
     } = body;
 
     // Validate required fields
-    if (!userId || !planId || !planName || !startDate || !expiryDate || !revenue) {
+    if (!userId || !planId || !planName || !planType || !startDate || !expiryDate || !revenue) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -209,6 +210,7 @@ export async function POST(request: NextRequest) {
         userId,
         planId,
         planName,
+        planType,
         startDate: new Date(startDate),
         expiryDate: new Date(expiryDate),
         revenue: parseFloat(revenue),
