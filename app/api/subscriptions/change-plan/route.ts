@@ -190,7 +190,7 @@ export async function POST(request: NextRequest) {
       });
 
       // Create a new subscription with the new plan (full price billing)
-      const subscriptionParams: any = {
+      const subscriptionParams: Stripe.SubscriptionCreateParams = {
         customer: customerId,
         items: [{
           price: newStripePrice.id,
@@ -203,7 +203,7 @@ export async function POST(request: NextRequest) {
           previousPlanId: currentSubscription.planId,
           isUpgrade: 'true'
         },
-        default_payment_method: customer && !('deleted' in customer) ? customer.invoice_settings?.default_payment_method : undefined
+        default_payment_method: customer && !('deleted' in customer) && customer.invoice_settings?.default_payment_method ? customer.invoice_settings.default_payment_method as string : undefined
       };
       
       updatedStripeSubscription = await stripe.subscriptions.create(subscriptionParams);
@@ -287,7 +287,7 @@ export async function POST(request: NextRequest) {
       
       // Create a new subscription that starts when the current one ends
       const currentPeriodEnd = stripeSubscription.items.data[0].current_period_end;
-      const downgradeSubscriptionParams: any = {
+      const downgradeSubscriptionParams: Stripe.SubscriptionCreateParams = {
         customer: customerId,
         items: [{
           price: newStripePrice.id,
@@ -301,7 +301,7 @@ export async function POST(request: NextRequest) {
           previousPlanId: currentSubscription.planId,
           isDowngrade: 'true'
         },
-        default_payment_method: customer && !('deleted' in customer) ? customer.invoice_settings?.default_payment_method : undefined
+        default_payment_method: customer && !('deleted' in customer) && customer.invoice_settings?.default_payment_method ? customer.invoice_settings.default_payment_method as string : undefined
       };
       
       updatedStripeSubscription = await stripe.subscriptions.create(downgradeSubscriptionParams);

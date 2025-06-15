@@ -53,7 +53,29 @@ export async function GET(request: NextRequest) {
     const cancelledSubscriptions = subscriptions.filter(sub => sub.status === 'cancelled');
     const pendingSubscriptions = subscriptions.filter(sub => sub.status === 'pending');
 
-    const formatSubscription = (subscription: any) => ({
+    interface SubscriptionData {
+      id: string;
+      userId: string;
+      planId: string;
+      planName: string;
+      planType: string;
+      stripeSubscriptionId: string | null;
+      stripeCustomerId: string | null;
+      startDate: Date;
+      expiryDate: Date;
+      currentPeriodStart: Date | null;
+      currentPeriodEnd: Date | null;
+      cancelAtPeriodEnd: boolean;
+      cancelledAt: Date | null;
+      status: string;
+      revenue: number;
+      email: string | null;
+      phone: string | null;
+      createdAt: Date;
+      updatedAt: Date;
+    }
+
+    const formatSubscription = (subscription: SubscriptionData) => ({
       id: subscription.id,
       planName: subscription.planName,
       planType: subscription.planType,
