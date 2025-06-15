@@ -95,6 +95,19 @@ export interface SubscriptionAdminNotificationData {
 }
 
 export async function sendBookingConfirmationEmail(data: BookingConfirmationData) {
+  console.log('Starting sendBookingConfirmationEmail for:', data.to);
+  console.log('Booking data:', { bookingId: data.bookingId, customerName: data.customerName });
+  
+  // Validate required data
+  if (!data.to || !data.customerName || !data.bookingId) {
+    throw new Error('Missing required booking confirmation data');
+  }
+  
+  // Check if Resend API key is configured
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error('RESEND_API_KEY environment variable is not configured');
+  }
+  
   const servicesList = data.services
     .map(service => {
       const variables = service.selectedVariables
@@ -154,6 +167,7 @@ export async function sendBookingConfirmationEmail(data: BookingConfirmationData
   `;
 
   try {
+    console.log('Attempting to send email via Resend API...');
     const result = await resend.emails.send({
       from: 'DustOut <noreply@dustout.co.uk>',
       to: data.to,
@@ -161,9 +175,16 @@ export async function sendBookingConfirmationEmail(data: BookingConfirmationData
       html: htmlContent,
     });
     console.log('Booking confirmation email sent successfully:', result.data?.id || 'Email sent');
+    console.log('Resend API response:', result);
     return result;
   } catch (error) {
     console.error('Error sending booking confirmation email:', error);
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      to: data.to,
+      bookingId: data.bookingId
+    });
     throw error;
   }
 }

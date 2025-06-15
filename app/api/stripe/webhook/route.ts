@@ -127,7 +127,24 @@ async function handleBookingPayment(session: Stripe.Checkout.Session) {
         
         if (!tempBookingData) {
           console.error('Booking data not found for reference ID:', bookingReferenceId);
-          return NextResponse.json({ error: 'Booking data not found' }, { status: 400 });
+          console.error('Available temp booking data:');
+          const allTempData = await prisma.tempBookingData.findMany({
+            select: { referenceId: true, createdAt: true, expiresAt: true }
+          });
+          console.error('All temp booking data:', allTempData);
+          
+          // Check if this booking already exists to avoid duplicate processing
+          const existingBooking = await prisma.booking.findFirst({
+            where: { stripeSessionId: session.id }
+          });
+          
+          if (existingBooking) {
+            console.log('Booking already exists for session:', session.id, 'Booking ID:', existingBooking.id);
+            return; // Don't return error, just skip processing
+          }
+          
+          console.error('No existing booking found and no temp data available');
+          return; // Don't return error response to avoid webhook retry issues
         }
         
         const bookingData = JSON.parse(tempBookingData.bookingData);
@@ -238,6 +255,7 @@ async function handleBookingPayment(session: Stripe.Checkout.Session) {
 
         // Send confirmation emails
         try {
+          console.log('Sending booking confirmation email to:', bookingData.email);
           await sendBookingConfirmationEmail({
             to: bookingData.email,
             customerName: bookingData.fullName,
@@ -248,7 +266,9 @@ async function handleBookingPayment(session: Stripe.Checkout.Session) {
             totalAmount: bookingData.estimatedPrice,
             address: `${bookingData.address}, ${bookingData.city}, ${bookingData.postcode}`,
           });
+          console.log('Booking confirmation email sent successfully');
 
+          console.log('Sending admin notification email');
           await sendAdminNotificationEmail({
             customerName: bookingData.fullName,
             customerEmail: bookingData.email,
@@ -261,14 +281,27 @@ async function handleBookingPayment(session: Stripe.Checkout.Session) {
             address: `${bookingData.address}, ${bookingData.city}, ${bookingData.postcode}`,
             specialInstructions: bookingData.specialInstructions,
           });
+          console.log('Admin notification email sent successfully');
           
-          // Clean up temporary booking data
+        } catch (emailError) {
+          console.error('Error sending emails:', emailError);
+          console.error('Email error details:', {
+            customerEmail: bookingData.email,
+            bookingId: booking.id,
+            errorMessage: emailError instanceof Error ? emailError.message : 'Unknown error'
+          });
+          // Don't fail the webhook if email fails
+        }
+        
+        // Clean up temporary booking data (do this outside email try-catch)
+        try {
           await prisma.tempBookingData.delete({
             where: { referenceId: bookingReferenceId }
           });
-        } catch (emailError) {
-          console.error('Error sending emails:', emailError);
-          // Don't fail the webhook if email fails
+          console.log('Temporary booking data cleaned up successfully');
+        } catch (cleanupError) {
+          console.error('Error cleaning up temp booking data:', cleanupError);
+          // This is not critical, just log the error
         }
 
         console.log('Booking created successfully:', booking.id);

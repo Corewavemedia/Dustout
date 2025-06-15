@@ -460,6 +460,10 @@ export const DesktopBookingForm = () => {
                                           <input
                                             type="number"
                                             min="1"
+                                            onWheel={(e) => {
+                                              e.preventDefault()
+                                              e.currentTarget.blur();
+                                            }}
                                             value={(() => {
                                               const quantity = selectedService.variables.find(v => v.variableId === variable.id)?.quantity;
                                               return quantity ? quantity.toString() : '';
