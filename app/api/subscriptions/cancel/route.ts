@@ -108,18 +108,20 @@ export async function PUT(request: NextRequest) {
     const currentPeriodEnd = new Date(stripeSubscription.items.data[0].current_period_end * 1000);
     const expiryDate = cancelAtPeriodEnd ? currentPeriodEnd : new Date();
 
-    // Update subscription in database
-    const updatedSubscription = await prisma.subscription.update({
-      where: {
-        id: subscriptionId
-      },
-      data: {
-        status: cancelAtPeriodEnd ? 'cancelling' : 'cancelled',
-        cancelledAt: cancelAtPeriodEnd ? null : new Date(),
-        cancelAtPeriodEnd: cancelAtPeriodEnd,
-        currentPeriodEnd: currentPeriodEnd,
-        expiryDate: expiryDate
-      }
+    // Update subscription in database using transaction
+    const updatedSubscription = await prisma.$transaction(async (tx) => {
+      return await tx.subscription.update({
+        where: {
+          id: subscriptionId
+        },
+        data: {
+          status: cancelAtPeriodEnd ? 'cancelling' : 'cancelled',
+          cancelledAt: cancelAtPeriodEnd ? null : new Date(),
+          cancelAtPeriodEnd: cancelAtPeriodEnd,
+          currentPeriodEnd: currentPeriodEnd,
+          expiryDate: expiryDate
+        }
+      });
     });
 
     return NextResponse.json({

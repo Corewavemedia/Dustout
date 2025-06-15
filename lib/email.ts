@@ -90,7 +90,7 @@ export interface SubscriptionAdminNotificationData {
   subscriptionId: string;
   planName: string;
   price: number;
-  action: 'created' | 'cancelled' | 'updated';
+  action: 'created' | 'cancelled' | 'updated' | 'downgraded';
   actionDate: string;
 }
 
@@ -464,13 +464,15 @@ export async function sendSubscriptionAdminNotificationEmail(data: SubscriptionA
   const actionColors = {
     created: '#10B981',
     cancelled: '#ef4444',
-    updated: '#f59e0b'
+    updated: '#f59e0b',
+    downgraded: '#8b5cf6'
   };
   
   const actionEmojis = {
     created: '🎉',
     cancelled: '❌',
-    updated: '🔄'
+    updated: '🔄',
+    downgraded: '⬇️'
   };
 
   try {

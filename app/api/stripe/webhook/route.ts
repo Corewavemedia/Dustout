@@ -40,13 +40,19 @@ export async function POST(request: NextRequest) {
   }
 
   // Handle the event
+  console.log('Received webhook event:', event.type, 'ID:', event.id);
+  
   switch (event.type) {
     case 'checkout.session.completed':
       const session = event.data.object as Stripe.Checkout.Session;
+      console.log('Checkout session completed:', session.id, 'Mode:', session.mode, 'Metadata:', session.metadata);
       
       if (session.mode === 'subscription') {
         // Handle subscription creation
         await handleSubscriptionCreated(session);
+      } else if (session.mode === 'setup') {
+        // Handle payment method setup completion
+        await handlePaymentMethodSetup(session);
       } else if (session.metadata?.isUpgrade === 'true') {
         // Handle subscription upgrade payment
         await handleUpgradePayment(session);
@@ -58,16 +64,24 @@ export async function POST(request: NextRequest) {
 
     case 'customer.subscription.created':
       const createdSubscription = event.data.object as Stripe.Subscription;
+      console.log('Subscription created:', createdSubscription.id);
       await handleSubscriptionActivated(createdSubscription);
       break;
 
     case 'customer.subscription.updated':
       const updatedSubscription = event.data.object as Stripe.Subscription;
-      await handleSubscriptionUpdated(updatedSubscription);
+      console.log('Subscription updated:', updatedSubscription.id);
+      
+      // Check if this is an upgrade (has upgrade metadata)
+      if (updatedSubscription.metadata?.upgradedAt) {
+        console.log('Processing subscription upgrade update');
+        await handleSubscriptionUpgrade(updatedSubscription);
+      }
       break;
 
     case 'customer.subscription.deleted':
       const deletedSubscription = event.data.object as Stripe.Subscription;
+      console.log('Subscription deleted event:', deletedSubscription.id, 'Status:', deletedSubscription.status);
       await handleSubscriptionCancelled(deletedSubscription);
       break;
 
@@ -475,31 +489,123 @@ async function handleUpgradePayment(session: Stripe.Checkout.Session) {
 
 async function handleSubscriptionActivated(subscription: Stripe.Subscription) {
   try {
+    console.log('Processing subscription activation:', subscription.id);
+    console.log('Subscription metadata:', subscription.metadata);
+    
     // Calculate correct dates
     const currentPeriodEnd = new Date(subscription.items.data[0].current_period_end * 1000);
     const expiryDate = subscription.ended_at ? new Date(subscription.ended_at * 1000) : currentPeriodEnd;
 
-    await prisma.subscription.updateMany({
+    // Check if this is an upgrade or downgrade subscription
+    const isUpgrade = subscription.metadata?.isUpgrade === 'true';
+    const isDowngrade = subscription.metadata?.isDowngrade === 'true';
+    
+    if (isUpgrade) {
+      console.log('Detected upgrade subscription - activating new subscription record');
+      // For upgrades, the subscription record was already created by the change-plan API
+      // We just need to ensure it's marked as active
+      const updateResult = await prisma.subscription.updateMany({
+        where: {
+          stripeSubscriptionId: subscription.id
+        },
+        data: {
+          status: 'active',
+          startDate: new Date(subscription.start_date * 1000),
+          expiryDate: expiryDate,
+          currentPeriodStart: new Date(subscription.items.data[0].current_period_start * 1000),
+          currentPeriodEnd: currentPeriodEnd
+        }
+      });
+      
+      console.log('Upgrade subscription activated, updated records:', updateResult.count);
+    } else if (isDowngrade) {
+      console.log('Detected downgrade subscription - will activate when billing cycle starts');
+      // For downgrades, the subscription record exists but is pending
+      // It will be activated when the billing cycle actually starts
+      const updateResult = await prisma.subscription.updateMany({
+        where: {
+          stripeSubscriptionId: subscription.id,
+          status: 'pending'
+        },
+        data: {
+          status: 'active',
+          startDate: new Date(subscription.start_date * 1000),
+          expiryDate: expiryDate,
+          currentPeriodStart: new Date(subscription.items.data[0].current_period_start * 1000),
+          currentPeriodEnd: currentPeriodEnd
+        }
+      });
+      
+      console.log('Downgrade subscription activated, updated records:', updateResult.count);
+    } else {
+      // Regular subscription activation (new signups)
+      const updateResult = await prisma.subscription.updateMany({
+        where: {
+          stripeSubscriptionId: subscription.id
+        },
+        data: {
+          status: 'active',
+          startDate: new Date(subscription.start_date * 1000),
+          expiryDate: expiryDate,
+          currentPeriodStart: new Date(subscription.items.data[0].current_period_start * 1000),
+          currentPeriodEnd: currentPeriodEnd
+        }
+      });
+      
+      console.log('Regular subscription activation, updated records:', updateResult.count);
+    }
+
+    console.log('Subscription activated successfully:', subscription.id);
+  } catch (error) {
+    console.error('Error handling subscription activated:', error);
+    console.error('Subscription data:', JSON.stringify(subscription, null, 2));
+  }
+}
+
+async function handleSubscriptionUpgrade(subscription: Stripe.Subscription) {
+  try {
+    console.log('Processing subscription upgrade:', subscription.id);
+    console.log('Upgrade metadata:', subscription.metadata);
+    
+    // Calculate correct dates
+    const currentPeriodEnd = new Date(subscription.items.data[0].current_period_end * 1000);
+    const expiryDate = subscription.ended_at ? new Date(subscription.ended_at * 1000) : currentPeriodEnd;
+
+    // Update the existing subscription record with new plan details
+    const updateResult = await prisma.subscription.updateMany({
       where: {
         stripeSubscriptionId: subscription.id
       },
       data: {
+        planId: subscription.metadata.planId,
+        planName: subscription.metadata.planName,
+        planType: subscription.metadata.planType,
+        revenue: parseFloat((subscription.items.data[0].price.unit_amount! / 100).toString()),
         status: 'active',
-        startDate: new Date(subscription.start_date * 1000),
-        expiryDate: expiryDate,
         currentPeriodStart: new Date(subscription.items.data[0].current_period_start * 1000),
-        currentPeriodEnd: currentPeriodEnd
+        currentPeriodEnd: currentPeriodEnd,
+        expiryDate: expiryDate,
+        cancelAtPeriodEnd: false
       }
     });
+    
+    console.log('Subscription upgrade processed, updated records:', updateResult.count);
+    
+    if (updateResult.count === 0) {
+      console.warn('No database subscription found for upgrade:', subscription.id);
+    }
 
-    console.log('Subscription activated:', subscription.id);
   } catch (error) {
-    console.error('Error handling subscription activated:', error);
+    console.error('Error handling subscription upgrade:', error);
+    console.error('Subscription data:', JSON.stringify(subscription, null, 2));
   }
 }
 
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   try {
+    console.log('Processing subscription update:', subscription.id);
+    console.log('Subscription status:', subscription.status, 'Cancel at period end:', subscription.cancel_at_period_end);
+    
     // Calculate correct dates
     const currentPeriodEnd = new Date(subscription.items.data[0].current_period_end * 1000);
     const expiryDate = subscription.ended_at ? new Date(subscription.ended_at * 1000) : currentPeriodEnd;
@@ -535,15 +641,103 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
       }
     });
 
-    await prisma.subscription.updateMany({
+    if (!dbSubscription) {
+      console.warn('No database subscription found for Stripe subscription:', subscription.id);
+      console.warn('This might be a new subscription from an upgrade that needs to be handled by handleSubscriptionActivated');
+      return;
+    }
+
+    console.log('Found database subscription, updating:', dbSubscription.id);
+    
+    const updateResult = await prisma.subscription.updateMany({
       where: {
         stripeSubscriptionId: subscription.id
       },
       data: updateData
     });
+    
+    console.log('Database update completed, records updated:', updateResult.count);
+
+    // Check for scheduled downgrade processing
+    if (subscription.status === 'canceled' && subscription.metadata) {
+      const scheduledDowngrade = {
+        newPlanId: subscription.metadata.scheduled_downgrade_plan_id,
+        newPlanName: subscription.metadata.scheduled_downgrade_plan_name,
+        newPlanType: subscription.metadata.scheduled_downgrade_plan_type,
+        newPrice: subscription.metadata.scheduled_downgrade_price,
+        effectiveDate: subscription.metadata.scheduled_downgrade_effective_date
+      };
+
+      if (scheduledDowngrade.newPlanId && scheduledDowngrade.effectiveDate) {
+        console.log('Processing scheduled downgrade:', scheduledDowngrade);
+        
+        try {
+          // Find the new plan in the database
+          const newPlan = await prisma.subscriptionPlan.findUnique({
+            where: { id: scheduledDowngrade.newPlanId }
+          });
+
+          if (newPlan && dbSubscription) {
+            // Create new subscription with the downgraded plan
+            const newSubscription = await prisma.subscription.create({
+              data: {
+                userId: dbSubscription.userId,
+                planId: newPlan.id,
+                planName: newPlan.name,
+                planType: newPlan.type,
+                stripeSubscriptionId: '', // Will be updated when new Stripe subscription is created
+                stripeCustomerId: dbSubscription.stripeCustomerId,
+                startDate: new Date(scheduledDowngrade.effectiveDate),
+                expiryDate: new Date(new Date(scheduledDowngrade.effectiveDate).getTime() + (30 * 24 * 60 * 60 * 1000)), // 30 days from start
+                currentPeriodStart: new Date(scheduledDowngrade.effectiveDate),
+                currentPeriodEnd: new Date(new Date(scheduledDowngrade.effectiveDate).getTime() + (30 * 24 * 60 * 60 * 1000)),
+                cancelAtPeriodEnd: false,
+                status: 'active',
+                revenue: parseFloat(scheduledDowngrade.newPrice || '0'),
+                email: dbSubscription.email,
+                phone: dbSubscription.phone
+              }
+            });
+
+            console.log('Created new downgraded subscription:', newSubscription.id);
+            
+            // Send downgrade confirmation email
+             await sendSubscriptionUpgradeEmail({
+               to: dbSubscription.email || "unknown",
+               customerName: dbSubscription.user.fullname || dbSubscription.email || 'Customer',
+               subscriptionId: newSubscription.id,
+               oldPlanName: dbSubscription.planName,
+               newPlanName: newPlan.name,
+               newPrice: parseFloat(scheduledDowngrade.newPrice || '0'),
+               effectiveDate: scheduledDowngrade.effectiveDate,
+               nextBillingDate: new Date(new Date(scheduledDowngrade.effectiveDate).getTime() + (30 * 24 * 60 * 60 * 1000)).toISOString(),
+               features: [],
+               isUpgrade: false
+             });
+
+            // Send admin notification for downgrade
+            await sendSubscriptionAdminNotificationEmail({
+              customerName: dbSubscription.user.fullname || dbSubscription.email || 'Unknown',
+              customerEmail: dbSubscription.email || "Unknown",
+              subscriptionId: newSubscription.id,
+              planName: newPlan.name,
+              price: parseFloat(scheduledDowngrade.newPrice || '0'),
+              action: 'downgraded',
+              actionDate: new Date().toISOString()
+            });
+
+            console.log('Scheduled downgrade processed successfully');
+          } else {
+            console.error('Could not find new plan for downgrade:', scheduledDowngrade.newPlanId);
+          }
+        } catch (downgradeError) {
+          console.error('Error processing scheduled downgrade:', downgradeError);
+        }
+      }
+    }
 
     // Send admin notification for subscription update
-    if (dbSubscription) {
+    if (dbSubscription && !subscription.metadata?.scheduled_downgrade_plan_id) {
       await sendSubscriptionAdminNotificationEmail({
         customerName: dbSubscription.user.fullname || dbSubscription.email || 'Unknown',
         customerEmail: dbSubscription.email || "Unknown",
@@ -555,9 +749,10 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
       });
     }
 
-    console.log('Subscription updated:', subscription.id);
+    console.log('Subscription updated successfully:', subscription.id);
   } catch (error) {
     console.error('Error handling subscription updated:', error);
+    console.error('Subscription data:', JSON.stringify(subscription, null, 2));
   }
 }
 
@@ -662,5 +857,30 @@ async function handlePaymentFailed(invoice: Stripe.Invoice) {
     console.log('Payment failed for subscription:', subscriptionId);
   } catch (error) {
     console.error('Error handling payment failed:', error);
+  }
+}
+
+async function handlePaymentMethodSetup(session: Stripe.Checkout.Session) {
+  try {
+    console.log('Handling payment method setup completion for session:', session.id);
+    
+    // For setup mode sessions, we don't need to do much processing
+    // The payment method is automatically attached to the customer
+    // The frontend will handle the redirect and retry the plan change
+    
+    const metadata = session.metadata;
+    if (metadata?.pendingPlanChange === 'true') {
+      console.log('Payment method setup completed for pending plan change');
+      console.log('User ID:', metadata.userId);
+      console.log('New Plan ID:', metadata.newPlanId);
+      console.log('Plan Type:', metadata.newPlanType);
+      
+      // Optionally, you could store a record that the payment method was updated
+      // or send a notification, but for now we'll let the frontend handle the retry
+    }
+    
+    console.log('Payment method setup handled successfully');
+  } catch (error) {
+    console.error('Error handling payment method setup:', error);
   }
 }

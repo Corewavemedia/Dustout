@@ -124,16 +124,74 @@ export async function POST(request: NextRequest) {
     let message;
 
     if (isUpgrade) {
-      // For upgrades: Cancel current subscription and create new one with full price
+      // For upgrades: Cancel current subscription and create new one with full billing
+      console.log('Upgrading subscription - canceling current and creating new:', currentSubscription.stripeSubscriptionId);
+      
+      // Get the customer and their default payment method before cancelling
+      const customerId = typeof stripeSubscription.customer === 'string' ? stripeSubscription.customer : stripeSubscription.customer.id;
+      const customer = await stripe.customers.retrieve(customerId);
+      
+      // Check if customer has a payment method (either default or any attached)
+      let hasPaymentMethod = false;
+      if (customer && !customer.deleted) {
+        if (customer.invoice_settings?.default_payment_method) {
+          hasPaymentMethod = true;
+        } else {
+          // Check if customer has any payment methods attached
+          const paymentMethods = await stripe.paymentMethods.list({
+            customer: customerId,
+            type: 'card'
+          });
+          hasPaymentMethod = paymentMethods.data.length > 0;
+          
+          // If we have payment methods but no default, set the first one as default
+          if (hasPaymentMethod && paymentMethods.data.length > 0) {
+            await stripe.customers.update(customerId, {
+              invoice_settings: {
+                default_payment_method: paymentMethods.data[0].id
+              }
+            });
+            // Refresh customer data
+            const updatedCustomer = await stripe.customers.retrieve(customerId);
+            Object.assign(customer, updatedCustomer);
+          }
+        }
+      }
+      
+      if (!hasPaymentMethod) {
+        // Customer needs to add a payment method first
+        const setupSession = await stripe.checkout.sessions.create({
+          customer: customerId,
+          payment_method_types: ['card'],
+          mode: 'setup',
+          success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard?payment_method=updated&retry_plan_change=true&plan_id=${newPlanId}`,
+          cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard?payment_method=cancelled`,
+          metadata: {
+            userId: dbUser.id,
+            subscriptionId: currentSubscription.id,
+            pendingPlanChange: 'true',
+            newPlanId: newPlanId,
+            newPlanName: newPlanName,
+            newPlanType: newPlanType,
+            newPrice: newPrice.toString()
+          }
+        });
+        
+        return NextResponse.json({
+          requiresPaymentMethod: true,
+          setupUrl: setupSession.url,
+          message: 'Please add a payment method to upgrade your subscription'
+        });
+      }
+      
+      // Cancel the current subscription immediately
       await stripe.subscriptions.cancel(currentSubscription.stripeSubscriptionId, {
-        prorate: true
+        prorate: false
       });
 
-      // Create new subscription with full price
-      
-      
-      updatedStripeSubscription = await stripe.subscriptions.create({
-        customer: currentSubscription.stripeCustomerId!,
+      // Create a new subscription with the new plan (full price billing)
+      const subscriptionParams: any = {
+        customer: customerId,
         items: [{
           price: newStripePrice.id,
         }],
@@ -142,79 +200,189 @@ export async function POST(request: NextRequest) {
           planName: newPlanName,
           planType: newPlanType,
           upgradedAt: new Date().toISOString(),
-          previousSubscriptionId: currentSubscription.stripeSubscriptionId
-        }
-      });
+          previousPlanId: currentSubscription.planId,
+          isUpgrade: 'true'
+        },
+        default_payment_method: customer && !('deleted' in customer) ? customer.invoice_settings?.default_payment_method : undefined
+      };
+      
+      updatedStripeSubscription = await stripe.subscriptions.create(subscriptionParams);
 
-      message = `Subscription upgraded successfully. You have been charged the full price of £${newPrice} for the new plan.`;
+      message = `Subscription upgraded successfully. You have been charged the full price for the new plan and it is now active.`;
     } else {
-      // For downgrades: Schedule the change for the end of current period
-      updatedStripeSubscription = await stripe.subscriptions.update(
+      // For downgrades: Set current subscription to cancel at period end and create new subscription
+      console.log('Downgrading subscription - scheduling cancellation and creating new subscription');
+      
+      // Set current subscription to cancel at the end of the period
+      await stripe.subscriptions.update(
         currentSubscription.stripeSubscriptionId,
         {
-          items: [{
-            id: stripeSubscription.items.data[0].id,
-            price: newStripePrice.id,
-          }],
-          proration_behavior: 'none', // No proration for downgrades
-          billing_cycle_anchor: 'unchanged', // Keep current billing cycle
+          cancel_at_period_end: true,
           metadata: {
-            planId: newPlanId,
-            planName: newPlanName,
-            planType: newPlanType,
             downgradedAt: new Date().toISOString(),
-            effectiveDate: new Date(stripeSubscription.items.data[0].current_period_end * 1000).toISOString()
+            newPlanId: newPlanId,
+            newPlanName: newPlanName,
+            newPlanType: newPlanType,
+            newPrice: newPrice.toString()
           }
         }
       );
 
-      message = `Subscription downgrade scheduled. Your new plan will take effect on ${new Date(stripeSubscription.items.data[0].current_period_end * 1000).toLocaleDateString()} at the end of your current billing period.`;
+      // Get the customer and their default payment method for the new subscription
+      const customerId = typeof stripeSubscription.customer === 'string' ? stripeSubscription.customer : stripeSubscription.customer.id;
+      const customer = await stripe.customers.retrieve(customerId);
+      
+      // Check if customer has a payment method (either default or any attached)
+      let hasPaymentMethod = false;
+      if (customer && !customer.deleted) {
+        if (customer.invoice_settings?.default_payment_method) {
+          hasPaymentMethod = true;
+        } else {
+          // Check if customer has any payment methods attached
+          const paymentMethods = await stripe.paymentMethods.list({
+            customer: customerId,
+            type: 'card'
+          });
+          hasPaymentMethod = paymentMethods.data.length > 0;
+          
+          // If we have payment methods but no default, set the first one as default
+          if (hasPaymentMethod && paymentMethods.data.length > 0) {
+            await stripe.customers.update(customerId, {
+              invoice_settings: {
+                default_payment_method: paymentMethods.data[0].id
+              }
+            });
+            // Refresh customer data
+            const updatedCustomer = await stripe.customers.retrieve(customerId);
+            Object.assign(customer, updatedCustomer);
+          }
+        }
+      }
+      
+      if (!hasPaymentMethod) {
+        // Customer needs to add a payment method first
+        const setupSession = await stripe.checkout.sessions.create({
+          customer: customerId,
+          payment_method_types: ['card'],
+          mode: 'setup',
+          success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard?payment_method=updated&retry_plan_change=true&plan_id=${newPlanId}`,
+          cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard?payment_method=cancelled`,
+          metadata: {
+            userId: dbUser.id,
+            subscriptionId: currentSubscription.id,
+            pendingPlanChange: 'true',
+            newPlanId: newPlanId,
+            newPlanName: newPlanName,
+            newPlanType: newPlanType,
+            newPrice: newPrice.toString()
+          }
+        });
+        
+        return NextResponse.json({
+          requiresPaymentMethod: true,
+          setupUrl: setupSession.url,
+          message: 'Please add a payment method to change your subscription'
+        });
+      }
+      
+      // Create a new subscription that starts when the current one ends
+      const currentPeriodEnd = stripeSubscription.items.data[0].current_period_end;
+      const downgradeSubscriptionParams: any = {
+        customer: customerId,
+        items: [{
+          price: newStripePrice.id,
+        }],
+        billing_cycle_anchor: currentPeriodEnd, // Start when current subscription ends
+        metadata: {
+          planId: newPlanId,
+          planName: newPlanName,
+          planType: newPlanType,
+          downgradedAt: new Date().toISOString(),
+          previousPlanId: currentSubscription.planId,
+          isDowngrade: 'true'
+        },
+        default_payment_method: customer && !('deleted' in customer) ? customer.invoice_settings?.default_payment_method : undefined
+      };
+      
+      updatedStripeSubscription = await stripe.subscriptions.create(downgradeSubscriptionParams);
+
+      message = `Subscription downgrade scheduled. You have been charged for the new plan and it will take effect on ${new Date(currentPeriodEnd * 1000).toLocaleDateString()} when your current billing period ends.`;
     }
 
-    // Update subscription in database
+    // Update subscription in database using transaction
     let updatedSubscription;
     
     if (isUpgrade) {
-      // For upgrades: Update current subscription with new plan details immediately
-      updatedSubscription = await prisma.subscription.update({
-        where: {
-          id: currentSubscription.id
-        },
-        data: {
-          planId: newPlanId,
-          planName: `${newPlanName} (${newPlanType})`,
-          revenue: newPrice,
-          stripeSubscriptionId: updatedStripeSubscription.id,
-          startDate: new Date(updatedStripeSubscription.start_date * 1000),
-          currentPeriodStart: new Date(updatedStripeSubscription.items.data[0].current_period_start * 1000),
-        currentPeriodEnd: new Date(updatedStripeSubscription.items.data[0].current_period_end * 1000),
-        expiryDate: updatedStripeSubscription.ended_at ? new Date(updatedStripeSubscription.ended_at * 1000) : new Date(updatedStripeSubscription.items.data[0].current_period_end * 1000)
-        }
-      });
-    } else {
-      // For downgrades: Keep current plan active, schedule change for next period
-      updatedSubscription = await prisma.subscription.update({
-        where: {
-          id: currentSubscription.id
-        },
-        data: {
-          // Keep current plan details, add metadata about scheduled downgrade
-          currentPeriodEnd: new Date(updatedStripeSubscription.items.data[0].current_period_end * 1000),
-        expiryDate: new Date(updatedStripeSubscription.items.data[0].current_period_end * 1000)
-          // Note: Plan details will be updated by webhook when the period ends
-        }
-      });
+      // For upgrades: Mark old subscription as cancelled and create new one
+      console.log('Processing upgrade - marking old subscription as cancelled and creating new one');
       
-      // Store the scheduled downgrade information
+      // Mark the old subscription as cancelled
       await prisma.subscription.update({
         where: {
           id: currentSubscription.id
         },
         data: {
-          // Add a note or flag that this subscription has a scheduled downgrade
-          // This could be handled via a separate table or metadata field
+          status: 'cancelled',
+          cancelAtPeriodEnd: false,
+          expiryDate: new Date() // Cancelled immediately
         }
       });
+
+      // Create new subscription record for the upgrade
+      updatedSubscription = await prisma.subscription.create({
+        data: {
+          userId: currentSubscription.userId,
+          planId: newPlanId,
+          planName: `${newPlanName} (${newPlanType})`,
+          planType: newPlanType,
+          revenue: newPrice,
+          stripeCustomerId: currentSubscription.stripeCustomerId,
+          stripeSubscriptionId: updatedStripeSubscription.id,
+          currentPeriodStart: new Date(updatedStripeSubscription.items.data[0].current_period_start * 1000),
+          currentPeriodEnd: new Date(updatedStripeSubscription.items.data[0].current_period_end * 1000),
+          startDate: new Date(),
+          expiryDate: new Date(updatedStripeSubscription.items.data[0].current_period_end * 1000),
+          status: 'active',
+          cancelAtPeriodEnd: false
+        }
+      });
+      
+      console.log('Upgrade completed successfully - new subscription created:', updatedSubscription.id);
+    } else {
+      // For downgrades: Mark current subscription to cancel at period end, create new subscription for later
+      console.log('Processing downgrade - scheduling current subscription cancellation and creating future subscription');
+      
+      // Update current subscription to cancel at period end
+      await prisma.subscription.update({
+        where: {
+          id: currentSubscription.id
+        },
+        data: {
+          cancelAtPeriodEnd: true,
+          expiryDate: new Date(stripeSubscription.items.data[0].current_period_end * 1000)
+        }
+      });
+
+      // Create new subscription record that will become active when current one ends
+      updatedSubscription = await prisma.subscription.create({
+        data: {
+          userId: currentSubscription.userId,
+          planId: newPlanId,
+          planName: `${newPlanName} (${newPlanType})`,
+          planType: newPlanType,
+          revenue: newPrice,
+          stripeCustomerId: currentSubscription.stripeCustomerId,
+          stripeSubscriptionId: updatedStripeSubscription.id,
+          currentPeriodStart: new Date(updatedStripeSubscription.items.data[0].current_period_start * 1000),
+          currentPeriodEnd: new Date(updatedStripeSubscription.items.data[0].current_period_end * 1000),
+          startDate: new Date(stripeSubscription.items.data[0].current_period_end * 1000), // Starts when current ends
+          expiryDate: new Date(updatedStripeSubscription.items.data[0].current_period_end * 1000),
+          status: 'pending', // Will become active when current subscription ends
+          cancelAtPeriodEnd: false
+        }
+      });
+      
+      console.log('Downgrade scheduled successfully - new subscription created:', updatedSubscription.id);
     }
 
     // Send upgrade/downgrade email
@@ -255,7 +423,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Subscription plan change error:', error);
     return NextResponse.json(
-      { error: 'Failed to change subscription plan' },
+      { error: 'Failed to change subscription plan', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }
