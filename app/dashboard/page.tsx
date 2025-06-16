@@ -3,7 +3,6 @@
 import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { MapPinIcon } from "@heroicons/react/24/outline";
-import { services } from "@/components/data/ServicesData";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import EditprofileIcon from "@/components/icons/EditProfileicon";
