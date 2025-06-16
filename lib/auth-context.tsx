@@ -8,6 +8,7 @@ import type { Session } from '@supabase/supabase-js'
 interface AuthContextType {
   user: AuthUser | null
   session: Session | null
+  token: string | null
   loading: boolean
   signIn: (email: string, password: string) => Promise<{ error?: string; success?: boolean }>
   signUp: (username: string, email: string, password: string) => Promise<{ error?: string; success?: boolean }>
@@ -200,6 +201,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const value = {
     user,
     session,
+    token: session?.access_token || null,
     loading,
     signIn,
     signUp,

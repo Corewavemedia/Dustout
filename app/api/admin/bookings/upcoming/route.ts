@@ -36,7 +36,7 @@ export async function GET() {
       service: upcomingBooking.services.length > 0 
         ? upcomingBooking.services.map(s => s.service.name).join(', ')
         : 'No services',
-      date: upcomingBooking.preferredDate || 'Date not specified',
+      date: upcomingBooking.preferredDate ? upcomingBooking.preferredDate.toISOString().split('T')[0] : 'Date not specified',
       time: upcomingBooking.preferredTime || 'Time not specified',
       staff: upcomingBooking.staff ? `${upcomingBooking.staff.firstName} ${upcomingBooking.staff.lastName}` : 'Not Assigned',
       address: upcomingBooking.address || 'Address not provided',

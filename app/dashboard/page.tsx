@@ -31,6 +31,7 @@ function DashboardContent() {
   const searchParams = useSearchParams();
   const { user, loading: authLoading } = useAuth();
   const [orderHistory, setOrderHistory] = useState<OrderData[]>([]);
+  const [orderHistoryLoading, setOrderHistoryLoading] = useState(false);
   const [showSubscription, setShowSubscription] = useState(false);
   const [subscriptionSuccess, setSubscriptionSuccess] = useState(false);
 
@@ -58,7 +59,8 @@ function DashboardContent() {
   // Load order history
   useEffect(() => {
     const fetchOrderHistory = async () => {
-      if (user) {
+      if (user && !authLoading) {
+        setOrderHistoryLoading(true);
         try {
           // Get the session to access the token
           const { data: { session } } = await supabase.auth.getSession();
@@ -89,7 +91,7 @@ function DashboardContent() {
                 id: booking.id || `booking-${index}`,
                 service: booking.services && booking.services.length > 0 ? booking.services[0].service.name : 'Service',
                 location: booking.address,
-                date: booking.preferredDate || 'Date TBD',
+                date: booking.preferredDate ? booking.preferredDate.split('T')[0] : 'Date TBD',
                 time: booking.preferredTime || 'Time not specified',
                 price: booking.estimatedPrice 
                   ? `£${booking.estimatedPrice.toFixed(2)}` 
@@ -104,12 +106,14 @@ function DashboardContent() {
           }
         } catch (error) {
           console.error('Error fetching order history:', error);
+        } finally {
+          setOrderHistoryLoading(false);
         }
       }
     };
     
     fetchOrderHistory();
-  }, [user]);
+  }, [user, authLoading]);
 
   if (authLoading) {
     return (
@@ -278,7 +282,12 @@ function DashboardContent() {
               </button>
             </div>
             <div className="space-y-3">
-              {orderHistory.length > 0 ? (
+              {orderHistoryLoading ? (
+                <div className="bg-white rounded-lg p-8 shadow-sm border border-gray-100 text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                  <p className="text-gray-600">Loading order history...</p>
+                </div>
+              ) : orderHistory.length > 0 ? (
                 orderHistory.map((order) => (
                   <div
                     key={order.id}

@@ -46,7 +46,7 @@ export async function GET() {
       email: booking.email,
       phone: booking.phone,
       dateAndTime: booking.preferredDate && booking.preferredTime 
-        ? `${new Date(booking.preferredDate).toLocaleDateString()}, ${booking.preferredTime}`
+        ? `${booking.preferredDate.toISOString().split('T')[0]}, ${booking.preferredTime}`
         : 'Not specified',
       service: booking.services.map(bs => bs.service.name).join(', ') || 'No services',
       staff: booking.staff 

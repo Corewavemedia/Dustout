@@ -744,9 +744,19 @@ async function handlePaymentMethodSetup(session: Stripe.Checkout.Session) {
   try {
     console.log('Handling payment method setup completion for session:', session.id);
     
-    // For setup mode sessions, we don't need to do much processing
-    // The payment method is automatically attached to the customer
-    // The frontend will handle the redirect and retry the plan change
+    // Get the setup intent to retrieve the payment method
+    const setupIntent = await stripe.setupIntents.retrieve(session.setup_intent as string);
+    
+    if (setupIntent.payment_method && session.customer) {
+      // Set the new payment method as the default for the customer
+      await stripe.customers.update(session.customer as string, {
+        invoice_settings: {
+          default_payment_method: setupIntent.payment_method as string
+        }
+      });
+      
+      console.log('Updated customer default payment method:', setupIntent.payment_method);
+    }
     
     const metadata = session.metadata;
     if (metadata?.pendingPlanChange === 'true') {
