@@ -116,7 +116,7 @@ export const AddStaffSidebar: React.FC<AddStaffSidebarProps> = ({ onStaffAdded }
   };
   return (
     <>
-        <div className="w-72 bg-white shadow-lg overflow-y-auto font-majer">
+        <div className="w-72 bg-white shadow-lg overflow-y-auto font-majer hidden md:block">
           <div className="p-6">
             {/* Upload Picture Section */}
             <div className="mb-6">

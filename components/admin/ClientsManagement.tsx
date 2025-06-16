@@ -60,7 +60,7 @@ const ClientsManagement: React.FC = () => {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex items-center justify-center font-majer flex-col sm:flex-row gap-3 mt-4">
+              <div className="hidden items-center justify-center font-majer flex-col sm:flex-row gap-3 mt-4">
                 <button
                   onClick={handleAddClient}
                   className="bg-[#12B368] text-white px-6 py-2 rounded-lg font-medium hover:bg-green-600 transition-colors flex items-center justify-center gap-2"

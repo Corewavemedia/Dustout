@@ -162,7 +162,7 @@ const EditSubscriptionSidebar: React.FC<EditSubscriptionSidebarProps> = ({
   ];
 
   return (
-    <div className="w-80 bg-white shadow-lg border-l border-gray-200 flex flex-col">
+    <div className="w-80 bg-white shadow-lg border-l border-gray-200 md:flex flex-col hidden">
       {/* Header */}
       <div className="p-4 border-b border-gray-200 flex justify-between items-center">
         <h3 className="text-lg font-semibold text-gray-900">

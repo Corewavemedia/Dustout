@@ -140,7 +140,7 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                 <th scope="col" className="px-6 py-3">Address</th>
                 <th scope="col" className="px-6 py-3">Revenue</th>
                 <th scope="col" className="px-6 py-3">Status</th>
-                <th scope="col" className="px-6 py-3">Actions</th>
+                <th scope="col" className="px-6 py-3 hidden md:block">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -173,7 +173,7 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                         {subscription.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 hidden md:block">
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => onSelectSubscription(subscription)}

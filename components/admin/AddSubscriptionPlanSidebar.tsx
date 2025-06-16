@@ -156,7 +156,7 @@ const AddSubscriptionPlanSidebar: React.FC<AddSubscriptionPlanSidebarProps> = ({
   };
 
   return (
-    <div className="w-96 bg-white shadow-lg border-l border-gray-200 flex flex-col h-full">
+    <div className="w-96 bg-white shadow-lg border-l border-gray-200 md:flex flex-col h-full hidden">
       {/* Header */}
       <div className="bg-gradient-to-r from-[#538FDF] to-[#171AD4] text-white p-4 flex justify-between items-center">
         <h2 className="text-lg font-semibold">

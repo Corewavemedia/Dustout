@@ -47,7 +47,7 @@ const AdminPage: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-blue-50 p-10">
+    <div className="flex flex-col min-h-screen bg-blue-50 py-10 px-4">
       {/* Cloud Background */}
       <div className="absolute inset-0 z-0">
         <Image
@@ -475,45 +475,7 @@ const AdminPage: React.FC = () => {
                   Clients
                 </button>
               </li>
-              <li>
-                <button
-                  onClick={() => {
-                    setActiveTab("subscriptions");
-                    const sidebar = document.getElementById("mobile-sidebar");
-                    if (sidebar) {
-                      sidebar.classList.toggle("translate-x-0");
-                      sidebar.classList.toggle("-translate-x-full");
-                    }
-                  }}
-                  className={`w-full flex items-center px-4 py-2 text-sm rounded-lg transition-colors ${
-                    activeTab === "subscriptions"
-                      ? "bg-primary-blue text-white"
-                      : "text-gray-700 hover:bg-gray-100"
-                  }`}
-                >
-                   <svg
-                    width="23"
-                    height="23"
-                    viewBox="0 0 23 23"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M6.03893 14.9383C4.92389 14.9383 4.01953 15.8422 4.01953 16.9586C4.01953 18.0736 4.92389 18.9784 6.03893 18.9784C7.15558 18.9784 8.05925 18.0736 8.05925 16.9586C8.05925 15.8419 7.15558 14.9383 6.03893 14.9383Z"
-                      fill="#538FDF"
-                    />
-                    <path
-                      d="M5.41312 9.38422C5.40254 9.38422 5.39242 9.3856 5.38207 9.38583V9.38422H4.58535V9.39319C4.19481 9.43758 3.89052 9.76188 3.88247 10.1623H3.88086V11.5789H3.89029C3.93399 11.9425 4.2208 12.2279 4.58512 12.2693V12.2783H5.38184V12.2673C5.39219 12.2675 5.40254 12.2689 5.41289 12.2689C8.35045 12.2689 10.7427 14.6427 10.7744 17.5729H10.7668V18.3696H10.7758C10.8202 18.7602 11.1445 19.0645 11.5449 19.0725V19.0741H12.9613V19.0647C13.3249 19.021 13.6103 18.7342 13.6517 18.3699H13.6607V17.5731H13.6593C13.6278 13.052 9.94113 9.38422 5.41312 9.38422Z"
-                      fill="#538FDF"
-                    />
-                    <path
-                      d="M19.1172 17.5727C19.0852 10.0427 12.9507 3.92609 5.41312 3.92609C5.40254 3.92609 5.39242 3.92747 5.38207 3.9277V3.92609H4.58535V3.93506C4.19481 3.97945 3.89052 4.30375 3.88247 4.70418H3.88086V6.12075H3.89029C3.93399 6.48461 4.2208 6.76981 4.58512 6.81121V6.82018H5.38184V6.80914C5.39219 6.80937 5.40254 6.81075 5.41289 6.81075C11.36 6.81075 16.2003 11.6332 16.2323 17.5729H16.2243V18.3696H16.2332C16.2776 18.7602 16.6019 19.0645 17.0024 19.0725V19.0741H18.4189V19.0647C18.7826 19.021 19.068 18.7342 19.1094 18.3699H19.1184V17.5731H19.1172V17.5727Z"
-                      fill="#538FDF"
-                    />
-                  </svg>
-                  Subscriptions
-                </button>
-              </li>
+              
               <li>
                 <button
                   onClick={() => {

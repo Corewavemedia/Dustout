@@ -120,7 +120,7 @@ const SubscriptionManagement: React.FC = () => {
 
               {/* Add Button for current view */}
               {viewMode === 'add' && (
-                <div className="flex justify-center mt-4">
+                <div className="hidden md:flex justify-center mt-4">
                   <button
                     onClick={handleAddSubscription}
                     className="bg-white text-[#538FDF] px-6 py-2 rounded-lg font-medium hover:bg-gray-50 transition-colors flex items-center gap-2"
@@ -144,7 +144,7 @@ const SubscriptionManagement: React.FC = () => {
               )}
 
               {viewMode === 'manage' && (
-                <div className="flex justify-center mt-4">
+                <div className="hidden md:flex justify-center mt-4">
                   <button
                     onClick={handleAddSubscription}
                     className="bg-white text-[#538FDF] px-6 py-2 rounded-lg font-medium hover:bg-gray-50 transition-colors flex items-center gap-2"

@@ -133,7 +133,7 @@ const SubscriptionPlansList: React.FC<SubscriptionPlansListProps> = ({
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Subscription Features
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs hidden md:block font-medium text-gray-500 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
@@ -171,7 +171,7 @@ const SubscriptionPlansList: React.FC<SubscriptionPlansListProps> = ({
                       {plan.features.join(', ')}
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <td className="px-6 py-4 whitespace-nowrap hidden md:block text-sm font-medium">
                     <div className="flex space-x-2">
                       <button
                         onClick={() => onSelectPlan(plan)}

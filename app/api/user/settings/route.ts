@@ -361,9 +361,23 @@ async function updatePassword(token: string, currentPassword: string, newPasswor
 }
 
 // Helper function to update profile information
-async function updateProfile(userId: string, profileData: any) {
+interface ProfileData {
+  fullname?: string;
+  address?: string;
+  phone?: string;
+  [key: string]: string | undefined;
+}
+
+interface UpdateData {
+  fullname?: string;
+  address?: string;
+  phone?: string;
+  [key: string]: string | undefined;
+}
+
+async function updateProfile(userId: string, profileData: ProfileData) {
   const allowedFields = ['fullname', 'address', 'phone'];
-  const updateData: any = {};
+  const updateData: UpdateData = {};
 
   // Filter only allowed fields
   for (const field of allowedFields) {

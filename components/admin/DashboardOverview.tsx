@@ -153,7 +153,7 @@ const DashboardOverview: React.FC = () => {
           </div>
 
           {/* Service Cards */}
-          <div className="grid grid-cols-2  gap-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2  gap-4 mb-6">
             <div className="bg-white p-2 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer">
               <button 
               onClick={() => setActiveTab("services")}
