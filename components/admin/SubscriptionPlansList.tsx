@@ -40,7 +40,7 @@ const SubscriptionPlansList: React.FC<SubscriptionPlansListProps> = ({
       const response = await fetch('/api/subscription-plans');
       if (response.ok) {
         const data = await response.json();
-        setPlans(data);
+        setPlans(data.plans || []); // Access plans from the data object and provide a fallback empty array
       } else {
         setError('Failed to fetch subscription plans');
       }
