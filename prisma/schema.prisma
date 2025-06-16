@@ -12,7 +12,7 @@ model User {
   id                String   @id @default(uuid())
   username          String   @unique
   email             String   @unique
-  created_at        DateTime @default(now())
+  created_at        DateTime @default(now()) @db.Date
   is_verified       Boolean  @default(true)
   verification_token String?
   role              String   @default("user") // "user" or "admin"
@@ -35,8 +35,8 @@ model Service {
   description String?
   icon        String?           // URL or path to icon
   isActive    Boolean           @default(true)
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
+  createdAt   DateTime          @default(now()) @db.Date
+  updatedAt   DateTime          @updatedAt @db.Date
   
   // Relationships
   variables   ServiceVariable[]
@@ -50,8 +50,8 @@ model ServiceVariable {
   serviceId String
   name      String   // e.g., "1 bedroom", "2 bedroom", "per square meter"
   unitPrice Float    // Price per unit
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @db.Date
+  updatedAt DateTime @updatedAt @db.Date
   
   // Relationship
   service   Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
@@ -70,7 +70,7 @@ model Booking {
   postcode          String?  // Renamed from postCode
   landmark          String?
   frequency         String   // Renamed from serviceFrequency
-  preferredDate     DateTime? // Changed to DateTime for better handling
+  preferredDate     DateTime? @db.Date // Changed to DateTime for better handling
   preferredTime     String?  // Combined startTime and endTime
   specialInstructions String? // Renamed from notes
   status            String   @default("pending")
@@ -79,10 +79,10 @@ model Booking {
   stripeSessionId   String?  // Stripe checkout session ID
   paymentIntentId   String?  // Stripe payment intent ID
   staffId           String?  // Optional staff assignment
-  scheduledDate     DateTime? // When the service is actually scheduled
+  scheduledDate     DateTime? @db.Date // When the service is actually scheduled
   scheduledTime     String?  // Time slot for the scheduled service
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  createdAt         DateTime @default(now()) @db.Date
+  updatedAt         DateTime @updatedAt @db.Date
   
   // Relationships
   user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -116,8 +116,8 @@ model SubscriptionPlan {
   price       Float    // Monthly price
   features    String[] // Array of features
   isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now()) @db.Date
+  updatedAt   DateTime @updatedAt @db.Date
   
   // Relationships
   subscriptions Subscription[]
@@ -133,18 +133,18 @@ model Subscription {
   planType              String   // "residential" or "industrial"
   stripeSubscriptionId  String?  @unique // Stripe subscription ID
   stripeCustomerId      String?  // Stripe customer ID
-  startDate             DateTime @default(now())
-  expiryDate            DateTime
-  currentPeriodStart    DateTime?
-  currentPeriodEnd      DateTime?
+  startDate             DateTime @default(now()) @db.Date
+  expiryDate            DateTime @db.Date
+  currentPeriodStart    DateTime? @db.Date
+  currentPeriodEnd      DateTime? @db.Date
   cancelAtPeriodEnd     Boolean  @default(false)
-  cancelledAt           DateTime?
+  cancelledAt           DateTime? @db.Date
   status                String   @default("active") // "active", "expired", "cancelled", "past_due", "inactive"
   revenue               Float    // Amount paid for the subscription
   email                 String?
   phone                 String?
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  createdAt             DateTime @default(now()) @db.Date
+  updatedAt             DateTime @updatedAt @db.Date
   
   // Relationships
   user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -164,8 +164,8 @@ model Staff {
   email         String   @unique
   phoneNumber   String
   address       String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt     DateTime @default(now()) @db.Date
+  updatedAt     DateTime @updatedAt @db.Date
   
   // Relationships
   bookings      Booking[]
@@ -177,7 +177,7 @@ model BlockedDate {
   id          String   @id @default(uuid())
   blockedDate DateTime @unique @db.Date // The specific date that is blocked
   reason      String?  // Optional admin's note like "Public Holiday" or "Maintenance"
-  createdAt   DateTime @default(now())
+  createdAt   DateTime @default(now()) @db.Date
   
   @@map("blocked_dates")
 }
@@ -187,8 +187,8 @@ model TempBookingData {
   referenceId   String   @unique
   bookingData   String   // JSON string of booking data
   userId        String   // Reference to the user who created this booking
-  createdAt     DateTime @default(now())
-  expiresAt     DateTime // Auto-cleanup after 24 hours
+  createdAt     DateTime @default(now()) @db.Date
+  expiresAt     DateTime @db.Date // Auto-cleanup after 24 hours
   
   @@map("temp_booking_data")
 }

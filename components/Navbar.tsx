@@ -61,10 +61,10 @@ export default function Navbar() {
           <div className="hidden md:block">
             <div className="ml-10 flex items-center space-x-8">
               <Link
-                href="/dashboard"
+                href="/"
                 className="text-blue-500 hover:text-cyan font-majer font-normal text-lg"
               >
-                Dashboard
+                Home
               </Link>
               <Link
                 href="/about"
@@ -107,11 +107,11 @@ export default function Navbar() {
         <div className="md:hidden bg-white shadow-lg rounded-lg mx-3 mt-2 overflow-hidden">
           <div className="py-3">
             <Link
-              href="/dashboard"
+              href="/"
               className="block px-5 py-4 text-blue-700 hover:bg-blue-50 border-b border-gray-100 text-lg font-medium"
               onClick={() => setIsMenuOpen(false)}
             >
-              Dashboard
+              Home
             </Link>
             <Link
               href="/about"
@@ -122,11 +122,17 @@ export default function Navbar() {
             </Link>
             <Link
               href="/#MobileBookingForm"
-              className="block px-5 py-4 text-blue-700 hover:bg-blue-50 text-lg font-medium"
+              className="block px-5 py-4 text-blue-700 hover:bg-blue-50 text-lg border-b border-gray-100 font-medium"
               onClick={() => setIsMenuOpen(false)}
             >
               Book Us
             </Link>
+            <Link
+                href="/signup"
+                className="block bg-blue-700 text-white px-5 py-4 font-majer font-normal text-lg hover:bg-mint-green transition-colors"
+              >
+                Account
+              </Link>
           </div>
         </div>
       )}

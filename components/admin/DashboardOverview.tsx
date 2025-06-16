@@ -56,7 +56,7 @@ const DashboardOverview: React.FC = () => {
     <div className="flex flex-col min-h-screen bg-bg-light">
       <div className="flex flex-1 overflow-hidden">
         {/* Main Content */}
-        <div className="flex-1 overflow-y-auto px-2 bg-sky-50">
+        <div className="flex-1 overflow-y-auto bg-sky-50">
           {/* Header */}
           <div className="bg-gradient-to-r from-[#538FDF] to-[#171AD4] text-white p-6 rounded-lg mb-6">
             <h1 className="text-2xl font-normal mb-4 text-center font-majer">

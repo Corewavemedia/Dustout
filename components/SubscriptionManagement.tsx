@@ -5,7 +5,7 @@ import { SubscriptionDashboard } from './SubscriptionDashboard';
 
 const SubscriptionManagement = () => {
   return (
-    <div className="bg-white rounded-lg shadow-sm">
+    <div className="rounded-lg shadow-sm">
       <SubscriptionDashboard />
     </div>
   );

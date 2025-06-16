@@ -12,14 +12,17 @@ export default function PaymentStatus({ onClose }: PaymentStatusProps) {
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<'success' | 'cancelled' | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [orderId, setOrderId] = useState<string | null>(null);
 
   useEffect(() => {
     const paymentStatus = searchParams.get('payment');
     const stripeSessionId = searchParams.get('session_id');
+    const bookingOrderId = searchParams.get('order_id');
     
     if (paymentStatus === 'success') {
       setStatus('success');
       setSessionId(stripeSessionId);
+      setOrderId(bookingOrderId);
     } else if (paymentStatus === 'cancelled') {
       setStatus('cancelled');
     }
@@ -40,8 +43,13 @@ export default function PaymentStatus({ onClose }: PaymentStatusProps) {
               Thank you for your booking! Your payment has been processed successfully.
               You will receive a confirmation email shortly with all the details.
             </p>
+            {orderId && (
+              <p className="text-sm text-gray-500 mb-2 break-words">
+                Order ID: {orderId}
+              </p>
+            )}
             {sessionId && (
-              <p className="text-sm text-gray-500 mb-6">
+              <p className="text-sm text-gray-500 mb-6 break-words">
                 Transaction ID: {sessionId}
               </p>
             )}

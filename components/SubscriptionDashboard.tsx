@@ -63,7 +63,7 @@ export function SubscriptionDashboard() {
   const [success, setSuccess] = useState<string | null>(null);
   const [showPlanChange, setShowPlanChange] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
-  const [selectedView, setSelectedView] = useState<'all' | 'active' | 'cancelling' | 'pending' | 'cancelled'>('all');
+  const [selectedView, setSelectedView] = useState<'all' | 'active' | 'cancelling' | 'pending' | 'cancelled'>('active');
 
   useEffect(() => {
     fetchSubscriptionData();
@@ -504,9 +504,9 @@ export function SubscriptionDashboard() {
   );
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
+    <div className="max-w-4xl mx-auto py-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Subscription Dashboard</h1>
+        
       </div>
 
       {/* Success Message */}
@@ -628,7 +628,6 @@ export function SubscriptionDashboard() {
       {/* Cancelled Subscriptions */}
       {subscriptionData?.cancelledSubscriptions && subscriptionData.cancelledSubscriptions.length > 0 && (selectedView === 'all' || selectedView === 'cancelled') && (
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold">Cancelled Subscriptions</h2>
           {subscriptionData.cancelledSubscriptions.slice(0, 3).map((subscription) => (
             <div key={subscription.id}>
               {renderSubscriptionCard(

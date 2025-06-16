@@ -86,14 +86,15 @@ export const MobileBookingForm = () => {
               <div>
                 <label htmlFor="mobileFullName" className="block text-blue-500 text-sm font-majer mb-1 font-medium">Full Name *</label>
                 <input
-                  type="text"
-                  id="mobileFullName"
-                  name="fullName"
-                  value={formData.fullName}
-                  onChange={handleChange}
-                  className="w-full p-3 rounded-md bg-blue-500 text-white placeholder-blue-200 focus:outline-none"
-                  required
-                />
+                    type="text"
+                    id="mobileFullName"
+                    name="fullName"
+                    value={formData.fullName}
+                    onChange={handleChange}
+                    className="w-full p-3 rounded-md bg-blue-500 text-white placeholder-blue-200 focus:outline-none"
+                    placeholder="Enter your full name"
+                    required
+                  />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -106,6 +107,7 @@ export const MobileBookingForm = () => {
                     value={formData.phone}
                     onChange={handleChange}
                     className="w-full p-3 rounded-md bg-blue-500 text-white placeholder-blue-200 focus:outline-none"
+                    placeholder="0000 000 0000"
                     required
                   />
                 </div>
@@ -118,6 +120,7 @@ export const MobileBookingForm = () => {
                     value={formData.email}
                     onChange={handleChange}
                     className="w-full p-3 rounded-md bg-blue-500 text-white placeholder-blue-200 focus:outline-none"
+                    placeholder="Enter your email address"
                     required
                   />
                 </div>
@@ -126,14 +129,15 @@ export const MobileBookingForm = () => {
               <div>
                 <label htmlFor="mobileServiceAddress" className="block text-blue-500 font-majer text-sm mb-1 font-medium">Service Address *</label>
                 <input
-                  type="text"
-                  id="mobileServiceAddress"
-                  name="serviceAddress"
-                  value={formData.serviceAddress}
-                  onChange={handleChange}
-                  className="w-full p-3 rounded-md bg-blue-500 text-white placeholder-blue-200 focus:outline-none"
-                  required
-                />
+                    type="text"
+                    id="mobileServiceAddress"
+                    name="serviceAddress"
+                    value={formData.serviceAddress}
+                    onChange={handleChange}
+                    className="w-full p-3 rounded-md bg-blue-500 text-white placeholder-blue-200 focus:outline-none"
+                    placeholder="Enter your service address"
+                    required
+                  />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -146,6 +150,7 @@ export const MobileBookingForm = () => {
                     value={formData.cityState}
                     onChange={handleChange}
                     className="w-full p-3 rounded-md bg-blue-500 text-white placeholder-blue-200 focus:outline-none"
+                    placeholder="Enter city/state"
                   />
                 </div>
                 <div>
@@ -157,6 +162,7 @@ export const MobileBookingForm = () => {
                     value={formData.postCode}
                     onChange={handleChange}
                     className="w-full p-3 rounded-md bg-blue-500 text-white placeholder-blue-200 focus:outline-none"
+                    placeholder="Enter postal code"
                   />
                 </div>
               </div>
@@ -164,13 +170,14 @@ export const MobileBookingForm = () => {
               <div>
                 <label htmlFor="mobileLandmark" className="block text-blue-500 font-majer text-sm mb-1 font-medium">Landmark or Special Directions</label>
                 <input
-                  type="text"
-                  id="mobileLandmark"
-                  name="landmark"
-                  value={formData.landmark}
-                  onChange={handleChange}
-                  className="w-full p-3 rounded-md bg-blue-500 text-white placeholder-blue-200 focus:outline-none"
-                />
+                    type="text"
+                    id="mobileLandmark"
+                    name="landmark"
+                    value={formData.landmark}
+                    onChange={handleChange}
+                    className="w-full p-3 rounded-md bg-blue-500 text-white placeholder-blue-200 focus:outline-none"
+                    placeholder="Enter nearby landmark (optional)"
+                  />
               </div>
 
               {submitMessage && submitMessage.includes("successfully") && (
@@ -272,27 +279,28 @@ export const MobileBookingForm = () => {
                           {variable.name} (${variable.unitPrice} per unit)
                         </label>
                         <input
-                          type="number"
-                          min="1"
-                          value={(() => {
-                            const quantity = selectedService.variables.find(v => v.variableId === variable.id)?.quantity;
-                            return quantity ? quantity.toString() : '';
-                          })()}
-                          onChange={(e) => {
-                            const value = e.target.value;
-                            if (value === '') {
-                              updateServiceQuantity(selectedService.serviceId, variable.id, 0);
-                            } else {
-                              const quantity = parseInt(value, 10);
-                              if (!isNaN(quantity) && quantity >= 0) {
-                                updateServiceQuantity(selectedService.serviceId, variable.id, quantity);
+                            type="number"
+                            min="1"
+                            value={(() => {
+                              const quantity = selectedService.variables.find(v => v.variableId === variable.id)?.quantity;
+                              return quantity ? quantity.toString() : '';
+                            })()}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              if (value === '') {
+                                updateServiceQuantity(selectedService.serviceId, variable.id, 0);
+                              } else {
+                                const quantity = parseInt(value, 10);
+                                if (!isNaN(quantity) && quantity >= 0) {
+                                  updateServiceQuantity(selectedService.serviceId, variable.id, quantity);
+                                }
                               }
-                            }
-                          }}
-                          
-                          placeholder="Enter quantity"
-                          className="w-full p-2 rounded-md bg-blue-500 text-white placeholder-blue-200 focus:outline-none text-sm"
-                        />
+                            }}
+                            
+                            placeholder="Enter quantity"
+                            className="w-full p-2 rounded-md bg-blue-500 text-white placeholder-blue-200 focus:outline-none text-sm"
+                            required
+                          />
                         <div className="text-blue-400 text-xs">
                           Subtotal: ${((selectedService.variables.find(v => v.variableId === variable.id)?.quantity || 1) * variable.unitPrice).toFixed(2)}
                         </div>
@@ -321,6 +329,7 @@ export const MobileBookingForm = () => {
                     value={formData.startTime}
                     onChange={handleChange}
                     className="w-full p-3 rounded-md bg-blue-500 text-white focus:outline-none"
+                    required
                   >
                     <option value="">Select start time</option>
                     <option value="6:00 AM">6:00 AM</option>
@@ -344,6 +353,7 @@ export const MobileBookingForm = () => {
                     value={formData.endTime}
                     onChange={handleChange}
                     className="w-full p-3 rounded-md bg-blue-500 text-white focus:outline-none"
+                    required
                   >
                     <option value="">Select end time</option>
                     <option value="8:00 AM">8:00 AM</option>
@@ -397,6 +407,7 @@ export const MobileBookingForm = () => {
                   onChange={handleChange}
                   rows={3}
                   className="w-full p-3 rounded-md bg-blue-500 text-white placeholder-blue-200 focus:outline-none resize-none"
+                  placeholder="Enter any special instructions or notes"
                 ></textarea>
               </div>
 

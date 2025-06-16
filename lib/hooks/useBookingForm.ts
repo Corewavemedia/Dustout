@@ -253,6 +253,56 @@ export const useBookingForm = (user?: User | null) => {
   };
 
   const nextStep = () => {
+    // Validate required fields based on current step before proceeding
+    if (currentStep === 1) {
+      // Step 1: Validate personal and address information
+      if (
+        !formData.fullName.trim() ||
+        !formData.phone.trim() ||
+        !formData.email.trim() ||
+        !formData.serviceAddress.trim()
+      ) {
+        alert('Please fill in all required fields marked with *');
+        return;
+      }
+    } else if (currentStep === 2) {
+      // Step 2: Validate service selection, frequency, and schedule
+      if (formData.selectedServices.length === 0) {
+        alert('Please select at least one service');
+        return;
+      }
+      
+      if (!formData.serviceFrequency) {
+        alert('Please select a service frequency');
+        return;
+      }
+      
+      // Check if all selected services have quantities for their variables
+      let missingQuantities = false;
+      formData.selectedServices.forEach(service => {
+        const serviceObj = services.find(s => s.id === service.serviceId);
+        if (serviceObj && serviceObj.variables.length > 0) {
+          serviceObj.variables.forEach(variable => {
+            const selectedVariable = service.variables.find(v => v.variableId === variable.id);
+            if (!selectedVariable || selectedVariable.quantity <= 0) {
+              missingQuantities = true;
+            }
+          });
+        }
+      });
+      
+      if (missingQuantities) {
+        alert('Please enter quantities for all service variables');
+        return;
+      }
+      
+      if (!formData.preferredDate || !formData.startTime || !formData.endTime) {
+        alert('Please select your preferred date and time');
+        return;
+      }
+    }
+    
+    // If validation passes, proceed to next step
     setCurrentStep((prev) => prev + 1);
   };
 

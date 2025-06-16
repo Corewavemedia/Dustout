@@ -155,7 +155,7 @@ function DashboardContent() {
       {/* Main Content */}
       <main className="relative z-10 px-4 pt-32 md:pt-48 md:px-8 lg:pt-32 lg:px-24 max-w-7xl mx-auto">
         {/* Welcome Section */}
-        <div className="relative mb-6">
+        <div className="relative mb-16">
           {/* Background Green Card */}
           <div className="absolute inset-0 bg-green-500 rounded-2xl transform -rotate-6 md:-rotate-2 translate-x-2 translate-y-2"></div>
 
@@ -215,34 +215,7 @@ function DashboardContent() {
           </div>
         </div>
 
-        {/* Services Section */}
-        <div className="mb-8 px-4">
-          <div className="pt-10 md:pt-20">
-            <h2 className="text-lg font-semibold text-[#12B368] font-majer text-center mb-4 md:text-xl">
-              What services do you need today?
-            </h2>
-          </div>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-            {services.map((service) => {
-              const IconComponent = service.icon;
-              return (
-                <div
-                  key={service.id}
-                  className="bg-blue-500 border-2 border-dashed border-white rounded-2xl p-6 text-white text-center hover:bg-blue-600 transition-colors cursor-pointer shadow-lg hover:shadow-xl transform hover:scale-105 transition-transform"
-                >
-                  <div className="flex justify-center mb-3">
-                    <div className="w-12 h-12 flex items-center justify-center md:w-16 md:h-16">
-                      <IconComponent />
-                    </div>
-                  </div>
-                  <h3 className="text-sm font-medium leading-tight md:text-base">
-                    {service.title}
-                  </h3>
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        
 
         {/* Subscription Success Message */}
         {subscriptionSuccess && (
@@ -278,10 +251,10 @@ function DashboardContent() {
 
         {/* Subscription Management */}
         {showSubscription && (
-          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100 mb-8">
+          <div className="rounded-lg p-6 shadow-sm border border-gray-100 mb-8">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-[#538FDF] md:text-xl">
-                Subscription Management
+                Subscription History
               </h2>
               <button 
                 onClick={() => setShowSubscription(false)}

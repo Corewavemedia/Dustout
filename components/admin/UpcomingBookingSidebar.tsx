@@ -48,7 +48,7 @@ const UpcomingBookingSidebar = ({ refreshTrigger = 0 }: UpcomingBookingSidebarPr
   }, [refreshTrigger]); // Refetch when refreshTrigger changes
   return (
     <>
-        <div className="w-80 bg-white py-4 overflow-y-auto border-l">
+        <div className="w-80 bg-white py-4 overflow-y-auto border-l hidden md:block">
           {/* Upcoming Bookings */}
           <div className="mb-6 bg-white p-4 rounded-xl shadow-sm">
             <div className="flex items-center mb-4">

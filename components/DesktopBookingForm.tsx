@@ -171,14 +171,15 @@ export const DesktopBookingForm = () => {
                             Full Name *
                           </label>
                           <input
-                            type="text"
-                            id="fullName"
-                            name="fullName"
-                            value={formData.fullName}
-                            onChange={handleChange}
-                            className="w-full p-3 rounded-md focus:outline-none"
-                            required
-                          />
+                    type="text"
+                    id="fullName"
+                    name="fullName"
+                    value={formData.fullName}
+                    onChange={handleChange}
+                    className="w-full p-3 rounded-md focus:outline-none"
+                    placeholder="Enter your full name"
+                    required
+                  />
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
@@ -190,14 +191,15 @@ export const DesktopBookingForm = () => {
                               Phone Number *
                             </label>
                             <input
-                              type="tel"
-                              id="phone"
-                              name="phone"
-                              value={formData.phone}
-                              onChange={handleChange}
-                              className="w-full p-3 rounded-md focus:outline-none"
-                              required
-                            />
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    className="w-full p-3 rounded-md focus:outline-none"
+                    placeholder="Enter your phone number"
+                    required
+                  />
                           </div>
                           <div>
                             <label
@@ -207,14 +209,15 @@ export const DesktopBookingForm = () => {
                               Email Address *
                             </label>
                             <input
-                              type="email"
-                              id="email"
-                              name="email"
-                              value={formData.email}
-                              onChange={handleChange}
-                              className="w-full p-3 rounded-md focus:outline-none"
-                              required
-                            />
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="w-full p-3 rounded-md focus:outline-none"
+                    placeholder="Enter your email address"
+                    required
+                  />
                           </div>
                         </div>
 
@@ -226,14 +229,15 @@ export const DesktopBookingForm = () => {
                             Service Address *
                           </label>
                           <input
-                            type="text"
-                            id="serviceAddress"
-                            name="serviceAddress"
-                            value={formData.serviceAddress}
-                            onChange={handleChange}
-                            className="w-full p-3 rounded-md focus:outline-none"
-                            required
-                          />
+                    type="text"
+                    id="serviceAddress"
+                    name="serviceAddress"
+                    value={formData.serviceAddress}
+                    onChange={handleChange}
+                    className="w-full p-3 rounded-md focus:outline-none"
+                    placeholder="Enter your service address"
+                    required
+                  />
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
@@ -245,13 +249,14 @@ export const DesktopBookingForm = () => {
                               City/State
                             </label>
                             <input
-                              type="text"
-                              id="cityState"
-                              name="cityState"
-                              value={formData.cityState}
-                              onChange={handleChange}
-                              className="w-full p-3 rounded-md focus:outline-none"
-                            />
+                    type="text"
+                    id="cityState"
+                    name="cityState"
+                    value={formData.cityState}
+                    onChange={handleChange}
+                    className="w-full p-3 rounded-md focus:outline-none"
+                    placeholder="Enter city and state"
+                  />
                           </div>
                           <div>
                             <label
@@ -261,13 +266,14 @@ export const DesktopBookingForm = () => {
                               Post Code
                             </label>
                             <input
-                              type="text"
-                              id="postCode"
-                              name="postCode"
-                              value={formData.postCode}
-                              onChange={handleChange}
-                              className="w-full p-3 rounded-md focus:outline-none"
-                            />
+                    type="text"
+                    id="postCode"
+                    name="postCode"
+                    value={formData.postCode}
+                    onChange={handleChange}
+                    className="w-full p-3 rounded-md focus:outline-none"
+                    placeholder="Enter postal code"
+                  />
                           </div>
                         </div>
 
@@ -279,13 +285,14 @@ export const DesktopBookingForm = () => {
                             Landmark or Special Directions
                           </label>
                           <input
-                            type="text"
-                            id="landmark"
-                            name="landmark"
-                            value={formData.landmark}
-                            onChange={handleChange}
-                            className="w-full p-3 rounded-md focus:outline-none"
-                          />
+                    type="text"
+                    id="landmark"
+                    name="landmark"
+                    value={formData.landmark}
+                    onChange={handleChange}
+                    className="w-full p-3 rounded-md focus:outline-none"
+                    placeholder="Enter nearby landmark (optional)"
+                  />
                         </div>
 
                         {submitMessage &&
@@ -458,38 +465,39 @@ export const DesktopBookingForm = () => {
                                             {variable.unitPrice} per unit)
                                           </label>
                                           <input
-                                            type="number"
-                                            min="1"
-                                            onWheel={(e) => {
-                                              e.preventDefault()
-                                              e.currentTarget.blur();
-                                            }}
-                                            value={(() => {
-                                              const quantity = selectedService.variables.find(v => v.variableId === variable.id)?.quantity;
-                                              return quantity ? quantity.toString() : '';
-                                            })()}
-                                            onChange={(e) => {
-                                              const value = e.target.value;
-                                              if (value === '') {
-                                                updateServiceQuantity(
-                                                  selectedService.serviceId,
-                                                  variable.id,
-                                                  0
-                                                );
-                                              } else {
-                                                const quantity = parseInt(value, 10);
-                                                if (!isNaN(quantity) && quantity >= 0) {
-                                                  updateServiceQuantity(
-                                                    selectedService.serviceId,
-                                                    variable.id,
-                                                    quantity
-                                                  );
-                                                }
-                                              }
-                                            }}
-                                            placeholder="Enter quantity"
-                                            className="w-full p-2 rounded-md focus:outline-none text-sm"
-                                          />
+                            type="number"
+                            min="1"
+                            onWheel={(e) => {
+                              e.preventDefault()
+                              e.currentTarget.blur();
+                            }}
+                            value={(() => {
+                              const quantity = selectedService.variables.find(v => v.variableId === variable.id)?.quantity;
+                              return quantity ? quantity.toString() : '';
+                            })()}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              if (value === '') {
+                                updateServiceQuantity(
+                                  selectedService.serviceId,
+                                  variable.id,
+                                  0
+                                );
+                              } else {
+                                const quantity = parseInt(value, 10);
+                                if (!isNaN(quantity) && quantity >= 0) {
+                                  updateServiceQuantity(
+                                    selectedService.serviceId,
+                                    variable.id,
+                                    quantity
+                                  );
+                                }
+                              }
+                            }}
+                            placeholder="Enter quantity"
+                            className="w-full p-2 rounded-md focus:outline-none text-sm"
+                            required
+                          />
                                           <div className="text-white text-xs">
                                             Subtotal: $
                                             {(
@@ -539,6 +547,7 @@ export const DesktopBookingForm = () => {
                               value={formData.startTime}
                               onChange={handleChange}
                               className="w-full p-3 rounded-md focus:outline-none"
+                              required
                             >
                               <option value="">Select start time</option>
                               <option value="6:00 AM">6:00 AM</option>
@@ -568,6 +577,7 @@ export const DesktopBookingForm = () => {
                               value={formData.endTime}
                               onChange={handleChange}
                               className="w-full p-3 rounded-md focus:outline-none"
+                              required
                             >
                               <option value="">Select end time</option>
                               <option value="8:00 AM">8:00 AM</option>
@@ -628,6 +638,7 @@ export const DesktopBookingForm = () => {
                             onChange={handleChange}
                             rows={3}
                             className="w-full p-3 rounded-md focus:outline-none resize-none"
+                            placeholder="Enter any special instructions or notes"
                           ></textarea>
                         </div>
 
@@ -655,7 +666,7 @@ export const DesktopBookingForm = () => {
                           <button
                             type="button"
                             onClick={nextStep}
-                            disabled={formData.selectedServices.length === 0}
+                            
                             className="w-full bg-blue-800 hover:bg-blue-900 disabled:bg-blue-600 disabled:cursor-not-allowed text-white font-majer text-xl font-normal py-3 px-4 rounded-md transition duration-300 flex items-center justify-center"
                           >
                             Next

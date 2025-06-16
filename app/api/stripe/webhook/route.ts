@@ -293,7 +293,7 @@ async function handleBookingPayment(session: Stripe.Checkout.Session) {
           // Don't fail the webhook if email fails
         }
         
-        // Clean up temporary booking data (do this outside email try-catch)
+        // Clean up temporary booking data 
         try {
           await prisma.tempBookingData.delete({
             where: { referenceId: bookingReferenceId }
