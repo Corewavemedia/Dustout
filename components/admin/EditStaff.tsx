@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import UpcomingBookingSidebar from "./UpcomingBookingSidebar";
 
 interface EditStaffViewProps {
@@ -213,9 +214,11 @@ export const EditStaff: React.FC<EditStaffViewProps> = ({
             {/* Profile Picture */}
             <div className="relative w-24 h-24 mr-8">
               {imagePreview ? (
-                <img
+                <Image
                   src={imagePreview}
                   alt="Staff Profile"
+                  width={96}
+                  height={96}
                   className="w-24 h-24 rounded-lg object-cover"
                 />
               ) : (

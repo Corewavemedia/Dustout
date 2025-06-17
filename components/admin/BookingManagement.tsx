@@ -219,42 +219,14 @@ const BookingManagement: React.FC = () => {
           setMessage({ type: 'error', text: result.error || 'Failed to assign staff' });
         }
       } else {
-        // Creating new booking
-        const response = await fetch('/api/admin/bookings', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(formData),
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
-          toast.success(`Booking created successfully! Estimated price: $${result.estimatedPrice?.toFixed(2) || '0.00'}`);          
-          setMessage({ type: 'success', text: `Booking created successfully! Estimated price: $${result.estimatedPrice?.toFixed(2) || '0.00'}` });
-          // Reset form
-          setFormData({
-            firstName: "",
-            lastName: "",
-            email: "",
-            phone: "",
-            staffAssigned: "",
-            date: "",
-            startingTime: "",
-            endingTime: "",
-            services: "",
-            specialNote: "",
-          });
-          // Trigger a refresh instead of reloading the page
-          setRefreshTrigger(prev => prev + 1);
-        } else {
-          setMessage({ type: 'error', text: result.error || 'Failed to create booking' });
-        }
+        // Prevent new booking creation
+        setMessage({ type: 'error', text: 'Please select a booking from the history to assign staff.' });
+        setIsLoading(false);
+        return;
       }
     } catch (error) {
       console.error('Error submitting form:', error);
-      setMessage({ type: 'error', text: 'An error occurred while creating the booking' });
+      setMessage({ type: 'error', text: 'An error occurred while assigning staff' });
     } finally {
       setIsLoading(false);
     }
@@ -288,7 +260,7 @@ const BookingManagement: React.FC = () => {
           <div className="bg-gradient-to-r from-[#538FDF] to-[#171AD4] text-white p-6 rounded-lg mb-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-majer font-normal text-center flex-1">
-                {isUpdating ? 'Assign Staff to Booking' : 'Schedule Cleaning'}
+                {isUpdating ? 'Assign Staff to Booking' : 'Schedule Booking'}
               </h2>
               {isUpdating && (
                 <button
@@ -300,6 +272,21 @@ const BookingManagement: React.FC = () => {
                 </button>
               )}
             </div>
+            
+            {/* Directive Message */}
+            {!isUpdating && (
+              <div className="mb-4 p-4 bg-yellow-100 text-yellow-800 border border-yellow-300 rounded-lg">
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  <div>
+                    <p className="font-semibold">Staff Assignment Mode</p>
+                    <p className="text-sm">To assign staff to a booking, please click on a booking from the Booking History below. New bookings cannot be created from this interface.</p>
+                  </div>
+                </div>
+              </div>
+            )}
             
             {/* Success/Error Message */}
             {message && (
@@ -323,7 +310,8 @@ const BookingManagement: React.FC = () => {
                     name="firstName"
                     value={formData.firstName}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    disabled={!isUpdating}
+                    className="w-full px-4 py-2 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:bg-gray-100 disabled:cursor-not-allowed"
                   />
                 </div>
                 <div className="relative">
@@ -334,7 +322,8 @@ const BookingManagement: React.FC = () => {
                     name="lastName"
                     value={formData.lastName}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    disabled={!isUpdating}
+                    className="w-full px-4 py-2 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:bg-gray-100 disabled:cursor-not-allowed"
                   />
                 </div>
               </div>
@@ -349,7 +338,8 @@ const BookingManagement: React.FC = () => {
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    disabled={!isUpdating}
+                    className="w-full px-4 py-2 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:bg-gray-100 disabled:cursor-not-allowed"
                   />
                 </div>
                 <div className="relative">
@@ -360,7 +350,8 @@ const BookingManagement: React.FC = () => {
                     name="phone"
                     value={formData.phone}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    disabled={!isUpdating}
+                    className="w-full px-4 py-2 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:bg-gray-100 disabled:cursor-not-allowed"
                   />
                 </div>
                 <div className="relative">
@@ -370,7 +361,8 @@ const BookingManagement: React.FC = () => {
                     name="staffAssigned"
                     value={formData.staffAssigned}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    disabled={!isUpdating}
+                    className="w-full px-4 py-2 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:bg-gray-100 disabled:cursor-not-allowed"
                   >
                     <option value="">Select Staff</option>
                     {staff.map((staffMember) => (
@@ -392,7 +384,8 @@ const BookingManagement: React.FC = () => {
                     name="date"
                     value={formData.date}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    disabled={!isUpdating}
+                    className="w-full px-4 py-2 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:bg-gray-100 disabled:cursor-not-allowed"
                   />
                 </div>
                 <div className="relative">
@@ -403,7 +396,8 @@ const BookingManagement: React.FC = () => {
                     name="startingTime"
                     value={formData.startingTime}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    disabled={!isUpdating}
+                    className="w-full px-4 py-2 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:bg-gray-100 disabled:cursor-not-allowed"
                   />
                 </div>
                 <div className="relative">
@@ -414,7 +408,8 @@ const BookingManagement: React.FC = () => {
                     name="endingTime"
                     value={formData.endingTime}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    disabled={!isUpdating}
+                    className="w-full px-4 py-2 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:bg-gray-100 disabled:cursor-not-allowed"
                   />
                 </div>
               </div>
@@ -428,7 +423,8 @@ const BookingManagement: React.FC = () => {
                     name="services"
                     value={formData.services}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    disabled={!isUpdating}
+                    className="w-full px-4 py-2 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:bg-gray-100 disabled:cursor-not-allowed"
                   >
                     <option value="">Select Service</option>
                     {dbServices.length > 0 ? (
@@ -454,7 +450,8 @@ const BookingManagement: React.FC = () => {
                     name="specialNote"
                     value={formData.specialNote}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    disabled={!isUpdating}
+                    className="w-full px-4 py-2 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:bg-gray-100 disabled:cursor-not-allowed"
                   />
                 </div>
               </div>
@@ -462,12 +459,12 @@ const BookingManagement: React.FC = () => {
               {/* Submit Button */}
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={isLoading || !isUpdating}
                 className="w-full bg-[#12B368] text-white py-3 rounded-lg font-majer hover:bg-green-600 transition-colors mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading 
-                  ? (isUpdating ? 'Assigning Staff...' : 'Creating Booking...') 
-                  : (isUpdating ? 'Assign Staff' : 'Schedule Cleaning')
+                  ? 'Assigning Staff...' 
+                  : (isUpdating ? 'Assign Staff' : 'Select a Booking to Assign Staff')
                 }
               </button>
             </form>

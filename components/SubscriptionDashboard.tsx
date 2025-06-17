@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { 
   Package, 
@@ -84,7 +84,7 @@ export function SubscriptionDashboard() {
     }
   }, []);
 
-  const fetchSubscriptionData = async () => {
+  const fetchSubscriptionData = useCallback(async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       
@@ -125,7 +125,7 @@ export function SubscriptionDashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [setError, setLoading, setSubscriptionData]);
 
   const fetchSubscriptionPlans = async () => {
     try {
@@ -211,7 +211,7 @@ export function SubscriptionDashboard() {
   //   }
   // };
 
-  const retryPlanChange = async (planId: string) => {
+  const retryPlanChange = useCallback(async (planId: string) => {
     // Find the plan by ID
     const targetPlan = subscriptionPlans.find(plan => plan.id === planId);
     if (!targetPlan) {
@@ -266,7 +266,7 @@ export function SubscriptionDashboard() {
     } finally {
       setActionLoading(null);
     }
-  };
+  }, [subscriptionPlans, setError, setActionLoading, setSuccess, fetchSubscriptionData]);
 
   const handlePlanChange = async (newPlan: SubscriptionPlan) => {
     const currentSubscription = subscriptionData?.activeSubscription || subscriptionData?.cancellingSubscription;

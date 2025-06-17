@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import { sendBookingConfirmationEmail, sendSchedulingConfirmationEmail } from '@/lib/email';
 
 const prisma = new PrismaClient();
 
@@ -193,6 +194,35 @@ export async function POST(request: NextRequest) {
       return newBooking;
     });
 
+    // Send booking confirmation email to customer
+    try {
+      // Prepare services data for email
+      const servicesForEmail = [{
+        serviceName: service.name,
+        selectedVariables: service.variables.length > 0 ? [{
+          variableName: service.variables[0].name,
+          variableValue: `1 x ${service.variables[0].name}`,
+        }] : [],
+      }];
+
+      console.log('Attempting to send booking confirmation email to:', email);
+      const emailResult = await sendBookingConfirmationEmail({
+        to: email,
+        customerName: `${firstName} ${lastName}`,
+        bookingId: booking.id,
+        services: servicesForEmail,
+        preferredDate: date,
+        preferredTime: `${startingTime} - ${endingTime}`,
+        totalAmount: estimatedPrice,
+        address: 'To be specified', // Default value since not in form
+      });
+      console.log('Booking confirmation email sent successfully:', emailResult);
+    } catch (emailError) {
+      console.error('Error sending booking confirmation email:', emailError);
+      console.error('Email error details:', JSON.stringify(emailError, null, 2));
+      // Don't fail the API call if email fails
+    }
+
     return NextResponse.json(
       { 
         message: 'Booking created successfully',
@@ -268,9 +298,76 @@ export async function PUT(request: NextRequest) {
             lastName: true,
             role: true
           }
+        },
+        services: {
+          include: {
+            service: true,
+          },
+        },
+        user: {
+          select: {
+            email: true,
+            fullname: true
+          }
         }
       }
     });
+
+    // Send scheduling confirmation email if staff is assigned
+    if (staffId && updatedBooking.staff) {
+      try {
+        // Get the booking details for the email
+        const bookingDetails = await prisma.booking.findUnique({
+          where: { id: bookingId },
+          include: {
+            services: {
+              include: {
+                service: true,
+              },
+            },
+          },
+        });
+
+        if (bookingDetails) {
+          // Prepare services data for email
+          const servicesForEmail = bookingDetails.services.map(bs => ({
+            serviceName: bs.serviceName,
+            selectedVariables: [{
+              variableName: bs.variableName,
+              variableValue: bs.variableValue,
+            }],
+          }));
+
+          // Extract date and time from preferredDate and preferredTime
+          const scheduledDate = bookingDetails.preferredDate ? bookingDetails.preferredDate.toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+          const scheduledTime = bookingDetails.preferredTime || 'TBD';
+          const customerName = updatedBooking.user.fullname || 'Customer';
+          const customerEmail = updatedBooking.user.email;
+          
+          // Only send email if we have a valid email address
+          if (customerEmail) {
+            console.log('Attempting to send scheduling confirmation email to:', customerEmail);
+            const emailResult = await sendSchedulingConfirmationEmail({
+              to: customerEmail,
+              customerName: customerName,
+              bookingId: bookingId,
+              scheduledDate: scheduledDate,
+              scheduledTime: scheduledTime,
+              assignedStaff: `${updatedBooking.staff.firstName} ${updatedBooking.staff.lastName}`,
+              services: servicesForEmail,
+              address: `${bookingDetails.address || 'To be specified'}`,
+            });
+            console.log('Scheduling confirmation email sent successfully:', emailResult);
+          } else {
+             console.log('No email address available for customer, skipping email notification');
+           }
+        }
+      } catch (emailError) {
+        console.error('Error sending scheduling confirmation email:', emailError);
+        console.error('Email error details:', JSON.stringify(emailError, null, 2));
+        // Don't fail the API call if email fails
+      }
+    }
 
     return NextResponse.json({
       message: 'Booking updated successfully',

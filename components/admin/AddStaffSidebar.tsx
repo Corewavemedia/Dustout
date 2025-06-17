@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 
 interface Service {
   id: string;
@@ -162,9 +163,11 @@ export const AddStaffSidebar: React.FC<AddStaffSidebarProps> = ({ onStaffAdded }
             <div className="mb-6">
               <div className="relative w-24 h-24 mx-auto mb-4">
                 {imagePreview ? (
-                  <img
+                  <Image
                     src={imagePreview}
                     alt="Staff Preview"
+                    width={96}
+                    height={96}
                     className="w-24 h-24 rounded-lg object-cover"
                   />
                 ) : (

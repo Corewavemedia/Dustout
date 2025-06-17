@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { ChevronRightIcon, ArrowLeftOnRectangleIcon, EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
@@ -52,37 +52,8 @@ const EditProfile = () => {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Redirect to signin if not authenticated
-  useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/signin');
-    }
-  }, [user, authLoading, router]);
-  
-  // Fetch user settings on component mount
-  useEffect(() => {
-    if (user && token) {
-      fetchUserSettings();
-    }
-  }, [user, token]);
-  
-  // Check for payment method update success
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('payment_method') === 'updated') {
-      toast.success('Payment method updated successfully!');
-      fetchUserSettings(); // Refresh data
-      // Clean up URL
-      window.history.replaceState({}, '', '/settings');
-    } else if (urlParams.get('payment_method') === 'cancelled') {
-      toast.error('Payment method update was cancelled.');
-      // Clean up URL
-      window.history.replaceState({}, '', '/settings');
-    }
-  }, []);
-
   // API Functions
-  const fetchUserSettings = async () => {
+  const fetchUserSettings = useCallback(async () => {
     try {
       const response = await fetch('/api/user/settings', {
         headers: {
@@ -100,7 +71,36 @@ const EditProfile = () => {
       console.error('Error fetching user settings:', error);
       toast.error('Failed to load user settings');
     }
-  };
+  }, [token, setUserSettings]);
+
+  // Redirect to signin if not authenticated
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push('/signin');
+    }
+  }, [user, authLoading, router]);
+  
+  // Fetch user settings on component mount
+  useEffect(() => {
+    if (user && token) {
+      fetchUserSettings();
+    }
+  }, [user, token, fetchUserSettings]);
+  
+  // Check for payment method update success
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('payment_method') === 'updated') {
+      toast.success('Payment method updated successfully!');
+      fetchUserSettings(); // Refresh data
+      // Clean up URL
+      window.history.replaceState({}, '', '/settings');
+    } else if (urlParams.get('payment_method') === 'cancelled') {
+      toast.error('Payment method update was cancelled.');
+      // Clean up URL
+      window.history.replaceState({}, '', '/settings');
+    }
+  }, [fetchUserSettings]);
   
   const updateUsername = async () => {
     if (!newUsername.trim()) {
