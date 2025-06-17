@@ -116,24 +116,24 @@ const SubscriptionPlansList: React.FC<SubscriptionPlansListProps> = ({
     <div className="bg-white rounded-lg shadow-sm overflow-hidden">
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+          <thead className="bg-[#538FDF] text-white font-majer font-normal">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-sm font-medium">
                 ID
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-sm font-medium">
                 Subscription Type
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-sm font-medium">
                 Subscription Name
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-sm font-medium">
                 Subscription Price
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-sm font-medium">
                 Subscription Features
               </th>
-              <th className="px-6 py-3 text-left text-xs hidden md:block font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-sm hidden md:block font-medium">
                 Actions
               </th>
             </tr>
@@ -148,7 +148,7 @@ const SubscriptionPlansList: React.FC<SubscriptionPlansListProps> = ({
             ) : (
               filteredPlans.map((plan) => (
                 <tr key={plan.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-[#538FDF] font-majer">
                     {plan.id.substring(0, 8)}...
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -160,13 +160,13 @@ const SubscriptionPlansList: React.FC<SubscriptionPlansListProps> = ({
                       {plan.type.charAt(0).toUpperCase() + plan.type.slice(1)}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-[#538FDF] font-majer">
                     {plan.name}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-[#538FDF] font-majer">
                     ${plan.price.toFixed(2)}/month
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-900 max-w-xs">
+                  <td className="px-6 py-4 text-sm text-[#538FDF] font-majer max-w-xs">
                     <div className="truncate" title={plan.features.join(', ')}>
                       {plan.features.join(', ')}
                     </div>

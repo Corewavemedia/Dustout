@@ -72,7 +72,7 @@ const SubscriptionManagement: React.FC = () => {
                       type="text"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      placeholder={viewMode === 'manage' ? "Search subscriptions..." : "Search subscription plans..."}
+                      placeholder={viewMode === 'manage' ? "Search subscriptions..." : "Search plans..."}
                       className="w-full px-4 py-2 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-300"
                     />
                     <button className="absolute font-majer right-2 top-1/2 transform -translate-y-1/2 bg-[#171AD4] text-white px-4 py-1 rounded-md text-sm hover:bg-blue-700 transition-colors">
@@ -143,7 +143,7 @@ const SubscriptionManagement: React.FC = () => {
                 </div>
               )}
 
-              {viewMode === 'manage' && (
+              {/* {viewMode === 'manage' && (
                 <div className="hidden md:flex justify-center mt-4">
                   <button
                     onClick={handleAddSubscription}
@@ -165,7 +165,7 @@ const SubscriptionManagement: React.FC = () => {
                     Add Subscription
                   </button>
                 </div>
-              )}
+              )} */}
             </div>
           )}
 

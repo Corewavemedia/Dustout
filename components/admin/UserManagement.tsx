@@ -118,7 +118,7 @@ export default function UserManagement() {
   return (
     <div className="py-6 md:px-2">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 font-majer mb-2">Settings</h1>
+        <h1 className="text-2xl font-bold text-[#538FDF] font-majer mb-2">Settings</h1>
         <p className="text-gray-600">Manage user roles and permissions</p>
       </div>
 
@@ -137,29 +137,29 @@ export default function UserManagement() {
 
       <div className="bg-white shadow-md rounded-lg overflow-hidden">
         <div className="px-6 py-4 bg-gray-50 border-b">
-          <h2 className="text-lg font-semibold text-gray-900">All Users ({state.users.length})</h2>
+          <h2 className="text-lg font-normal text-[#538FDF] font-majer">All Users ({state.users.length})</h2>
         </div>
         
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+            <thead className="bg-[#538FDF] text-white font-majer">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  User
+                <th className="px-6 py-3 text-left text-sm font-medium">
+                  Username
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-sm font-medium">
                   Email
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-sm font-medium">
                   Role
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-sm font-medium">
                   Status
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-sm font-medium">
                   Joined
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-sm font-medium">
                   Actions
                 </th>
               </tr>
@@ -169,13 +169,13 @@ export default function UserManagement() {
                 <tr key={user.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-sm font-medium text-[#538FDF] font-majer">
                         {user.fullname || user.username}
                       </div>
                      
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-[#538FDF] font-majer">
                     {user.email}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -196,7 +196,7 @@ export default function UserManagement() {
                       {user.is_verified ? 'Verified' : 'Unverified'}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-[#538FDF] font-majer">
                     {new Date(user.created_at).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">

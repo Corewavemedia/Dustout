@@ -585,7 +585,7 @@ const ServicesManagement: React.FC = () => {
                 className="w-full px-3 py-2 text-[#538FDF] font-majer bg-[#F0F7FF] border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
-            <div className="mb-4">
+            {/* <div className="mb-4">
               <label className="block text-sm font-medium font-majer text-[#171AD4] mb-1">
                 Upload Icon
               </label>
@@ -597,7 +597,7 @@ const ServicesManagement: React.FC = () => {
                   Upload
                 </button>
               </div>
-            </div>
+            </div> */}
             <div className="mb-4">
               <label className="block text-sm font-medium font-majer text-[#171AD4] mb-1">
                 Description

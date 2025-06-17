@@ -43,7 +43,7 @@ export const EditStaff: React.FC<EditStaffViewProps> = ({
     id: staff?.id || "",
     firstName: staff?.firstName || "",
     lastName: staff?.lastName || "",
-    role: staff?.role || "Head Cleaner",
+    role: staff?.role || "",
     servicesRendered: staff?.servicesRendered || [],
     salary: staff?.salary || "",
     email: staff?.email || "",
@@ -53,11 +53,32 @@ export const EditStaff: React.FC<EditStaffViewProps> = ({
     createdAt: staff?.createdAt || "",
     updatedAt: staff?.updatedAt || "",
   });
+  const [imagePreview, setImagePreview] = useState<string>(staff?.staffImage || "");
 
   // Fetch services on component mount
   useEffect(() => {
     fetchServices();
   }, []);
+
+  useEffect(() => {
+    if (staff) {
+      setFormData({
+        id: staff.id,
+        firstName: staff.firstName,
+        lastName: staff.lastName,
+        role: staff.role,
+        servicesRendered: staff.servicesRendered || [],
+        salary: staff.salary,
+        email: staff.email,
+        phoneNumber: staff.phoneNumber,
+        address: staff.address,
+        staffImage: staff.staffImage || "",
+        createdAt: staff.createdAt,
+        updatedAt: staff.updatedAt,
+      });
+      setImagePreview(staff.staffImage || "");
+    }
+  }, [staff]);
 
   const fetchServices = async () => {
     try {
@@ -77,6 +98,42 @@ export const EditStaff: React.FC<EditStaffViewProps> = ({
       servicesRendered: prev.servicesRendered.includes(service)
         ? prev.servicesRendered.filter((s) => s !== service)
         : [...prev.servicesRendered, service],
+    }));
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Check file size (limit to 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('File size must be less than 5MB');
+        return;
+      }
+
+      // Check file type
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const base64String = event.target?.result as string;
+        setImagePreview(base64String);
+        setFormData(prev => ({
+          ...prev,
+          staffImage: base64String
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setImagePreview("");
+    setFormData(prev => ({
+      ...prev,
+      staffImage: ""
     }));
   };
 
@@ -153,12 +210,48 @@ export const EditStaff: React.FC<EditStaffViewProps> = ({
         <div className="flex-1 overflow-y-auto px-3 bg-sky-50">
           {/* Staff Info Card */}
           <div className="bg-gradient-to-r from-[#538FDF] to-[#171AD4] text-white p-8 rounded-lg mb-6 flex items-center">
-            {/* Profile Picture Placeholder */}
-            <div className="w-24 h-24 bg-blue-300 rounded-lg mr-8 flex items-center justify-center">
-              <div className="w-16 h-16 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                <span className="text-2xl font-bold font-majer text-white">
-                  {formData.firstName ? formData.firstName.charAt(0) : "S"}
-                </span>
+            {/* Profile Picture */}
+            <div className="relative w-24 h-24 mr-8">
+              {imagePreview ? (
+                <img
+                  src={imagePreview}
+                  alt="Staff Profile"
+                  className="w-24 h-24 rounded-lg object-cover"
+                />
+              ) : (
+                <div className="w-24 h-24 bg-blue-300 rounded-lg flex items-center justify-center">
+                  <div className="w-16 h-16 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                    <span className="text-2xl font-bold font-majer text-white">
+                      {formData.firstName ? formData.firstName.charAt(0) : "S"}
+                    </span>
+                  </div>
+                </div>
+              )}
+              
+              {/* Upload/Remove buttons */}
+              <div className="absolute -bottom-2 -right-2 flex gap-1">
+                <label className="bg-white text-blue-600 rounded-full p-1 cursor-pointer shadow-md hover:bg-blue-50 transition-colors">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                  />
+                </label>
+                {imagePreview && (
+                  <button
+                    type="button"
+                    onClick={handleRemoveImage}
+                    className="bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
               </div>
             </div>
 

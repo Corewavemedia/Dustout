@@ -1,13 +1,5 @@
 import React, { useState, useEffect } from "react";
 
-interface SubscriptionPlan {
-  id: string;
-  name: string;
-  type: string;
-  price: number;
-  features: string[];
-}
-
 interface Subscription {
   id: string;
   clientName: string;
@@ -50,53 +42,16 @@ const EditSubscriptionSidebar: React.FC<EditSubscriptionSidebarProps> = ({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [subscriptionPlans, setSubscriptionPlans] = useState<SubscriptionPlan[]>([]);
-  const [plansLoading, setPlansLoading] = useState(true);
 
-  // Fetch subscription plans on component mount
-  useEffect(() => {
-    fetchSubscriptionPlans();
-  }, []);
 
   // Update form data when subscription changes
   useEffect(() => {
     if (subscription) {
       setFormData(subscription);
-    } else if (isEditMode) {
-      // Reset form for new subscription
-      setFormData({
-        id: (Math.floor(Math.random() * 9000) + 1000).toString(), // Generate random ID
-        clientName: '',
-        planName: '',
-        startDate: '',
-        expiryDate: '',
-        address: '',
-        revenue: '',
-        email: '',
-        phone: '',
-        status: 'active'
-      });
     }
-  }, [subscription, isEditMode]);
+  }, [subscription]);
 
-  const fetchSubscriptionPlans = async () => {
-    try {
-      setPlansLoading(true);
-      const response = await fetch('/api/subscription-plans');
-      if (response.ok) {
-        const data = await response.json();
-        setSubscriptionPlans(data.plans || []);
-      } else {
-        console.error('Failed to fetch subscription plans');
-        setSubscriptionPlans([]);
-      }
-    } catch (error) {
-      console.error('Error fetching subscription plans:', error);
-      setSubscriptionPlans([]);
-    } finally {
-      setPlansLoading(false);
-    }
-  };
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -149,24 +104,19 @@ const EditSubscriptionSidebar: React.FC<EditSubscriptionSidebarProps> = ({
     }
   };
 
-  // Convert subscription plans to options format
-  const planOptions = Array.isArray(subscriptionPlans) ? subscriptionPlans.map(plan => ({
-    value: plan.name,
-    label: `${plan.name} - $${plan.price}/month (${plan.type})`
-  })) : [];
 
-  const statusOptions = [
-    { value: 'active', label: 'Active' },
-    { value: 'expired', label: 'Expired' },
-    { value: 'cancelled', label: 'Cancelled' }
-  ];
+
+  // Only render if there's a subscription to edit
+  if (!subscription) {
+    return null;
+  }
 
   return (
     <div className="w-80 bg-white shadow-lg border-l border-gray-200 md:flex flex-col hidden">
       {/* Header */}
       <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-        <h3 className="text-lg font-semibold text-gray-900">
-          {subscription ? 'Edit Subscription' : 'Add New Subscription'}
+        <h3 className="text-lg font-normal text-[#538FDF] font-majer">
+          Edit Subscription
         </h3>
         <button
           onClick={onClose}
@@ -214,28 +164,16 @@ const EditSubscriptionSidebar: React.FC<EditSubscriptionSidebarProps> = ({
           {/* Plan Name */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Subscription Plan *
+              Subscription Plan
             </label>
-            {plansLoading ? (
-              <div className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500">
-                Loading plans...
-              </div>
-            ) : (
-              <select
-                name="planName"
-                value={formData.planName}
-                onChange={handleChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="">Select a plan</option>
-                {planOptions.map((plan) => (
-                  <option key={plan.value} value={plan.value}>
-                    {plan.label}
-                  </option>
-                ))}
-              </select>
-            )}
+            <input
+              type="text"
+              name="planName"
+              value={formData.planName}
+              readOnly
+              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-700 cursor-not-allowed"
+              placeholder="Plan will be populated from user details"
+            />
           </div>
 
           {/* Start Date */}
@@ -322,21 +260,16 @@ const EditSubscriptionSidebar: React.FC<EditSubscriptionSidebarProps> = ({
           {/* Status */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Status *
+              Status
             </label>
-            <select
+            <input
+              type="text"
               name="status"
               value={formData.status}
-              onChange={handleChange}
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              {statusOptions.map((status) => (
-                <option key={status.value} value={status.value}>
-                  {status.label}
-                </option>
-              ))}
-            </select>
+              readOnly
+              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-700 cursor-not-allowed capitalize"
+              placeholder="Status will be populated from user details"
+            />
           </div>
 
           {/* Submit Button */}
@@ -352,7 +285,7 @@ const EditSubscriptionSidebar: React.FC<EditSubscriptionSidebarProps> = ({
                   Saving...
                 </div>
               ) : (
-                subscription ? 'Update Subscription' : 'Create Subscription'
+                'Update Subscription'
               )}
             </button>
           </div>

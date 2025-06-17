@@ -106,7 +106,7 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
   return (
     <div className="bg-white rounded-lg shadow-sm p-4">
       <h2 className="text-lg font-majer text-[#12B368] mb-4">
-        Subscriptions List
+        Subscriptions History
       </h2>
       
       {/* Success Message */}
@@ -130,17 +130,16 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
-            <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+            <thead className="bg-[#538FDF] text-white font-majer font-normal">
               <tr>
                 <th scope="col" className="px-6 py-3">ID</th>
                 <th scope="col" className="px-6 py-3">Client Name</th>
                 <th scope="col" className="px-6 py-3">Plan</th>
                 <th scope="col" className="px-6 py-3">Start Date</th>
                 <th scope="col" className="px-6 py-3">Expiry Date</th>
-                <th scope="col" className="px-6 py-3">Address</th>
                 <th scope="col" className="px-6 py-3">Revenue</th>
                 <th scope="col" className="px-6 py-3">Status</th>
-                <th scope="col" className="px-6 py-3 hidden md:block">Actions</th>
+                <th scope="col" className="px-6 py-3 hidden">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -153,19 +152,18 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
               ) : (
                 filteredSubscriptions.map((subscription) => (
                   <tr key={subscription.id} className="bg-white border-b hover:bg-gray-50">
-                    <td className="px-6 py-4 font-medium text-gray-900">
+                    <td className="px-6 py-4 font-medium text-[#538FDF] font-majer">
                       #{subscription.id.slice(-6)}
                     </td>
-                    <td className="px-6 py-4">{subscription.clientName}</td>
+                    <td className="px-6 py-4 text-[#538FDF] font-majer">{subscription.clientName}</td>
                     <td className="px-6 py-4">
                       <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
                         {subscription.planName}
                       </span>
                     </td>
-                    <td className="px-6 py-4">{subscription.startDate}</td>
-                    <td className="px-6 py-4">{subscription.expiryDate}</td>
-                    <td className="px-6 py-4">{subscription.address}</td>
-                    <td className="px-6 py-4 font-semibold text-green-600">
+                    <td className="px-6 py-4 text-[#538FDF] font-majer">{subscription.startDate}</td>
+                    <td className="px-6 py-4 text-[#538FDF] font-majer">{subscription.expiryDate}</td>
+                    <td className="px-6 py-4 font-majer font-normal text-green-600">
                       ${subscription.revenue}
                     </td>
                     <td className="px-6 py-4">
@@ -173,8 +171,8 @@ const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                         {subscription.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4 hidden md:block">
-                      <div className="flex items-center gap-2">
+                    <td className="px-6 py-4 hidden">
+                      <div className="flex items-center justify-center gap-2">
                         <button
                           onClick={() => onSelectSubscription(subscription)}
                           className="text-blue-600 hover:text-blue-900 font-medium"

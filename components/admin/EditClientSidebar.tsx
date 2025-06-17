@@ -117,7 +117,7 @@ const EditClientSidebar: React.FC<EditClientSidebarProps> = ({ client, isEditMod
     <div className="w-72 bg-white shadow-lg overflow-y-auto font-majer hidden md:block">
       <div className="p-6">
         {/* Upload Picture Section */}
-        <div className="mb-6">
+        {/* <div className="mb-6">
           <div className="w-24 h-24 bg-blue-200 rounded-lg flex flex-col items-center justify-center mx-auto mb-4">
             <svg
               width="48"
@@ -137,7 +137,7 @@ const EditClientSidebar: React.FC<EditClientSidebarProps> = ({ client, isEditMod
               Upload Picture
             </p>
           </div>
-        </div>
+        </div> */}
 
         {/* Form Fields */}
         <form onSubmit={handleSubmit} className="space-y-4">

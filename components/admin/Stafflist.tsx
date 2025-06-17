@@ -24,6 +24,7 @@ interface DatabaseStaff {
 
 interface StafflistProps {
   onEditModeChange: (isEditMode: boolean) => void;
+  searchTerm?: string;
 }
 
 interface StafflistRef {
@@ -31,7 +32,7 @@ interface StafflistRef {
 }
 
 const Stafflist = forwardRef<StafflistRef, StafflistProps>(
-  ({ onEditModeChange }, ref) => {
+  ({ onEditModeChange, searchTerm = '' }, ref) => {
     const [isEditMode, setIsEditMode] = useState(false);
     const [selectedStaff, setSelectedStaff] = useState<DatabaseStaff | null>(
       null
@@ -125,6 +126,24 @@ const Stafflist = forwardRef<StafflistRef, StafflistProps>(
       return String(index + 1).padStart(3, "0");
     };
 
+    // Filter staff based on search term
+    const filteredStaffList = staffList.filter((staff) => {
+      if (!searchTerm) return true;
+      
+      const searchLower = searchTerm.toLowerCase();
+      const fullName = `${staff.firstName} ${staff.lastName}`.toLowerCase();
+      const role = staff.role.toLowerCase();
+      const services = staff.servicesRendered.join(' ').toLowerCase();
+      const email = staff.email.toLowerCase();
+      
+      return (
+        fullName.includes(searchLower) ||
+        role.includes(searchLower) ||
+        services.includes(searchLower) ||
+        email.includes(searchLower)
+      );
+    });
+
     return (
       <>
         <div className="bg-white rounded-lg shadow-sm p-4">
@@ -149,9 +168,9 @@ const Stafflist = forwardRef<StafflistRef, StafflistProps>(
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#538FDF]"></div>
               <span className="ml-2 text-gray-600">Loading staff data...</span>
             </div>
-          ) : staffList.length === 0 ? (
+          ) : filteredStaffList.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
-              No staff members found
+              {searchTerm ? `No staff members found matching "${searchTerm}"` : 'No staff members found'}
             </div>
           ) : (
           <div className="overflow-x-auto">
@@ -180,7 +199,7 @@ const Stafflist = forwardRef<StafflistRef, StafflistProps>(
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {staffList.map((staff, index) => (
+                {filteredStaffList.map((staff, index) => (
                   <tr
                     key={staff.id}
                     className="hover:bg-gray-50 transition-colors"
@@ -189,14 +208,20 @@ const Stafflist = forwardRef<StafflistRef, StafflistProps>(
                       {formatStaffId(staff.id, index)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                        <Image
-                          src="/images/dustoutcolor.png"
-                          alt="DustOut Logo"
-                          width={50}
-                          height={50}
-                          className="h-8 w-auto"
-                        />
+                      <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
+                        {staff.staffImage ? (
+                          <Image
+                            src={staff.staffImage}
+                            alt={`${staff.firstName} ${staff.lastName}`}
+                            width={32}
+                            height={32}
+                            className="w-8 h-8 object-cover rounded-full"
+                          />
+                        ) : (
+                          <span className="text-xs font-bold text-[#538FDF]">
+                            {staff.firstName.charAt(0)}{staff.lastName.charAt(0)}
+                          </span>
+                        )}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-majer text-[#538FDF]">
