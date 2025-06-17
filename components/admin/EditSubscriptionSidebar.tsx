@@ -22,7 +22,6 @@ interface EditSubscriptionSidebarProps {
 
 const EditSubscriptionSidebar: React.FC<EditSubscriptionSidebarProps> = ({ 
   subscription, 
-  isEditMode: _, 
   onSave, 
   onClose 
 }) => {

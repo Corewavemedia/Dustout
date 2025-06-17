@@ -66,24 +66,6 @@ export function SubscriptionDashboard() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [selectedView, setSelectedView] = useState<'all' | 'active' | 'cancelling' | 'pending' | 'cancelled'>('active');
 
-  useEffect(() => {
-    fetchSubscriptionData();
-    fetchSubscriptionPlans();
-    
-    // Check if user returned from payment method setup with plan change retry
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('payment_method') === 'updated' && urlParams.get('retry_plan_change') === 'true') {
-      const planId = urlParams.get('plan_id');
-      if (planId) {
-        // Clear URL params first
-        window.history.replaceState({}, '', window.location.pathname);
-        
-        // Automatically retry the plan change
-        retryPlanChange(planId);
-      }
-    }
-  }, []);
-
   const fetchSubscriptionData = useCallback(async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -126,6 +108,81 @@ export function SubscriptionDashboard() {
       setLoading(false);
     }
   }, [setError, setLoading, setSubscriptionData]);
+
+  const retryPlanChange = useCallback(async (planId: string) => {
+    // Find the plan by ID
+    const targetPlan = subscriptionPlans.find(plan => plan.id === planId);
+    if (!targetPlan) {
+      setError('Plan not found for retry');
+      return;
+    }
+
+    setActionLoading('plan-change');
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        setError('Please log in to change your plan');
+        return;
+      }
+
+      // Process plan change directly (both upgrades and downgrades)
+      const response = await fetch('/api/subscriptions/change-plan', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          newPlanId: targetPlan.id,
+          newPlanName: targetPlan.name,
+          newPlanType: targetPlan.type,
+          newPrice: targetPlan.price
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Check if payment method setup is still required (shouldn't happen after setup)
+        if (data.requiresPaymentMethod && data.setupUrl) {
+          setError('Payment method setup failed. Please try again.');
+          return;
+        }
+        
+        setSuccess(`Payment method updated successfully! ${data.message}`);
+        
+        // Refresh subscription data
+        await fetchSubscriptionData();
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || 'Failed to change plan after payment method setup');
+      }
+    } catch (error) {
+      console.error('Error retrying plan change:', error);
+      setError('Failed to retry plan change');
+    } finally {
+      setActionLoading(null);
+    }
+  }, [subscriptionPlans, setError, setActionLoading, setSuccess, fetchSubscriptionData]);
+
+  useEffect(() => {
+    fetchSubscriptionData();
+    fetchSubscriptionPlans();
+    
+    // Check if user returned from payment method setup with plan change retry
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('payment_method') === 'updated' && urlParams.get('retry_plan_change') === 'true') {
+      const planId = urlParams.get('plan_id');
+      if (planId) {
+        // Clear URL params first
+        window.history.replaceState({}, '', window.location.pathname);
+        
+        // Automatically retry the plan change
+        retryPlanChange(planId);
+      }
+    }
+  }, [fetchSubscriptionData, retryPlanChange]);
 
   const fetchSubscriptionPlans = async () => {
     try {
@@ -210,63 +267,6 @@ export function SubscriptionDashboard() {
   //     setActionLoading(null);
   //   }
   // };
-
-  const retryPlanChange = useCallback(async (planId: string) => {
-    // Find the plan by ID
-    const targetPlan = subscriptionPlans.find(plan => plan.id === planId);
-    if (!targetPlan) {
-      setError('Plan not found for retry');
-      return;
-    }
-
-    setActionLoading('plan-change');
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        setError('Please log in to change your plan');
-        return;
-      }
-
-      // Process plan change directly (both upgrades and downgrades)
-      const response = await fetch('/api/subscriptions/change-plan', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          newPlanId: targetPlan.id,
-          newPlanName: targetPlan.name,
-          newPlanType: targetPlan.type,
-          newPrice: targetPlan.price
-        })
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        
-        // Check if payment method setup is still required (shouldn't happen after setup)
-        if (data.requiresPaymentMethod && data.setupUrl) {
-          setError('Payment method setup failed. Please try again.');
-          return;
-        }
-        
-        setSuccess(`Payment method updated successfully! ${data.message}`);
-        
-        // Refresh subscription data
-        await fetchSubscriptionData();
-      } else {
-        const errorData = await response.json();
-        setError(errorData.error || 'Failed to change plan after payment method setup');
-      }
-    } catch (error) {
-      console.error('Error retrying plan change:', error);
-      setError('Failed to retry plan change');
-    } finally {
-      setActionLoading(null);
-    }
-  }, [subscriptionPlans, setError, setActionLoading, setSuccess, fetchSubscriptionData]);
 
   const handlePlanChange = async (newPlan: SubscriptionPlan) => {
     const currentSubscription = subscriptionData?.activeSubscription || subscriptionData?.cancellingSubscription;
