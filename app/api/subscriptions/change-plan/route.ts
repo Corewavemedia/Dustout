@@ -293,6 +293,7 @@ export async function POST(request: NextRequest) {
           price: newStripePrice.id,
         }],
         billing_cycle_anchor: currentPeriodEnd, // Start when current subscription ends
+        trial_end: currentPeriodEnd, // Ensure it doesn't start immediately
         metadata: {
           planId: newPlanId,
           planName: newPlanName,
@@ -306,7 +307,7 @@ export async function POST(request: NextRequest) {
       
       updatedStripeSubscription = await stripe.subscriptions.create(downgradeSubscriptionParams);
 
-      message = `Subscription downgrade scheduled. You have been charged for the new plan and it will take effect on ${new Date(currentPeriodEnd * 1000).toLocaleDateString()} when your current billing period ends.`;
+      message = `Subscription downgrade scheduled. You will bw charged on ${new Date(currentPeriodEnd * 1000).toLocaleDateString()} when your current billing period ends, after which the new subscription will take effect.`;
     }
 
     // Update subscription in database using transaction
@@ -364,6 +365,10 @@ export async function POST(request: NextRequest) {
       });
 
       // Create new subscription record that will become active when current one ends
+      const scheduledStartDate = new Date(stripeSubscription.items.data[0].current_period_end * 1000);
+      const scheduledExpiryDate = new Date(scheduledStartDate);
+      scheduledExpiryDate.setMonth(scheduledExpiryDate.getMonth() + 1); // Add one month to start date
+      
       updatedSubscription = await prisma.subscription.create({
         data: {
           userId: currentSubscription.userId,
@@ -373,10 +378,10 @@ export async function POST(request: NextRequest) {
           revenue: newPrice,
           stripeCustomerId: currentSubscription.stripeCustomerId,
           stripeSubscriptionId: updatedStripeSubscription.id,
-          currentPeriodStart: new Date(updatedStripeSubscription.items.data[0].current_period_start * 1000),
-          currentPeriodEnd: new Date(updatedStripeSubscription.items.data[0].current_period_end * 1000),
-          startDate: new Date(stripeSubscription.items.data[0].current_period_end * 1000), // Starts when current ends
-          expiryDate: new Date(updatedStripeSubscription.items.data[0].current_period_end * 1000),
+          currentPeriodStart: scheduledStartDate, // Should match start date for pending subscription
+          currentPeriodEnd: scheduledExpiryDate, // Should match expiry date for pending subscription
+          startDate: scheduledStartDate, // Starts when current ends
+          expiryDate: scheduledExpiryDate, // One month after start date
           status: 'pending', // Will become active when current subscription ends
           cancelAtPeriodEnd: false
         }

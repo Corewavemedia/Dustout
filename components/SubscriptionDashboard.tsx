@@ -12,6 +12,7 @@ import {
   Settings
 } from 'lucide-react';
 import  PricingSection  from './PricingSection';
+import Link from 'next/link';
 
 interface Subscription {
   id: string;
@@ -383,7 +384,7 @@ export function SubscriptionDashboard() {
           >
             ← Back to Dashboard
           </button>
-          <h2 className="text-2xl font-bold">Change Subscription Plan</h2>
+          <h2 className="text-2xl font-normal font-majer text-blue-500">Change Subscription Plan</h2>
           <p className="text-gray-600">Select a new plan to upgrade or downgrade your subscription.</p>
         </div>
         
@@ -522,7 +523,7 @@ export function SubscriptionDashboard() {
       {/* Subscription Overview */}
       <div className="bg-white rounded-lg shadow border p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">Subscription Overview</h2>
+          <h2 className="text-xl font-majer text-blue-500 font-normal">Subscription Overview</h2>
           {selectedView !== 'all' && (
             <button 
               onClick={() => setSelectedView('all')}
@@ -584,13 +585,20 @@ export function SubscriptionDashboard() {
       {hasNoSubscriptions && (
         <div className="bg-white rounded-lg shadow border">
           <div className="p-6 border-b">
-            <h2 className="text-xl font-semibold">No Subscriptions Found</h2>
+            <h2 className="text-xl font-majer text-blue-500 font-normal">No Subscriptions Found</h2>
             <p className="text-gray-600 mt-1">
               You don&apos;t have any subscriptions yet. Choose a plan to get started.
             </p>
           </div>
-          <div className="p-6">
+          {/* desktop plan selection */}
+          <div className="py-6 hidden md:block">
             <PricingSection />
+          </div>
+          {/* mobile plan selection */}
+          <div className="py-6 md:hidden">
+            <Link href="/#pricing" className="block font-majer text-center text-blue-500 hover:underline">
+              Choose Plans
+            </Link>
           </div>
         </div>
       )}

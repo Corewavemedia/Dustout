@@ -555,6 +555,11 @@ async function handleSubscriptionActivated(subscription: Stripe.Subscription) {
       console.log('Detected downgrade subscription - will activate when billing cycle starts');
       // For downgrades, the subscription record exists but is pending
       // It will be activated when the billing cycle actually starts
+      // Calculate expiry date as one month from start date for downgrades
+      const startDate = new Date(subscription.start_date * 1000);
+      const downgradeExpiryDate = new Date(startDate);
+      downgradeExpiryDate.setMonth(downgradeExpiryDate.getMonth() + 1);
+      
       const updateResult = await prisma.subscription.updateMany({
         where: {
           stripeSubscriptionId: subscription.id,
@@ -562,10 +567,10 @@ async function handleSubscriptionActivated(subscription: Stripe.Subscription) {
         },
         data: {
           status: 'active',
-          startDate: new Date(subscription.start_date * 1000),
-          expiryDate: expiryDate,
-          currentPeriodStart: new Date(subscription.items.data[0].current_period_start * 1000),
-          currentPeriodEnd: currentPeriodEnd
+          startDate: startDate,
+          expiryDate: downgradeExpiryDate,
+          currentPeriodStart: startDate, // Should match start date for consistency
+          currentPeriodEnd: downgradeExpiryDate // Should match expiry date for consistency
         }
       });
       
