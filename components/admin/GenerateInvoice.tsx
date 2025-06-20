@@ -188,7 +188,6 @@ const GenerateInvoice: React.FC = () => {
                 />
               </div>
             </div>
-
             <div className="flex justify-center mb-4">
               <button
                 onClick={handleAddService}
