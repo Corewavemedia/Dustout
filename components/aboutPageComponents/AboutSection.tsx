@@ -63,7 +63,7 @@ const AboutSection = () => {
               <p className="mb-6 leading-relaxed text-sm font-semibold
                              text-[#777777] text-justify">
                 This foundation ensures that every cleaning task is performed
-                with precision, safety, and professionalism. Whether we're
+                with precision, safety, and professionalism. Whether we&apos;re
                 servicing office buildings, industrial facilities, or
                 specialized commercial spaces, Dustout Limited delivers
                 results you can trust.
