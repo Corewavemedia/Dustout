@@ -277,22 +277,22 @@ export const useBookingForm = (user?: User | null) => {
         return;
       }
       
-      // Check if all selected services have quantities for their variables
-      let missingQuantities = false;
+      // Check if each selected service has at least one variable with quantity > 0
+      let invalidServices = false;
       formData.selectedServices.forEach(service => {
         const serviceObj = services.find(s => s.id === service.serviceId);
         if (serviceObj && serviceObj.variables.length > 0) {
-          serviceObj.variables.forEach(variable => {
-            const selectedVariable = service.variables.find(v => v.variableId === variable.id);
-            if (!selectedVariable || selectedVariable.quantity <= 0) {
-              missingQuantities = true;
-            }
+          const hasValidQuantity = service.variables.some(variable => {
+            return variable.quantity > 0;
           });
+          if (!hasValidQuantity) {
+            invalidServices = true;
+          }
         }
       });
       
-      if (missingQuantities) {
-        alert('Please enter quantities for all service variables');
+      if (invalidServices) {
+        alert('Each service must have at least one variable with a quantity greater than 0');
         return;
       }
       

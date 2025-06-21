@@ -466,14 +466,14 @@ export const DesktopBookingForm = () => {
                                           </label>
                                           <input
                             type="number"
-                            min="1"
+                            min="0"
                             onWheel={(e) => {
                               e.preventDefault()
                               e.currentTarget.blur();
                             }}
                             value={(() => {
                               const quantity = selectedService.variables.find(v => v.variableId === variable.id)?.quantity;
-                              return quantity ? quantity.toString() : '';
+                              return quantity !== undefined ? quantity.toString() : '0';
                             })()}
                             onChange={(e) => {
                               const value = e.target.value;
@@ -494,19 +494,18 @@ export const DesktopBookingForm = () => {
                                 }
                               }
                             }}
-                            placeholder="Enter quantity"
+                            placeholder="Enter quantity (0 to exclude)"
                             className="w-full p-2 rounded-md focus:outline-none text-sm"
-                            required
                           />
                                           <div className="text-white text-xs">
-                                            Subtotal: $
-                                            {(
-                                              (selectedService.variables.find(
-                                                (v) =>
-                                                  v.variableId === variable.id
-                                              )?.quantity || 1) *
-                                              variable.unitPrice
-                                            ).toFixed(2)}
+                                            {(() => {
+                                              const quantity = selectedService.variables.find(
+                                                (v) => v.variableId === variable.id
+                                              )?.quantity || 0;
+                                              return quantity > 0 
+                                                ? `Subtotal: $${(quantity * variable.unitPrice).toFixed(2)}`
+                                                : 'Not included (quantity: 0)';
+                                            })()}
                                           </div>
                                         </div>
                                       ))}
@@ -786,8 +785,9 @@ export const DesktopBookingForm = () => {
                                         ${serviceTotal.toFixed(2)}
                                       </span>
                                     </div>
-                                    {selectedService.variables.map(
-                                      (variable) => {
+                                    {selectedService.variables
+                                      .filter((variable) => variable.quantity > 0)
+                                      .map((variable) => {
                                         const serviceVariable =
                                           service.variables.find(
                                             (v) => v.id === variable.variableId
@@ -804,16 +804,15 @@ export const DesktopBookingForm = () => {
                                               {variable.quantity}
                                             </span>
                                             <span className="font-medium">
-                                              $
-                                              {(
-                                                serviceVariable.unitPrice *
-                                                variable.quantity
-                                              ).toFixed(2)}
-                                            </span>
+                                               $
+                                               {(
+                                                 serviceVariable.unitPrice *
+                                                 variable.quantity
+                                               ).toFixed(2)}
+                                             </span>
                                           </div>
                                         );
-                                      }
-                                    )}
+                                      })}
                                   </div>
                                 );
                               }

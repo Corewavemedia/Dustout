@@ -280,10 +280,10 @@ export const MobileBookingForm = () => {
                         </label>
                         <input
                             type="number"
-                            min="1"
+                            min="0"
                             value={(() => {
                               const quantity = selectedService.variables.find(v => v.variableId === variable.id)?.quantity;
-                              return quantity ? quantity.toString() : '';
+                              return quantity !== undefined ? quantity.toString() : '0';
                             })()}
                             onChange={(e) => {
                               const value = e.target.value;
@@ -297,12 +297,16 @@ export const MobileBookingForm = () => {
                               }
                             }}
                             
-                            placeholder="Enter quantity"
+                            placeholder="Enter quantity (0 to exclude)"
                             className="w-full p-2 rounded-md bg-blue-500 text-white placeholder-blue-200 focus:outline-none text-sm"
-                            required
                           />
                         <div className="text-blue-400 text-xs">
-                          Subtotal: ${((selectedService.variables.find(v => v.variableId === variable.id)?.quantity || 1) * variable.unitPrice).toFixed(2)}
+                          {(() => {
+                            const quantity = selectedService.variables.find(v => v.variableId === variable.id)?.quantity || 0;
+                            return quantity > 0 
+                              ? `Subtotal: $${(quantity * variable.unitPrice).toFixed(2)}`
+                              : 'Not included (quantity: 0)';
+                          })()}
                         </div>
                       </div>
                     ))}
@@ -485,16 +489,18 @@ export const MobileBookingForm = () => {
                             <span className="text-blue-800 font-medium text-sm">${serviceTotal.toFixed(2)}</span>
                           </div>
                           <div className="text-blue-600 text-xs space-y-1">
-                            {selectedService.variables.map((variable) => {
-                              const serviceVariable = service.variables?.find(v => v.id === variable.variableId);
-                              if (!serviceVariable) return null;
-                              return (
-                                <div key={variable.variableId} className="flex justify-between">
-                                  <span>{serviceVariable.name} x {variable.quantity}</span>
-                                  <span>${(serviceVariable.unitPrice * variable.quantity).toFixed(2)}</span>
-                                </div>
-                              );
-                            })}
+                            {selectedService.variables
+                              .filter((variable) => variable.quantity > 0)
+                              .map((variable) => {
+                                const serviceVariable = service.variables?.find(v => v.id === variable.variableId);
+                                if (!serviceVariable) return null;
+                                return (
+                                  <div key={variable.variableId} className="flex justify-between">
+                                    <span>{serviceVariable.name} x {variable.quantity}</span>
+                                    <span>${(serviceVariable.unitPrice * variable.quantity).toFixed(2)}</span>
+                                  </div>
+                                );
+                              })}
                           </div>
                         </div>
                       );
