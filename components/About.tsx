@@ -59,7 +59,7 @@ const AboutSection = () => {
             <div className="text-center font-majer">
               <span className="text-green-500 font-medium">About Us</span>
               <h2 className="text-3xl font-bold text-blue-600 mb-5">
-                Best Cleaning in The UK
+                Dustout Limited
               </h2>
             </div>
 
@@ -82,17 +82,13 @@ const AboutSection = () => {
             </div>
 
             <p className="mb-6 leading-relaxed text-sm font-semibold text-[#777777] text-justify">
-              At DustOut, we are the UK&apos;s top cleaning agency, specializing in
-              industrial cleaning, residential cleaning, fumigation, and
-              landscaping.
+              Dustout Limited is a professional commercial and industrial cleaning company committed to excellence, reliability, and high standards. We specialize in commercial and industrial cleaning services.
               <br />
               <br />
-              Our expert team delivers reliable, eco-friendly services that meet
-              the highest standards, transforming spaces with precision and
-              care. Whether it&apos;s deep cleaning, pest control, or outdoor
-              makeovers, DustOut ensures cleaner, healthier, and more beautiful
-              environments across the UK.
+              Our expert team delivers reliable, professional services that meet the highest standards, transforming spaces with precision and care. We ensure cleaner, healthier, and more productive environments across the UK.
             </p>
+
+         
 
             
           </motion.div>
@@ -257,20 +253,14 @@ const AboutSection = () => {
             <div className=" font-majer">
               <span className="text-green-500 font-medium">About Us</span>
               <h2 className="text-3xl md:text-3xl font-bold text-blue-600 mb-6">
-                Best Cleaning in The UK
+                Dustout Limited
               </h2>
 
               <p className="text-[#777777] mb-8 sm:text-sm lg:text-base leading-relaxed font-poppins font-semibold">
-                At DustOut, we are the UK&apos;s top cleaning agency, specializing in
-                industrial cleaning, residential cleaning, fumigation, and
-                landscaping.
+                Dustout Limited is a professional commercial and industrial cleaning company committed to excellence, reliability, and high standards. We specialize in commercial and industrial cleaning services.
                 <br />
                 <br />
-                Our expert team delivers reliable, eco-friendly services that
-                meet the highest standards, transforming spaces with precision
-                and care. Whether it&apos;s deep cleaning, pest control, or outdoor
-                makeovers, DustOut ensures cleaner, healthier, and more
-                beautiful environments across the UK.
+                Our expert team delivers reliable, professional services that meet the highest standards, transforming spaces with precision and care. We ensure cleaner, healthier, and more productive environments across the UK.
               </p>
 
               <div className="grid grid-cols-2 gap-3 mb-8">
@@ -290,6 +280,8 @@ const AboutSection = () => {
                   )
                 )}
               </div>
+
+           
             </div>
           </motion.div>
         </div>
