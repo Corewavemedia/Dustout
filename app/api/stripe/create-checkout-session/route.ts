@@ -42,13 +42,23 @@ export async function POST(request: NextRequest) {
     // Generate a unique booking reference ID
     const bookingRef = `booking_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-    // Store booking data in metadata (Stripe allows up to 500 chars per key, 50 keys max)
+    // Store essential booking data in metadata (optimized for 500 char limit)
     const metadata = {
       userId: user.id,
-      bookingData: JSON.stringify(bookingData),
-      customerName: bookingData.fullName,
-      customerEmail: bookingData.email,
+      fullName: bookingData.fullName,
+      phone: bookingData.phone,
+      email: bookingData.email,
+      address: bookingData.address,
+      city: bookingData.city,
+      postcode: bookingData.postcode,
+      landmark: bookingData.landmark || '',
+      frequency: bookingData.frequency,
+      preferredDate: bookingData.preferredDate,
+      preferredTime: bookingData.preferredTime,
+      urgent: bookingData.urgent,
+      specialInstructions: bookingData.specialInstructions || '',
       estimatedPrice: bookingData.estimatedPrice.toString(),
+      servicesData: JSON.stringify(bookingData.selectedServices),
     };
 
     // Create Stripe checkout session

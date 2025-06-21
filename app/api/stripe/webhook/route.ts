@@ -110,10 +110,10 @@ async function handleBookingPayment(session: Stripe.Checkout.Session) {
   try {
     // Extract booking data from session metadata
     const userId = session.metadata?.userId;
-    const bookingDataString = session.metadata?.bookingData;
+    const servicesDataString = session.metadata?.servicesData;
     
-    if (!userId || !bookingDataString) {
-      console.error('Missing userId or bookingData in session metadata');
+    if (!userId || !servicesDataString) {
+      console.error('Missing userId or servicesData in session metadata');
       return;
     }
 
@@ -127,7 +127,29 @@ async function handleBookingPayment(session: Stripe.Checkout.Session) {
       return; // Don't return error, just skip processing
     }
     
-    const bookingData = JSON.parse(bookingDataString);
+    // Reconstruct booking data from metadata with proper type safety
+    const bookingData = {
+      fullName: session.metadata?.fullName || '',
+      phone: session.metadata?.phone || '',
+      email: session.metadata?.email || '',
+      address: session.metadata?.address || '',
+      city: session.metadata?.city || '',
+      postcode: session.metadata?.postcode || '',
+      landmark: session.metadata?.landmark || '',
+      frequency: session.metadata?.frequency || '',
+      preferredDate: session.metadata?.preferredDate || '',
+      preferredTime: session.metadata?.preferredTime || '',
+      urgent: session.metadata?.urgent || '',
+      specialInstructions: session.metadata?.specialInstructions || '',
+      estimatedPrice: parseFloat(session.metadata?.estimatedPrice || '0'),
+      selectedServices: JSON.parse(servicesDataString),
+    };
+
+    // Validate required fields
+    if (!bookingData.fullName || !bookingData.email || !bookingData.phone) {
+      console.error('Missing required booking data fields');
+      return;
+    }
 
         console.log('Creating booking for user:', userId);
         console.log('Booking data:', JSON.stringify(bookingData, null, 2));
