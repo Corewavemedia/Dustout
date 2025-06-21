@@ -181,14 +181,3 @@ model BlockedDate {
   
   @@map("blocked_dates")
 }
-
-model TempBookingData {
-  id            String   @id @default(uuid())
-  referenceId   String   @unique
-  bookingData   String   // JSON string of booking data
-  userId        String   // Reference to the user who created this booking
-  createdAt     DateTime @default(now()) @db.Date
-  expiresAt     DateTime @db.Date // Auto-cleanup after 24 hours
-  
-  @@map("temp_booking_data")
-}

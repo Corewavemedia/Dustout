@@ -108,46 +108,26 @@ export async function POST(request: NextRequest) {
 
 async function handleBookingPayment(session: Stripe.Checkout.Session) {
   try {
-    // Extract booking data from client_reference_id and metadata
+    // Extract booking data from session metadata
     const userId = session.metadata?.userId;
-    const clientReferenceId = session.client_reference_id;
+    const bookingDataString = session.metadata?.bookingData;
     
-    if (!userId || !clientReferenceId) {
-      console.error('Missing userId or client_reference_id in session');
+    if (!userId || !bookingDataString) {
+      console.error('Missing userId or bookingData in session metadata');
       return;
     }
 
-        // Extract booking reference ID from client_reference_id
-        const bookingReferenceId = session.client_reference_id!;
-        
-        // Retrieve booking data from temporary storage
-        const tempBookingData = await prisma.tempBookingData.findUnique({
-          where: { referenceId: bookingReferenceId }
-        });
-        
-        if (!tempBookingData) {
-          console.error('Booking data not found for reference ID:', bookingReferenceId);
-          console.error('Available temp booking data:');
-          const allTempData = await prisma.tempBookingData.findMany({
-            select: { referenceId: true, createdAt: true, expiresAt: true }
-          });
-          console.error('All temp booking data:', allTempData);
-          
-          // Check if this booking already exists to avoid duplicate processing
-          const existingBooking = await prisma.booking.findFirst({
-            where: { stripeSessionId: session.id }
-          });
-          
-          if (existingBooking) {
-            console.log('Booking already exists for session:', session.id, 'Booking ID:', existingBooking.id);
-            return; // Don't return error, just skip processing
-          }
-          
-          console.error('No existing booking found and no temp data available');
-          return; // Don't return error response to avoid webhook retry issues
-        }
-        
-        const bookingData = JSON.parse(tempBookingData.bookingData);
+    // Check if this booking already exists to avoid duplicate processing
+    const existingBooking = await prisma.booking.findFirst({
+      where: { stripeSessionId: session.id }
+    });
+    
+    if (existingBooking) {
+      console.log('Booking already exists for session:', session.id, 'Booking ID:', existingBooking.id);
+      return; // Don't return error, just skip processing
+    }
+    
+    const bookingData = JSON.parse(bookingDataString);
 
         console.log('Creating booking for user:', userId);
         console.log('Booking data:', JSON.stringify(bookingData, null, 2));
@@ -291,17 +271,6 @@ async function handleBookingPayment(session: Stripe.Checkout.Session) {
             errorMessage: emailError instanceof Error ? emailError.message : 'Unknown error'
           });
           // Don't fail the webhook if email fails
-        }
-        
-        // Clean up temporary booking data 
-        try {
-          await prisma.tempBookingData.delete({
-            where: { referenceId: bookingReferenceId }
-          });
-          console.log('Temporary booking data cleaned up successfully');
-        } catch (cleanupError) {
-          console.error('Error cleaning up temp booking data:', cleanupError);
-          // This is not critical, just log the error
         }
 
         console.log('Booking created successfully:', booking.id);
