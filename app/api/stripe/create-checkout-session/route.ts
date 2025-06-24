@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     // Generate a unique booking reference ID
     const bookingRef = `booking_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-    // Store essential booking data in metadata (optimized for 500 char limit)
+    // Storing essential booking data in metadata (optimized for 500 char limit)
     const metadata = {
       userId: user.id,
       fullName: bookingData.fullName,
